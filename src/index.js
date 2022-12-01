@@ -222,6 +222,10 @@ class BirthdayPicker {
   getDate(format) {
     // use the language default
     if (!format) {
+
+      if (!this.currentYear || !this.currentMonth || !this.currentDay) {
+        return '';
+      }
       let tmp = new Date(
         Date.UTC(this.currentYear, +this.currentMonth - 1, this.currentDay)
       );
@@ -326,6 +330,14 @@ class BirthdayPicker {
       for (let i = currentDays; i > newDays; i--) {
         this._day.el.children[i].remove();
       }
+    }
+
+    // day changed after changing month
+    // todo: set currentDay to the next or the prev. correct date
+    // eg. 2010-12-31 -> change month to 11 -> 2010-11-31
+    // either: 2010-11-30, or 2010-12-01
+    if (this._day.el.value !== this.currentDay) {
+      this._dayChanged();
     }
   }
 

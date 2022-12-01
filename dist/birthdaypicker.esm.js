@@ -457,6 +457,9 @@ var BirthdayPicker = /*#__PURE__*/function () {
     value: function getDate(format) {
       // use the language default
       if (!format) {
+        if (!this.currentYear || !this.currentMonth || !this.currentDay) {
+          return '';
+        }
         var tmp = new Date(Date.UTC(this.currentYear, +this.currentMonth - 1, this.currentDay));
         // tmp.setUTCFullYear(+this.currentYear);
         // tmp.setUTCMonth(+this.currentMonth - 1);
@@ -562,6 +565,14 @@ var BirthdayPicker = /*#__PURE__*/function () {
         for (var _i3 = currentDays; _i3 > newDays; _i3--) {
           this._day.el.children[_i3].remove();
         }
+      }
+
+      // day changed after changing month
+      // todo: set currentDay to the next or the prev. correct date
+      // eg. 2010-12-31 -> change month to 11 -> 2010-11-31
+      // either: 2010-11-30, or 2010-12-01
+      if (this._day.el.value !== this.currentDay) {
+        this._dayChanged();
       }
     }
   }, {
