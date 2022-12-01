@@ -8,7 +8,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/lemon3/birthdaypicker">
-    <img src="_assets/images/logo.png" alt="Logo" width="360" height="auto">
+    <img src="_assets/images/logo.svg" alt="Logo" width="360" height="auto">
   </a>
   <h3 align="center">a javascript birthday picker</h3>
 </div>
