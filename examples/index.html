@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Demo</title>
+    <title>tailwindcss & alpine.js | Demo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script
       defer
@@ -14,25 +14,59 @@
     <div class="mx-auto max-w-2xl py-4 px-4">
       <div
         x-data="{
-          birthday: '1926-06-01',
+          initialized: false,
+          dateformat: '',
+          locale: '',
+          date: '',
           result: '',
           el: null,
           instance: null,
+          birthdays: [
+            { id:0, val: '1926-06-01', label: 'Marilyn Monroe' },
+            { id:1, val: '1980-06-06', label: 'Eva Green' },
+            { id:2, val: '1967-02-20', label: 'Kurt Cobain' },
+          ],
+          availableDateformat: [
+            { id:0, val:'short' },
+            { id:1, val:'long' },
+            { id:2, val:'numeric' },
+          ],
+          availableLocale: [
+            { id:0, val:'de', label:'DE' },
+            { id:1, val:'en', label:'EN' },
+            { id:2, val:'fr', label:'FR' },
+            { id:3, val:'ru', label:'RU' },
+            { id:4, val:'fi', label:'FI' },
+          ],
           init() {
+            if (this.initialized) {
+              return;
+            }
+            this.dateformat = this.availableDateformat[0].val;
+            this.locale = this.availableLocale[0].val;
+            this.date = this.birthdays[1].val;
             this.el = $refs.bp;
+            $watch('locale', () => {
+              BirthdayPicker.setLanguage(this.locale);
+            });
+            $watch('dateformat', () => {
+              BirthdayPicker.setMonthFormat(this.dateformat);
+            });
+            this.initialized = true;
           },
-          changelang(evt) {
-            BirthdayPicker.setLanguage(evt.target.dataset.locale);
+          setdate(val) {
+            this.instance = this.instance || BirthdayPicker.getInstance(this.el);
+            this.instance.setDate(...val.split('-'));
           },
+          // event
           datechange(evt) {
-            const d = evt.detail;
-            this.result = d.instance.getDate();
+            const i = evt.detail.instance;
+            let tmp = [i.currentYear,('00'+i.currentMonth).slice(-2),('00'+i.currentDay).slice(-2)].join('-');
+            this.date = tmp;
+            this.result = i.getDate();
           },
-          setDate(...input) {
-            this.instance = this.instance || BirthdayPicker.getInstance(this.el);
-            this.instance.setDate(...input);
-          }
         }"
+        :class="initialized ? 'display-block' : 'hidden'"
         class="mx-auto max-w-2xl"
       >
         <h1 class="text-6xl mb-4">Birthday Picker</h1>
@@ -40,23 +74,20 @@
 
         <div>
           <div class="mb-1">
-            Marilyn Monroe' Birthday
-            <span class="text-xs">(just for demo ;))</span>
+            <div x-text="name"></div>
           </div>
           <div
             id="marilyn"
             data-birthdaypicker
-            :data-birthdaypicker-default-date="birthday"
-            data-birthdaypicker-month-format="short"
+            :data-birthdaypicker-default-date="date"
+            :data-birthdaypicker-month-format="dateformat"
             x-ref="bp"
             @datechange="datechange"
             class="inline-flex mb-4"
           >
-
             <div class="relative">
               <select
                 class="peer focus:outline-none pr-7 pl-2 py-2 appearance-none rounded-none cursor-pointer border-0 rounded-l-md"
-                type="text"
                 data-birthdaypicker-year
               ></select>
               <div
@@ -79,7 +110,6 @@
             <div class="relative">
               <select
                 class="peer focus:outline-none pr-7 pl-2 py-2 appearance-none rounded-none cursor-pointer border-0"
-                type="text"
                 data-birthdaypicker-month
               ></select>
               <div
@@ -102,7 +132,6 @@
             <div class="relative">
               <select
                 class="peer focus:outline-none pr-7 pl-2 py-2 appearance-none rounded-none cursor-pointer border-0 rounded-r-md"
-                type="text"
                 data-birthdaypicker-day
               ></select>
               <div
@@ -123,7 +152,9 @@
             </div>
           </div>
           <div class="relative">
-            <div class="mb-1">string result <span class="text-xs">(in an input field)</span></div>
+            <div class="mb-1">
+              string result <span class="text-xs">(in an input field)</span>
+            </div>
             <input
               class="px-2 py-2 outline-none border-0 focus:ring-pink-500 focus:ring-2 rounded-md disabled:bg-gray-400 disabled:text-gray-600 disabled:opacity-1"
               id="mm-input"
@@ -135,60 +166,44 @@
         </div>
 
         <div class="mt-4">
-          <div>set date to:</div>
-          <button
-            type="button"
-            @click="setDate(2022,12,01)"
-            class="px-4 py-2 inline-block bg-slate-800 text-white mr-2 outline-none"
-            data-locale="de"
-          >
-            todays date
-          </button>
-          <button
-            type="button"
-            @click="setDate(1926,6,1)"
-            class="px-4 py-2 inline-block bg-slate-800 text-white mr-2 outline-none"
-            data-locale="de"
-          >
-            Marilyn Monroe
-          </button>
+          <div>set date to Birthday of:</div>
+          <template x-for="bday in birthdays" :key="bday.id">
+            <button
+              type="button"
+              @click="setdate(bday.val)"
+              x-text="bday.label"
+              :class="date===bday.val ? 'bg-pink-600' : ''"
+              class="px-4 py-2 inline-block bg-slate-800 text-white mr-2 outline-none"
+            ></button>
+          </template>
+        </div>
+
+        <div class="mt-4">
+          <div>set date format to:</div>
+          <template x-for="df in availableDateformat" :key="df.id">
+            <button
+              type="button"
+              x-text="df.val"
+              @click="dateformat=df.val"
+              :class="dateformat===df.val ? 'bg-pink-600' : ''"
+              class="px-4 py-2 inline-block bg-slate-800 text-white mr-2 outline-none"
+            >
+              short
+            </button>
+          </template>
         </div>
 
         <div class="mt-4">
           change language <span class="text-xs">(of the Birthday Picker)</span>
           <div class="flex">
-            <button
-              type="button"
-              @click="changelang"
-              class="px-4 py-2 inline-block bg-slate-800 text-white mr-2 outline-none"
-              data-locale="de"
-            >
-              DE
-            </button>
-            <button
-              type="button"
-              @click="changelang"
-              class="px-4 py-2 inline-block bg-slate-800 text-white mr-2 outline-none"
-              data-locale="en"
-            >
-              EN
-            </button>
-            <button
-              type="button"
-              @click="changelang"
-              class="px-4 py-2 inline-block bg-slate-800 text-white mr-2 outline-none"
-              data-locale="fr"
-            >
-              FR
-            </button>
-            <button
-              type="button"
-              @click="changelang"
-              class="px-4 py-2 inline-block bg-slate-800 text-white mr-2 outline-none"
-              data-locale="ru"
-            >
-              RU
-            </button>
+            <template x-for="l in availableLocale" :key="l.id">
+              <button
+                x-text="l.label"
+                @click="locale=l.val"
+                :class="locale===l.val ? 'bg-pink-600' : ''"
+                class="px-4 py-2 inline-block bg-slate-800 text-white mr-2 outline-none"
+              ></button>
+            </template>
           </div>
         </div>
       </div>

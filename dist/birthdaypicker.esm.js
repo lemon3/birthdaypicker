@@ -275,7 +275,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
         _this._nofuturDate();
       }
       if (!_this._prevent) {
-        _this._triggerEvent('datechange');
+        _this._triggerEvent(allowedEvents[0]);
       }
     });
     if (!element) {
@@ -419,6 +419,8 @@ var BirthdayPicker = /*#__PURE__*/function () {
         _this2._month.el.childNodes[filter + ind].innerHTML = el;
       });
       this.settings.locale = lang;
+      // trigger a datechange event
+      this._dateChanged();
     }
 
     /**
@@ -448,10 +450,20 @@ var BirthdayPicker = /*#__PURE__*/function () {
       return helper_isLeapYear(year || this.currentYear);
     }
 
-    // todo: return the correct date format, or if set the value as given in the string
+    // todo: return the correct date format,
+    // or if set the value as given in the string
   }, {
     key: "getDate",
     value: function getDate(format) {
+      // use the language default
+      if (!format) {
+        var tmp = new Date(Date.UTC(this.currentYear, +this.currentMonth - 1, this.currentDay));
+        // tmp.setUTCFullYear(+this.currentYear);
+        // tmp.setUTCMonth(+this.currentMonth - 1);
+        // tmp.setUTCDate(+this.currentDay);
+        return tmp.toLocaleDateString(this.settings.locale);
+      }
+
       // eg. 'YYYY-MM-DD'
       var result = format.toLowerCase();
       result.replace('yyyy', this.currentYear);
@@ -778,6 +790,11 @@ BirthdayPicker.createLocale = function (lang) {
   BirthdayPicker.i18n[lang] = obj;
   return lang;
 };
+
+/**
+ * Set the month format for all registered instances
+ * @param  {String} format The available formats are: 'short', 'long', 'numeric'
+ */
 BirthdayPicker.setMonthFormat = function (format) {
   instances.forEach(function (bp) {
     bp.setMonthFormat(format);
@@ -805,7 +822,6 @@ BirthdayPicker.defaults = {
   // minimal age for a person
   maxYear: todayYear,
   monthFormat: 'short',
-  // order: 'ymd',
   placeholder: true,
   defaultDate: null,
   // null || 'today'
