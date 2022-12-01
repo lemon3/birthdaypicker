@@ -190,6 +190,8 @@ class BirthdayPicker {
     });
 
     this.settings.locale = lang;
+    // trigger a datechange event
+    this._dateChanged();
   }
 
   /**
@@ -215,8 +217,20 @@ class BirthdayPicker {
     return isLeapYear(year || this.currentYear);
   }
 
-  // todo: return the correct date format, or if set the value as given in the string
+  // todo: return the correct date format,
+  // or if set the value as given in the string
   getDate(format) {
+    // use the language default
+    if (!format) {
+      let tmp = new Date(
+        Date.UTC(this.currentYear, +this.currentMonth - 1, this.currentDay)
+      );
+      // tmp.setUTCFullYear(+this.currentYear);
+      // tmp.setUTCMonth(+this.currentMonth - 1);
+      // tmp.setUTCDate(+this.currentDay);
+      return tmp.toLocaleDateString(this.settings.locale);
+    }
+
     // eg. 'YYYY-MM-DD'
     let result = format.toLowerCase();
     result.replace('yyyy', this.currentYear);
@@ -410,7 +424,7 @@ class BirthdayPicker {
     }
 
     if (!this._prevent) {
-      this._triggerEvent('datechange');
+      this._triggerEvent(allowedEvents[0]);
     }
   };
 
@@ -566,6 +580,10 @@ BirthdayPicker.createLocale = (lang) => {
   return lang;
 };
 
+/**
+ * Set the month format for all registered instances
+ * @param  {String} format The available formats are: 'short', 'long', 'numeric'
+ */
 BirthdayPicker.setMonthFormat = (format) => {
   instances.forEach((bp) => {
     bp.setMonthFormat(format);
@@ -591,7 +609,6 @@ BirthdayPicker.defaults = {
   minAge: 0, // minimal age for a person
   maxYear: todayYear,
   monthFormat: 'short',
-  // order: 'ymd',
   placeholder: true,
   defaultDate: null, // null || 'today'
   autoinit: true,

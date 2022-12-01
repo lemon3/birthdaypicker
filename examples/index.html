@@ -16,17 +16,27 @@
         x-data="{
           birthday: '1926-06-01',
           result: '',
+          el: null,
+          instance: null,
+          init() {
+            this.el = $refs.bp;
+          },
           changelang(evt) {
             BirthdayPicker.setLanguage(evt.target.dataset.locale);
           },
           datechange(evt) {
             const d = evt.detail;
-            this.result = `${d.year}.${d.month}.${d.day}`;
+            this.result = d.instance.getDate();
           },
+          setDate(...input) {
+            this.instance = this.instance || BirthdayPicker.getInstance(this.el);
+            this.instance.setDate(...input);
+          }
         }"
         class="mx-auto max-w-2xl"
       >
         <h1 class="text-6xl mb-4">Birthday Picker</h1>
+        <h1 class="text-2xl mb-4">tailwindcss and alpine.js demo</h1>
 
         <div>
           <div class="mb-1">
@@ -38,9 +48,11 @@
             data-birthdaypicker
             :data-birthdaypicker-default-date="birthday"
             data-birthdaypicker-month-format="short"
+            x-ref="bp"
             @datechange="datechange"
             class="inline-flex mb-4"
           >
+
             <div class="relative">
               <select
                 class="peer focus:outline-none pr-7 pl-2 py-2 appearance-none rounded-none cursor-pointer border-0 rounded-l-md"
@@ -111,7 +123,7 @@
             </div>
           </div>
           <div class="relative">
-            <div class="mb-1">string result in an input field:</div>
+            <div class="mb-1">string result <span class="text-xs">(in an input field)</span></div>
             <input
               class="px-2 py-2 outline-none border-0 focus:ring-pink-500 focus:ring-2 rounded-md disabled:bg-gray-400 disabled:text-gray-600 disabled:opacity-1"
               id="mm-input"
@@ -120,6 +132,26 @@
               disabled
             />
           </div>
+        </div>
+
+        <div class="mt-4">
+          <div>set date to:</div>
+          <button
+            type="button"
+            @click="setDate(2022,12,01)"
+            class="px-4 py-2 inline-block bg-slate-800 text-white mr-2 outline-none"
+            data-locale="de"
+          >
+            todays date
+          </button>
+          <button
+            type="button"
+            @click="setDate(1926,6,1)"
+            class="px-4 py-2 inline-block bg-slate-800 text-white mr-2 outline-none"
+            data-locale="de"
+          >
+            Marilyn Monroe
+          </button>
         </div>
 
         <div class="mt-4">
