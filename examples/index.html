@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+      defer
+      src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+  </head>
+  <body class="bg-slate-500" x-cloak>
+    <div class="mx-auto max-w-2xl py-4 px-4">
+      <div
+        x-data="{
+          birthday: '1926-06-01',
+          result: '',
+          changelang(evt) {
+            BirthdayPicker.setLanguage(evt.target.dataset.locale);
+          },
+          datechange(evt) {
+            const d = evt.detail;
+            this.result = `${d.year}.${d.month}.${d.day}`;
+          },
+        }"
+        class="mx-auto max-w-2xl"
+      >
+        <h1 class="text-6xl mb-4">Birthday Picker</h1>
+
+        <div>
+          <div class="mb-1">
+            Marilyn Monroe' Birthday
+            <span class="text-xs">(just for demo ;))</span>
+          </div>
+          <div
+            id="marilyn"
+            data-birthdaypicker
+            :data-birthdaypicker-default-date="birthday"
+            data-birthdaypicker-month-format="short"
+            @datechange="datechange"
+            class="inline-flex mb-4"
+          >
+            <div class="relative">
+              <select
+                class="peer focus:outline-none pr-7 pl-2 py-2 appearance-none rounded-none cursor-pointer border-0 rounded-l-md"
+                type="text"
+                data-birthdaypicker-year
+              ></select>
+              <div
+                class="top-0 left-0 pointer-events-none absolute w-full h-full border-0 peer-focus:ring-pink-500 peer-focus:ring-2 peer-focus:z-10 peer-focus:bg-pink-500/10 rounded-l-md"
+              >
+                <svg
+                  class="w-4 top-2 right-2 absolute"
+                  width="24"
+                  height="24"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="m20.902 7.331c.326-.322.851-.322 1.175 0s.325.841 0 1.163l-9.49 9.396c-.324.322-.848.322-1.175 0l-9.49-9.396c-.324-.322-.324-.841 0-1.163.325-.322.851-.322 1.175 0l8.903 8.569z"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            <div class="relative">
+              <select
+                class="peer focus:outline-none pr-7 pl-2 py-2 appearance-none rounded-none cursor-pointer border-0"
+                type="text"
+                data-birthdaypicker-month
+              ></select>
+              <div
+                class="top-0 left-0 pointer-events-none absolute w-full h-full border-0 peer-focus:ring-pink-500 peer-focus:ring-2 peer-focus:z-10 peer-focus:bg-pink-500/10"
+              >
+                <svg
+                  class="w-4 top-2 right-2 absolute"
+                  width="24"
+                  height="24"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="m20.902 7.331c.326-.322.851-.322 1.175 0s.325.841 0 1.163l-9.49 9.396c-.324.322-.848.322-1.175 0l-9.49-9.396c-.324-.322-.324-.841 0-1.163.325-.322.851-.322 1.175 0l8.903 8.569z"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            <div class="relative">
+              <select
+                class="peer focus:outline-none pr-7 pl-2 py-2 appearance-none rounded-none cursor-pointer border-0 rounded-r-md"
+                type="text"
+                data-birthdaypicker-day
+              ></select>
+              <div
+                class="top-0 left-0 pointer-events-none absolute w-full h-full border-0 peer-focus:ring-pink-500 peer-focus:ring-2 peer-focus:z-10 peer-focus:bg-pink-500/10 rounded-r-md"
+              >
+                <svg
+                  class="w-4 top-2 right-2 absolute"
+                  width="24"
+                  height="24"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="m20.902 7.331c.326-.322.851-.322 1.175 0s.325.841 0 1.163l-9.49 9.396c-.324.322-.848.322-1.175 0l-9.49-9.396c-.324-.322-.324-.841 0-1.163.325-.322.851-.322 1.175 0l8.903 8.569z"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="relative">
+            <div class="mb-1">string result in an input field:</div>
+            <input
+              class="px-2 py-2 outline-none border-0 focus:ring-pink-500 focus:ring-2 rounded-md disabled:bg-gray-400 disabled:text-gray-600 disabled:opacity-1"
+              id="mm-input"
+              type="text"
+              :value="result"
+              disabled
+            />
+          </div>
+        </div>
+
+        <div class="mt-4">
+          change language <span class="text-xs">(of the Birthday Picker)</span>
+          <div class="flex">
+            <button
+              type="button"
+              @click="changelang"
+              class="px-4 py-2 inline-block bg-slate-800 text-white mr-2 outline-none"
+              data-locale="de"
+            >
+              DE
+            </button>
+            <button
+              type="button"
+              @click="changelang"
+              class="px-4 py-2 inline-block bg-slate-800 text-white mr-2 outline-none"
+              data-locale="en"
+            >
+              EN
+            </button>
+            <button
+              type="button"
+              @click="changelang"
+              class="px-4 py-2 inline-block bg-slate-800 text-white mr-2 outline-none"
+              data-locale="fr"
+            >
+              FR
+            </button>
+            <button
+              type="button"
+              @click="changelang"
+              class="px-4 py-2 inline-block bg-slate-800 text-white mr-2 outline-none"
+              data-locale="ru"
+            >
+              RU
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="./birthdaypicker.min.js"></script>
+  </body>
+</html>

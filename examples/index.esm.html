@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-600">
+    <div class="mx-auto max-w-2xl py-4 px-4">
+      <div class="mx-auto max-w-2xl">
+        <h1 class="text-2xl mb-4">picker (ESM)</h1>
+
+        <div>
+          <div class="mb-1">Today demo</div>
+          <div
+            id="today"
+            data-birthdaypicker
+            data-birthdaypicker-default-date="today"
+            class="inline-flex border rounded mb-4"
+          >
+            <select
+              class="border-0 px-2 py-2"
+              type="text"
+              data-birthdaypicker-year
+            ></select>
+            <select
+              class="border-x px-2 py-2 border-y-0"
+              type="text"
+              data-birthdaypicker-month
+            ></select>
+            <select
+              class="border-0 py-2"
+              type="text"
+              data-birthdaypicker-day
+            ></select>
+          </div>
+        </div>
+
+        <div>
+          <div class="mb-1">Marilyn Monroe</div>
+          <div id="mm" class="inline-flex border rounded mb-4">
+            <select
+              class="border-0 px-2 py-2"
+              type="text"
+              data-birthdaypicker-year
+            ></select>
+            <select
+              class="border-x px-2 py-2 border-y-0"
+              type="text"
+              data-birthdaypicker-month
+            ></select>
+            <select
+              class="border-0 py-2"
+              type="text"
+              data-birthdaypicker-day
+            ></select>
+          </div>
+          <div>
+            <input type="text" id="mm-input" />
+          </div>
+        </div>
+
+        <div class="mt-4">
+          change the language
+          <div class="flex">
+            <button
+              class="px-4 py-2 inline-block bg-gray-800 text-white"
+              data-changelang
+              data-locale="de"
+            >
+              DE
+            </button>
+            <button
+              class="px-4 py-2 inline-block bg-gray-800 text-white"
+              data-changelang
+              data-locale="en"
+            >
+              EN
+            </button>
+            <button
+              class="px-4 py-2 inline-block bg-gray-800 text-white"
+              data-changelang
+              data-locale="fr"
+            >
+              FR
+            </button>
+            <button
+              class="px-4 py-2 inline-block bg-gray-800 text-white"
+              data-changelang
+              data-locale="ru"
+            >
+              RU
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import BirthdayPicker from './birthdaypicker.esm.min.js';
+
+      let mmInput;
+      const datechange = (evt) => {
+        const d = evt.detail;
+        mmInput.value = `${d.day}.${d.month}.${d.year}`;
+      };
+
+      const init = () => {
+        mmInput = document.querySelector('#mm-input');
+
+        const mm = new BirthdayPicker('#mm', {
+          defaultDate: '1926-06-01',
+          onDatechange: function (evt) {
+            console.log(evt);
+          },
+        });
+
+        console.log(mm);
+        mm.addEventListener('datechange', datechange);
+
+        let changeLang = (evt) => {
+          BirthdayPicker.setLanguage(evt.target.dataset.locale);
+        };
+
+        document.querySelectorAll('[data-changeLang]').forEach((el) => {
+          el.addEventListener('click', changeLang);
+        });
+      };
+
+      if (
+        'complete' === document.readyState ||
+        'interactive' === document.readyState
+      ) {
+        init();
+        document.removeEventListener('DOMContentLoaded', init);
+      } else {
+        document.addEventListener('DOMContentLoaded', init, false);
+      }
+    </script>
+  </body>
+</html>

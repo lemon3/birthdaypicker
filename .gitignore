@@ -1,0 +1,6 @@
+_notes
+*.sublime-*
+.vscode
+.DS_Store
+.phpintel
+node_modules
