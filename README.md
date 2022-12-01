@@ -33,7 +33,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-I need an easy to use input field specifically for birthday input, without any js dependencies. Coded in vanilla JS.
+I needed a birthday input field that is easy to use and without JS dependencies. "Simple" in this context means: with as few clicks as possible to the result! Coded in vanilla JS.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
