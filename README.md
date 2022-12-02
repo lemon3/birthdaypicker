@@ -36,6 +36,9 @@ I needed a birthday input field that is easy to use and without JS dependencies.
 
 * Coded in vanilla JS.
 * internationalisation (i18n)
+* BirthdayPicker is dependency-free ;)
+
+**[BirthdayPicker Demo >>](https://lemon3.github.io/birthdaypicker/)**
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
