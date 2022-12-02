@@ -1,6 +1,6 @@
 {
   "name": "brithday-picker",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "i18n birthday picker",
   "main": "dist/birthdaypicker.min.js",
   "module": "src/index.js",
