@@ -6,8 +6,6 @@ module.exports = {
     birthdaypicker: ['@/index.js'],
   },
 
-  devtool: 'source-map',
-
   output: {
     path: paths.build,
   },

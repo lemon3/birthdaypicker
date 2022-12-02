@@ -5,13 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>tailwindcss & alpine.js | Demo</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script
-      defer
-      src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
-    ></script>
   </head>
   <body class="bg-slate-500" x-cloak>
-    <div class="mx-auto max-w-2xl py-4 px-4">
+    <a
+      href="https://github.com/lemon3/birthdaypicker"
+      class="group absolute top-0 right-0"
+      aria-label="View source on GitHub"
+    >
+      <svg
+        width="120"
+        height="120"
+        viewbox="0 0 250 250"
+        aria-hidden="true"
+        class="fill-slate-800 group-hover:fill-slate-900"
+      >
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path
+          fill="currentColor"
+          class="fill-slate-500"
+          d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+        ></path>
+        <path
+          fill="currentColor"
+          class="fill-slate-500"
+          d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+        ></path>
+      </svg>
+    </a>
+    <div class="mx-auto max-w-2xl my-8 py-8 px-6 bg-white/10">
       <div
         x-data="{
           initialized: false,
@@ -153,7 +174,7 @@
           </div>
           <div class="relative">
             <div class="mb-1">
-              string result <span class="text-xs">(in an input field)</span>
+              selected result<div class="text-xs">(formating based on the selected language)</div>
             </div>
             <input
               class="px-2 py-2 outline-none border-0 focus:ring-pink-500 focus:ring-2 rounded-md disabled:bg-gray-400 disabled:text-gray-600 disabled:opacity-1"
@@ -165,43 +186,43 @@
           </div>
         </div>
 
-        <div class="mt-4">
-          <div>set date to Birthday of:</div>
+        <div class="mt-8">
+          <div>set date to the Birthday of:</div>
           <template x-for="bday in birthdays" :key="bday.id">
             <button
               type="button"
               @click="setdate(bday.val)"
               x-text="bday.label"
-              :class="date===bday.val ? 'bg-pink-600' : ''"
-              class="px-4 py-2 inline-block bg-slate-800 text-white mr-2 outline-none"
+              :class="[date===bday.val ? 'bg-pink-600 hover:bg-pink-700' : '']"
+              class="px-4 py-2 inline-block bg-slate-800 text-white mr-2 outline-none hover:bg-slate-900"
             ></button>
           </template>
         </div>
 
-        <div class="mt-4">
+        <div class="mt-8">
           <div>set date format to:</div>
           <template x-for="df in availableDateformat" :key="df.id">
             <button
               type="button"
               x-text="df.val"
               @click="dateformat=df.val"
-              :class="dateformat===df.val ? 'bg-pink-600' : ''"
-              class="px-4 py-2 inline-block bg-slate-800 text-white mr-2 outline-none"
+              :class="[ dateformat===df.val ? 'bg-pink-600 hover:bg-pink-700' : '']"
+              class="px-4 py-2 inline-block text-white mr-2 outline-none bg-slate-800 hover:bg-slate-900"
             >
               short
             </button>
           </template>
         </div>
 
-        <div class="mt-4">
+        <div class="mt-8">
           change language <span class="text-xs">(of the Birthday Picker)</span>
           <div class="flex">
             <template x-for="l in availableLocale" :key="l.id">
               <button
                 x-text="l.label"
                 @click="locale=l.val"
-                :class="locale===l.val ? 'bg-pink-600' : ''"
-                class="px-4 py-2 inline-block bg-slate-800 text-white mr-2 outline-none"
+                :class="[locale===l.val ? 'bg-pink-600 hover:bg-pink-700' : '']"
+                class="px-4 py-2 inline-block bg-slate-800 text-white mr-2 outline-none hover:bg-slate-900"
               ></button>
             </template>
           </div>
@@ -209,6 +230,10 @@
       </div>
     </div>
 
-    <script src="./js/birthdaypicker.min.js"></script>
+    <script
+      defer
+      src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <script defer src="./js/vendor/birthdaypicker.min.js"></script>
   </body>
 </html>

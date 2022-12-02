@@ -854,5 +854,3 @@ docReady(init);
 /* harmony default export */ var src = (BirthdayPicker);
 var __webpack_exports__default = __webpack_exports__.Z;
 export { __webpack_exports__default as default };
-
-//# sourceMappingURL=birthdaypicker.esm.js.map

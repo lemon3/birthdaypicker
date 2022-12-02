@@ -13,7 +13,7 @@
     "prettify": "prettier --write 'src/**/*.js'",
     "dev": "webpack --mode development --watch --config config/webpack.dev.js",
     "test": "jest",
-    "updatedemo": "$npm_execpath run build && cp ./dist/birthdaypicker.min.js ./docs/js/ "
+    "updatedemo": "cp ./dist/birthdaypicker.min.js ./docs/js/vendor/ "
   },
   "keywords": [
     "birthdaypicker, datepicker"
