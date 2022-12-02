@@ -8,11 +8,10 @@
 <br />
 <div align="center">
   <a href="https://github.com/lemon3/birthdaypicker">
-    <img src="_assets/images/logo.svg" alt="Logo" width="360" height="auto">
+    <img src="https://raw.githubusercontent.com/lemon3/birthdaypicker/main/_assets/images/logo.svg" alt="Logo" width="360" height="auto">
   </a>
-  <h3 align="center">a javascript birthday picker</h3>
+  <h3 align="center">A i18n javascript birthday picker</h3>
 </div>
-
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -33,7 +32,10 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-I needed a birthday input field that is easy to use and without JS dependencies. "Simple" in this context means: with as few clicks as possible to the result! Coded in vanilla JS.
+I needed a birthday input field that is easy to use and without JS dependencies. "Simple" in this context means: with as few clicks as possible to the result!
+
+* Coded in vanilla JS.
+* internationalisation (i18n)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
