@@ -292,4 +292,5 @@ describe('private methods tests', () => {
     expect(bp._getMonthText(12)).toBe('12');
     bp.useLeadingZero = true;
     expect(bp._getMonthText(12)).toBe('12');
+  });
 });
