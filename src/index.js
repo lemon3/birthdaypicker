@@ -95,7 +95,7 @@ class BirthdayPicker {
   }
 
   removeEventListener(eventName, listener, option) {
-    this.element.addEventListener(eventName, listener, option);
+    this.element.removeEventListener(eventName, listener, option);
   }
 
   /**
@@ -154,6 +154,13 @@ class BirthdayPicker {
     }
   }
 
+  // Setter
+  set useLeadingZero(value) {
+    if ('boolean' === typeof value || !isNaN(value)) {
+      this.settings.useLeadingZero = value;
+    }
+  }
+
   /**
    * Set the date
    * @param {String | Int} year  The year.
@@ -162,11 +169,9 @@ class BirthdayPicker {
    */
   setDate(year, month, day) {
     // this._prevent = true; // prevent _dateChanged to fire
-
     this._setYear(year);
     this._setMonth(month);
     this._setDay(day);
-
     // this._prevent = false; // stop prevent _dateChanged to fire
     this._dateChanged();
   }
@@ -179,6 +184,7 @@ class BirthdayPicker {
 
     BirthdayPicker.createLocale(lang);
     this.monthFormat = BirthdayPicker.i18n[lang].month;
+    this.settings.locale = lang;
 
     // todo: is this correct for all languages?
     if ('numeric' === this.settings.monthFormat) {
@@ -190,7 +196,6 @@ class BirthdayPicker {
       this._month.el.childNodes[filter + ind].innerHTML = el;
     });
 
-    this.settings.locale = lang;
     // trigger a datechange event
     this._dateChanged();
   }
@@ -214,8 +219,8 @@ class BirthdayPicker {
   }
 
   // getter
-  isLeapYear(year = null) {
-    return isLeapYear(year || this.currentYear);
+  isLeapYear(year = this.currentYear) {
+    return (undefined === year) ? undefined : isLeapYear(year);
   }
 
   // todo: return the correct date format,
@@ -223,7 +228,6 @@ class BirthdayPicker {
   getDate(format) {
     // use the language default
     if (!format) {
-
       if (!this.currentYear || !this.currentMonth || !this.currentDay) {
         return '';
       }
@@ -243,7 +247,7 @@ class BirthdayPicker {
     result.replace('dd', this.currentDay);
   }
 
-  // function for opdate or create
+  // function for update or create
   _getMonthText(text) {
     if ('numeric' !== this.settings.monthFormat) {
       return text;
@@ -251,8 +255,8 @@ class BirthdayPicker {
     return this.settings.useLeadingZero
       ? +text < 10
         ? '0' + text
-        : text
-      : text;
+        : '' + text
+      : '' + text; // return string
   }
 
   /**
@@ -405,15 +409,6 @@ class BirthdayPicker {
         }
       }
     }
-
-    // && this.currentMonth >= todayMonth) {
-    // if(this.currentMonth > todayMonth) {
-    //   this._month.el.childNodes.forEach(el => {
-    //     if (el.value > this.currentMonth) {
-    //       el.disabled = true;
-    //     }
-    //   })
-    // }
   }
 
   /**

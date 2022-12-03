@@ -176,6 +176,23 @@ describe('BirthdayPicker events', () => {
     expect(wrong).toBe(false);
     expect(spy).toHaveBeenCalledTimes(0);
   });
+
+  test('removeEventListener test', () => {
+    BirthdayPicker.kill(testEl);
+    const bp2 = new BirthdayPicker(testEl, {
+      defaultDate: '2000-10-10'
+    });
+    const cb = jest.fn();
+    bp2.addEventListener('datechange', cb);
+    expect(cb).toHaveBeenCalledTimes(1);
+    bp2.setDate(2000,10,11);
+    expect(cb).toHaveBeenCalledTimes(2);
+    bp2.removeEventListener('datechange', cb);
+    bp2.setDate(2000,10,11);
+    // no change here
+    expect(cb).toHaveBeenCalledTimes(2);
+  });
+
 });
 
 // test for _dayChanged
@@ -221,4 +238,58 @@ describe('update stage, test', () => {
     expect(dayChangedSpy).toHaveBeenCalledTimes(2);
   });
 
+});
+
+describe('public methods tests', () => {
+  const bpEl = document.querySelector('#test');
+  BirthdayPicker.kill(bpEl);
+  let bp = new BirthdayPicker(bpEl, {
+    monthFormat: 'numeric',
+    locale: 'en',
+    useLeadingZero: false,
+  });
+
+  test('test setLanguage', () => {
+    const langChangeSpy = jest.spyOn(BirthdayPicker, 'createLocale');
+    bp.setLanguage('de');
+    expect(langChangeSpy).toHaveBeenCalled();
+    expect(bp.settings.locale).toBe('de');
+
+    bp.setLanguage('ru');
+    bp.setMonthFormat('short');
+    bp.useLeadingZero = true;
+
+    expect(langChangeSpy).toHaveBeenCalledTimes(2);
+    expect(bp.settings.locale).toBe('ru');
+  });
+
+  test('test isLeapYear', () => {
+    expect(bp.isLeapYear()).toEqual(undefined);
+    bp.setDate(2000,10,10);
+    // test with no value given
+    expect(bp.isLeapYear()).toEqual(true);
+    // test with value given
+    expect(bp.isLeapYear(2004)).toEqual(true);
+    expect(bp.isLeapYear(2005)).toEqual(false);
+  });
+
+});
+
+describe('private methods tests', () => {
+  const bpEl = document.querySelector('#test');
+  BirthdayPicker.kill(bpEl);
+  let bp = new BirthdayPicker(bpEl, {
+    monthFormat: 'numeric',
+    useLeadingZero: false,
+  });
+
+  test('test _getMonthText', () => {
+    expect(bp._getMonthText(1)).toBe('1');
+    bp.useLeadingZero = true;
+    expect(bp._getMonthText(4)).toBe('04');
+    expect(bp._getMonthText(12)).toBe('12');
+    bp.useLeadingZero = false;
+    expect(bp._getMonthText(12)).toBe('12');
+    bp.useLeadingZero = true;
+    expect(bp._getMonthText(12)).toBe('12');
 });
