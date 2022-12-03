@@ -280,7 +280,12 @@ describe('private methods tests', () => {
   BirthdayPicker.kill(bpEl);
   let bp = new BirthdayPicker(bpEl, {
     monthFormat: 'numeric',
-    useLeadingZero: false,
+    useLeadingZero: false
+  });
+  let dateChangedSpy = jest.spyOn(bp, '_dateChanged');
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   test('test _getMonthText', () => {
@@ -292,5 +297,23 @@ describe('private methods tests', () => {
     expect(bp._getMonthText(12)).toBe('12');
     bp.useLeadingZero = true;
     expect(bp._getMonthText(12)).toBe('12');
+  });
+
+  test('test for _dateChanged triggering by setting date', () => {
+    bp.setDate(1234,5,6);
+    expect(dateChangedSpy).toHaveBeenCalled();
+    expect(dateChangedSpy).toHaveBeenCalledTimes(1);
+  });
+
+  test('test for _dateChanged triggering by select change', () => {
+    bp._year.el.selectedIndex = 2;
+    bp._year.el.dispatchEvent(new Event('change'));
+
+    const y1 = bp.currentYear;
+    bp._year.el.selectedIndex = 3;
+    bp._year.el.dispatchEvent(new Event('change'));
+
+    const y2 = bp.currentYear;
+    expect(y1).not.toBe(y2);
   });
 });

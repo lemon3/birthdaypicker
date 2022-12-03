@@ -258,7 +258,7 @@ function src_toPrimitive(input, hint) { if (src_typeof(input) !== "object" || in
 var instances = [];
 var dataName = 'data-birthdaypicker';
 var monthFormats = ['short', 'long', 'numeric'];
-var allowedEvents = ['datechange'];
+var allowedEvents = ['datechange', 'init'];
 var today = new Date();
 var todayYear = today.getFullYear();
 var todayMonth = today.getMonth() + 1;
@@ -328,6 +328,9 @@ var BirthdayPicker = /*#__PURE__*/function () {
     this.options = options; // user options
     this.settings = Object.assign({}, BirthdayPicker.defaults, data, options);
     this.element = element;
+    this.eventFired = {};
+    // store all disabled elements in an array for quicker reenable
+    this.disabledReference = [];
     if (this.settings.autoinit) {
       this.init();
     }
@@ -348,7 +351,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
   }, {
     key: "removeEventListener",
     value: function removeEventListener(eventName, listener, option) {
-      this.element.addEventListener(eventName, listener, option);
+      this.element.removeEventListener(eventName, listener, option);
     }
 
     /**
@@ -409,6 +412,15 @@ var BirthdayPicker = /*#__PURE__*/function () {
       }
     }
 
+    // Setter
+  }, {
+    key: "useLeadingZero",
+    set: function set(value) {
+      if ('boolean' === typeof value || !isNaN(value)) {
+        this.settings.useLeadingZero = value;
+      }
+    }
+
     /**
      * Set the date
      * @param {String | Int} year  The year.
@@ -419,11 +431,9 @@ var BirthdayPicker = /*#__PURE__*/function () {
     key: "setDate",
     value: function setDate(year, month, day) {
       // this._prevent = true; // prevent _dateChanged to fire
-
       this._setYear(year);
       this._setMonth(month);
       this._setDay(day);
-
       // this._prevent = false; // stop prevent _dateChanged to fire
       this._dateChanged();
     }
@@ -437,6 +447,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       }
       BirthdayPicker.createLocale(lang);
       this.monthFormat = BirthdayPicker.i18n[lang].month;
+      this.settings.locale = lang;
 
       // todo: is this correct for all languages?
       if ('numeric' === this.settings.monthFormat) {
@@ -446,7 +457,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       this.monthFormat[this.settings.monthFormat].forEach(function (el, ind) {
         _this2._month.el.childNodes[filter + ind].innerHTML = el;
       });
-      this.settings.locale = lang;
+
       // trigger a datechange event
       this._dateChanged();
     }
@@ -474,8 +485,8 @@ var BirthdayPicker = /*#__PURE__*/function () {
   }, {
     key: "isLeapYear",
     value: function isLeapYear() {
-      var year = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-      return helper_isLeapYear(year || this.currentYear);
+      var year = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.currentYear;
+      return undefined === year ? undefined : helper_isLeapYear(year);
     }
 
     // todo: return the correct date format,
@@ -502,14 +513,14 @@ var BirthdayPicker = /*#__PURE__*/function () {
       result.replace('dd', this.currentDay);
     }
 
-    // function for opdate or create
+    // function for update or create
   }, {
     key: "_getMonthText",
     value: function _getMonthText(text) {
       if ('numeric' !== this.settings.monthFormat) {
         return text;
       }
-      return this.settings.useLeadingZero ? +text < 10 ? '0' + text : text : text;
+      return this.settings.useLeadingZero ? +text < 10 ? '0' + text : '' + text : '' + text; // return string
     }
 
     /**
@@ -669,15 +680,6 @@ var BirthdayPicker = /*#__PURE__*/function () {
           }
         }
       }
-
-      // && this.currentMonth >= todayMonth) {
-      // if(this.currentMonth > todayMonth) {
-      //   this._month.el.childNodes.forEach(el => {
-      //     if (el.value > this.currentMonth) {
-      //       el.disabled = true;
-      //     }
-      //   })
-      // }
     }
 
     /**
@@ -735,12 +737,15 @@ var BirthdayPicker = /*#__PURE__*/function () {
       // todo: add default dataset value data-birthdaypicker-year???
       if (!yearElement) {
         yearElement = createEl('select');
+        this.element.append(yearElement);
       }
       if (!monthElement) {
         monthElement = createEl('select');
+        this.element.append(monthElement);
       }
       if (!dayElement) {
         dayElement = createEl('select');
+        this.element.append(dayElement);
       }
 
       // todo: find or create(!)
@@ -760,6 +765,9 @@ var BirthdayPicker = /*#__PURE__*/function () {
         df: document.createDocumentFragment(),
         name: 'day'
       };
+      this._year.el.addEventListener('change', this._dateChanged, false);
+      this._month.el.addEventListener('change', this._dateChanged, false);
+      this._day.el.addEventListener('change', this._dateChanged, false);
       this._date = [this._year, this._month, this._day];
 
       //calculate the year to add to the select options.
@@ -788,17 +796,11 @@ var BirthdayPicker = /*#__PURE__*/function () {
           };
         }
       }
-      this._year.el.addEventListener('change', this._dateChanged);
-      this._month.el.addEventListener('change', this._dateChanged);
-      this._day.el.addEventListener('change', this._dateChanged);
       this.settings.locale;
       BirthdayPicker.createLocale(this.settings.locale);
       this.monthFormat = BirthdayPicker.i18n[this.settings.locale].month;
-
-      // store all disabled elements in an array for quicker reenable
-      this.disabledReference = [];
-      this.eventFired = {};
       this._createBirthdayPicker();
+      this._triggerEvent(allowedEvents[1]);
     }
   }]);
   return BirthdayPicker;
@@ -878,11 +880,8 @@ BirthdayPicker.kill = function (el) {
   // todo: reset all to default!
   // e.g.: instance.kill();
 
-  try {
-    delete el.dataset.bdpinit;
-  } catch (e) {
-    el.dataset.bdpinit = false;
-  }
+  el.dataset.bdpinit = false;
+  delete el.dataset.bdpinit;
   dataStorage.remove(el, 'instance');
 };
 BirthdayPicker.defaults = {

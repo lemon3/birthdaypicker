@@ -14,7 +14,7 @@ import {
 const instances = [];
 const dataName = 'data-birthdaypicker';
 const monthFormats = ['short', 'long', 'numeric'];
-const allowedEvents = ['datechange'];
+const allowedEvents = ['datechange', 'init'];
 
 let today = new Date();
 let todayYear = today.getFullYear();
@@ -72,6 +72,10 @@ class BirthdayPicker {
     this.options = options; // user options
     this.settings = Object.assign({}, BirthdayPicker.defaults, data, options);
     this.element = element;
+
+    this.eventFired = {};
+    // store all disabled elements in an array for quicker reenable
+    this.disabledReference = [];
 
     if (this.settings.autoinit) {
       this.init();
@@ -481,12 +485,15 @@ class BirthdayPicker {
     // todo: add default dataset value data-birthdaypicker-year???
     if (!yearElement) {
       yearElement = createEl('select');
+      this.element.append(yearElement);
     }
     if (!monthElement) {
       monthElement = createEl('select');
+      this.element.append(monthElement);
     }
     if (!dayElement) {
       dayElement = createEl('select');
+      this.element.append(dayElement);
     }
 
     // todo: find or create(!)
@@ -505,6 +512,10 @@ class BirthdayPicker {
       df: document.createDocumentFragment(),
       name: 'day',
     };
+
+    this._year.el.addEventListener('change', this._dateChanged, false);
+    this._month.el.addEventListener('change', this._dateChanged, false);
+    this._day.el.addEventListener('change', this._dateChanged, false);
 
     this._date = [this._year, this._month, this._day];
 
@@ -538,21 +549,15 @@ class BirthdayPicker {
       }
     }
 
-    this._year.el.addEventListener('change', this._dateChanged);
-    this._month.el.addEventListener('change', this._dateChanged);
-    this._day.el.addEventListener('change', this._dateChanged);
-
     this.settings.locale;
     BirthdayPicker.createLocale(this.settings.locale);
     this.monthFormat = BirthdayPicker.i18n[this.settings.locale].month;
 
-    // store all disabled elements in an array for quicker reenable
-    this.disabledReference = [];
-
-    this.eventFired = {};
-
     this._createBirthdayPicker();
+
+    this._triggerEvent(allowedEvents[1]);
   }
+
 }
 
 const dataapi = (element) => {
@@ -635,11 +640,8 @@ BirthdayPicker.kill = (el) => {
   // todo: reset all to default!
   // e.g.: instance.kill();
 
-  try {
-    delete el.dataset.bdpinit;
-  } catch(e) {
-    el.dataset.bdpinit = false;
-  }
+  el.dataset.bdpinit = false;
+  delete el.dataset.bdpinit;
   dataStorage.remove(el, 'instance');
 };
 
@@ -656,7 +658,7 @@ BirthdayPicker.defaults = {
   noFutureDate: true, // max date is current date
 };
 
-let init = () => {
+const init = () => {
   if (initialized) {
     return false;
   }
