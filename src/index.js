@@ -472,21 +472,40 @@ class BirthdayPicker {
    * @return { void }
    */
   init() {
+    if (this.initialized) {
+      return true;
+    }
+    this.initialized = true;
     this._monthDayMapping = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+    let yearElement = this.element.querySelector('[' + dataName + '-year]');
+    let monthElement = this.element.querySelector('[' + dataName + '-month]');
+    let dayElement = this.element.querySelector('[' + dataName + '-day]');
+
+    // todo: add default dataset value data-birthdaypicker-year???
+    if (!yearElement) {
+      yearElement = createEl('select');
+    }
+    if (!monthElement) {
+      monthElement = createEl('select');
+    }
+    if (!dayElement) {
+      dayElement = createEl('select');
+    }
 
     // todo: find or create(!)
     this._year = {
-      el: this.element.querySelector('[' + dataName + '-year]'),
+      el: yearElement,
       df: document.createDocumentFragment(),
-      name: 'year',
+      name: 'year', // placeholder name
     };
     this._month = {
-      el: this.element.querySelector('[' + dataName + '-month]'),
+      el: monthElement,
       df: document.createDocumentFragment(),
       name: 'month',
     };
     this._day = {
-      el: this.element.querySelector('[' + dataName + '-day]'),
+      el: dayElement,
       df: document.createDocumentFragment(),
       name: 'day',
     };

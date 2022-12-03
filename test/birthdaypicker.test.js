@@ -5,49 +5,49 @@
 /* global describe, test, expect */
 
 import BirthdayPicker from '../src/index.js';
-import { restrict, isLeapYear } from '../src/helper.js';
 
-describe('test isLeapYear function', () => {
-  test('is a leap-year', () => {
-    expect(isLeapYear(1996)).toBe(true);
-    expect(isLeapYear(2000)).toBe(true);
-    expect(isLeapYear(2008)).toBe(true);
-    expect(isLeapYear(2012)).toBe(true);
-    expect(isLeapYear(2016)).toBe(true);
-  });
-  test('is not a leap-year', () => {
-    expect(isLeapYear(597)).toBe(false);
-    expect(isLeapYear(1783)).toBe(false);
-    expect(isLeapYear(2005)).toBe(false);
-    expect(isLeapYear(2023)).toBe(false);
-    expect(isLeapYear(2006)).toBe(false);
-  });
-});
+// describe('sd', () => {
+//   test('It should pass', () => {
+//     let app = {
+//       init: function () {
+//         document.addEventListener('DOMContentLoaded', () => {
+//           this.instance();
+//         });
+//       },
+//       instance: function () {
+//         console.log('Instance method called');
+//       },
+//     };
+//     const instanceMock = jest.spyOn(app, 'instance');
+//     document.addEventListener = jest
+//       .fn()
+//       .mockImplementationOnce((event, callback) => {
+//         callback();
+//       });
+//     app.init();
+//     expect(document.addEventListener).toBeCalledWith(
+//       'DOMContentLoaded',
+//       expect.any(Function)
+//     );
+//     expect(instanceMock).toBeCalledTimes(1);
+//   });
+// });
 
-describe('test restrict function', () => {
-  test('restrict value in between', () => {
-    expect(restrict(10, 0, 20)).toBe(10);
-    expect(restrict('10', '0', '20')).toBe(10);
-    expect(restrict(-8, -10, -2)).toBe(-8);
-    expect(restrict(0, -1, 2)).toBe(0);
-    expect(restrict(-9, -3, -10)).toBe(-9);
-    expect(restrict(-5, -10, 0)).toBe(-5);
-    expect(restrict(0.01, 0, 1)).toBe(0.01);
-    expect(restrict(-0.01, -0, -1)).toBe(-0.01);
-  });
-  test('restrict value less or equal than min', () => {
-    expect(restrict(10, 10, 20)).toBe(10);
-    expect(restrict(10, 10)).toBe(10);
-    expect(restrict(-9, 10)).toBe(10);
-    expect(restrict(-9, 10, 20)).toBe(10);
-  });
-  test('restrict value greater or equal than max', () => {
-    expect(restrict(10, 0, 10)).toBe(10);
-    expect(restrict(10, '', 10)).toBe(10);
-    expect(restrict(10, null, 10)).toBe(10);
-    expect(restrict(13, null, 10)).toBe(10);
-    expect(restrict(-5, null, -6)).toBe(-6);
-    expect(restrict(-5, -10, -6)).toBe(-6);
+describe('dom tests', () => {
+  test('DOMContentLoaded test', async () => {
+    let val = false;
+    const test = () => {
+      val = true;
+    };
+    try {
+      await document.addEventListener('DOMContentLoaded', test, false);
+      const inintialized =
+        'complete' === document.readyState ||
+        'interactive' === document.readyState;
+      expect(val || inintialized).toBe(true);
+    } catch (e) {
+      expect(e).toMatch('error');
+    }
   });
 });
 
@@ -70,7 +70,7 @@ describe('BirthdayPicker', () => {
 });
 
 describe('BirthdayPicker.createLocale()', () => {
-  test('generate \'ru\' locales', () => {
+  test('generate "ru" locales', () => {
     BirthdayPicker.createLocale('ru');
     expect(typeof BirthdayPicker.i18n.ru).toBe('object');
     expect(BirthdayPicker.i18n.ru.month.short[0]).toBe('янв.');
@@ -80,7 +80,7 @@ describe('BirthdayPicker.createLocale()', () => {
 
 describe('BirthdayPicker init stage', () => {
   // Set up our document body
-  document.body.innerHTML = `
+  document.body.innerHTML += `
     <div id="test">
       <select data-birthdaypicker-year></select>
       <select data-birthdaypicker-month></select>
@@ -93,9 +93,9 @@ describe('BirthdayPicker init stage', () => {
 
   const elementNotExists = document.getElementById('wrongId');
   const bp1 = new BirthdayPicker(elementNotExists);
-  test('element doesn\'t exist', () => {
+  test('element does not exist', () => {
     expect(bp1).toBeTruthy();
-    expect(bp1).toEqual({error:true});
+    expect(bp1).toEqual({ error: true });
     expect(bp1.error).toBe(true);
   });
 
@@ -123,5 +123,4 @@ describe('BirthdayPicker init stage', () => {
   test('element allready initialized', () => {
     expect(bp4).toBeTruthy();
   });
-
 });

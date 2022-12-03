@@ -63,28 +63,38 @@ const docReady = (cb) => {
  * @return {mixed} Object with all collected data for the given element und name or false, if name was not found
  */
 const getJSONData = (el, name, defaults = null) => {
+  if (!el) {
+    return false;
+  }
+
   // get all
   if (undefined === name) {
     return el.dataset;
   }
 
-  let data = el.dataset[name];
-  if (undefined === data) {
-    return false;
+  if (undefined === el.dataset[name]) {
+    return el.dataset;
   }
 
+  let data;
   try {
     // eslint-disable-next-line quotes
-    data = JSON.parse(data.replaceAll("'", '"'));
+    data = JSON.parse(el.dataset[name].replaceAll("'", '"'));
     // eslint-disable-next-line no-empty
   } catch (e) {}
+
+  if ('undefined' !== typeof data) {
+    data = {
+      [name]: el.dataset[name],
+    };
+  }
 
   let obj = {};
   let len = name.length;
   Object.entries(el.dataset).forEach((item) => {
     if (item[0].toLowerCase().indexOf(name) >= 0 && item[0].length > len) {
       let key = item[0][len].toLowerCase() + item[0].substring(len + 1);
-      if (defaults && undefined !== defaults[key]) {
+      if (null === defaults || (defaults && undefined !== defaults[key])) {
         obj[key] = item[1];
       }
     }
@@ -137,6 +147,7 @@ const dataStorage = {
         }
       }
     }
+    return this;
   },
   get(el, key) {
     if (!this._storage.has(el)) {
@@ -155,7 +166,7 @@ const dataStorage = {
       return false;
     }
     let ret = this._storage.get(el).delete(key);
-    if (!this._storage.get(el).size === 0) {
+    if (this._storage.get(el).size === 0) {
       this._storage.delete(el);
     }
     return ret;
@@ -185,6 +196,7 @@ const restrict = (value, min, max) => {
 export {
   restrict,
   dataStorage,
+  addProps,
   createEl,
   docReady,
   getJSONData,

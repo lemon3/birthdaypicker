@@ -3,4 +3,6 @@ _notes
 .vscode
 .DS_Store
 .phpintel
+coverage
+.nyc_output
 node_modules
