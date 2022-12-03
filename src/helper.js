@@ -83,11 +83,7 @@ const getJSONData = (el, name, defaults = null) => {
     // eslint-disable-next-line no-empty
   } catch (e) {}
 
-  if ('undefined' !== typeof data) {
-    data = {
-      [name]: el.dataset[name],
-    };
-  }
+  data = { [name]: 'undefined' !== typeof data ? data : el.dataset[name] };
 
   let obj = {};
   let len = name.length;
@@ -140,7 +136,9 @@ const dataStorage = {
     }
     if (keyVal.length > 1) {
       this._storage.get(el).set(keyVal[0], keyVal[1]);
-    } else if ('object' === typeof keyVal[0]) {
+      return this;
+    }
+    if ('object' === typeof keyVal[0]) {
       for (var k in keyVal[0]) {
         if ({}.hasOwnProperty.call(keyVal[0], k)) {
           this._storage.get(el).set(k, keyVal[0][k]);
@@ -161,6 +159,7 @@ const dataStorage = {
   has(el, key) {
     return this._storage.has(el) && this._storage.get(el).has(key);
   },
+  // todo if no key given: remove all
   remove(el, key) {
     if (!this._storage.has(el)) {
       return false;

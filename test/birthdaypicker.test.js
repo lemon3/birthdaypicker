@@ -2,36 +2,21 @@
  * @jest-environment jsdom
  */
 
-/* global describe, test, expect */
+/* global afterEach, jest, describe, test, expect */
 
 import BirthdayPicker from '../src/index.js';
 
-// describe('sd', () => {
-//   test('It should pass', () => {
-//     let app = {
-//       init: function () {
-//         document.addEventListener('DOMContentLoaded', () => {
-//           this.instance();
-//         });
-//       },
-//       instance: function () {
-//         console.log('Instance method called');
-//       },
-//     };
-//     const instanceMock = jest.spyOn(app, 'instance');
-//     document.addEventListener = jest
-//       .fn()
-//       .mockImplementationOnce((event, callback) => {
-//         callback();
-//       });
-//     app.init();
-//     expect(document.addEventListener).toBeCalledWith(
-//       'DOMContentLoaded',
-//       expect.any(Function)
-//     );
-//     expect(instanceMock).toBeCalledTimes(1);
-//   });
-// });
+// Set up our document body
+document.body.innerHTML += `
+  <div id="test">
+    <select data-birthdaypicker-year></select>
+    <select data-birthdaypicker-month></select>
+    <select data-birthdaypicker-day></select>
+  </div>
+
+  <div id="test2"></div>
+  <div id="test3"></div>
+`;
 
 describe('dom tests', () => {
   test('DOMContentLoaded test', async () => {
@@ -51,7 +36,7 @@ describe('dom tests', () => {
   });
 });
 
-describe('BirthdayPicker', () => {
+describe('BirthdayPicker Class tests', () => {
   test('BirthdayPicker is Object', () => {
     expect(BirthdayPicker).toBeTruthy();
     expect(typeof BirthdayPicker).toBe('function');
@@ -79,30 +64,21 @@ describe('BirthdayPicker.createLocale()', () => {
 });
 
 describe('BirthdayPicker init stage', () => {
-  // Set up our document body
-  document.body.innerHTML += `
-    <div id="test">
-      <select data-birthdaypicker-year></select>
-      <select data-birthdaypicker-month></select>
-      <select data-birthdaypicker-day></select>
-    </div>
-
-    <div id="test2">
-    </div>
-  `;
-
   const elementNotExists = document.getElementById('wrongId');
   const bp1 = new BirthdayPicker(elementNotExists);
   test('element does not exist', () => {
     expect(bp1).toBeTruthy();
     expect(bp1).toEqual({ error: true });
     expect(bp1.error).toBe(true);
+    // test with string
+    expect(new BirthdayPicker('#wrongId')).toEqual({ error: true });
   });
 
   const elementExists = document.getElementById('test');
   const bp2 = new BirthdayPicker(elementExists, {
     defaultDate: '2012-10-13',
   });
+
   test('element exists', () => {
     // is object
     expect(bp2).toBeTruthy();
@@ -114,13 +90,135 @@ describe('BirthdayPicker init stage', () => {
   const bp3 = new BirthdayPicker(elementExists);
   test('element allready initialized', () => {
     expect(bp3).toBeTruthy();
-    expect(bp2).toEqual(bp3);
+    expect(bp3).toEqual(bp2);
     expect(bp3.currentYear).toBe('2012');
   });
 
   const noChildElements = document.getElementById('test2');
   const bp4 = new BirthdayPicker(noChildElements);
-  test('element allready initialized', () => {
+  test('element has no select-child elements', () => {
     expect(bp4).toBeTruthy();
   });
+});
+
+describe('BirthdayPicker events', () => {
+  const testEl = document.getElementById('test');
+  const testEl2 = document.getElementById('test2');
+  const bp = new BirthdayPicker(testEl);
+
+  const eventCallback = {
+    datechange() {},
+    monthchange() {},
+  };
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('callback has been called with "datechange"', () => {
+    const cb = jest.spyOn(eventCallback, 'datechange');
+    let tmp = bp.addEventListener;
+    bp.addEventListener = jest
+      .fn()
+      .mockImplementationOnce((event, callback) => {
+        callback();
+      });
+    bp.addEventListener('datechange', eventCallback.datechange);
+    expect(bp.addEventListener).toBeCalledWith(
+      'datechange',
+      // eventCallback.datechange
+      expect.any(Function)
+    );
+    expect(cb).toHaveBeenCalledTimes(1);
+    bp.addEventListener = tmp;
+  });
+
+  test('addEventListener defined on instance is registerd to DOM element', () => {
+    const listener = jest.spyOn(testEl, 'addEventListener');
+    bp.addEventListener('datechange', eventCallback.datechange);
+    expect(listener).toHaveBeenCalledTimes(1);
+  });
+
+  test('datechange eventlistener fired on init, listener set after instance is created', () => {
+    const cb = jest.spyOn(eventCallback, 'datechange');
+    const bp = new BirthdayPicker(testEl);
+    bp.addEventListener('datechange', eventCallback.datechange);
+    expect(cb).toHaveBeenCalledTimes(0);
+  });
+
+  test('datechange eventlistener fired on init, listener is set to DOM element befor instance is created', () => {
+    const cb = jest.spyOn(eventCallback, 'datechange');
+    BirthdayPicker.kill(testEl2);
+
+    testEl2.addEventListener('datechange', eventCallback.datechange);
+    new BirthdayPicker(testEl2, {
+      defaultDate: '2012-12-12',
+    });
+    expect(cb).toHaveBeenCalledTimes(1);
+  });
+
+  test('no default date set, so listener should not bee called', () => {
+    const cb = jest.spyOn(eventCallback, 'datechange');
+    BirthdayPicker.kill(testEl2);
+
+    // listener on element
+    testEl2.addEventListener('datechange', eventCallback.datechange);
+    const bp = new BirthdayPicker(testEl2);
+    // listener on instance
+    bp.addEventListener('datechange', eventCallback.datechange);
+
+    expect(cb).toHaveBeenCalledTimes(0);
+  });
+
+  test('addEventListener not registerd to element, if wrong event name given', () => {
+    const spy = jest.spyOn(testEl, 'addEventListener');
+    const wrong = bp.addEventListener('wrong', () => {});
+    expect(wrong).toBe(false);
+    expect(spy).toHaveBeenCalledTimes(0);
+  });
+});
+
+// test for _dayChanged
+describe('update stage, test', () => {
+  const bpEl = document.querySelector('#test');
+  BirthdayPicker.kill(bpEl);
+  let bp = new BirthdayPicker(bpEl);
+  let dayChangedSpy = jest.spyOn(bp, '_dayChanged');
+  let monthChangedSpy = jest.spyOn(bp, '_monthChanged');
+  let yearChangedSpy = jest.spyOn(bp, '_yearChanged');
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('month change tiggered a day change', () => {
+    bp.setDate(2000, 12, 31); // frist trigger
+    // a month change should trigge a day change too,
+    // if the current selected day is bigger than
+    // the days of the month
+    bp.setDate(2000, 2, 31); // second trigger
+    expect(dayChangedSpy).toHaveBeenCalledTimes(2);
+  });
+
+  test('test day, month, year trigger', () => {
+    bp.setDate(1999, 12, 15);
+    expect(dayChangedSpy).toHaveBeenCalledTimes(1);
+    expect(monthChangedSpy).toHaveBeenCalledTimes(1);
+    expect(yearChangedSpy).toHaveBeenCalledTimes(1);
+  });
+
+  test('change from leap year, should trigger day change', () => {
+    // leap year
+    bp.setDate(2004, 2, 29);
+    expect(dayChangedSpy).toHaveBeenCalledTimes(1);
+    expect(monthChangedSpy).toHaveBeenCalledTimes(1);
+    expect(yearChangedSpy).toHaveBeenCalledTimes(1);
+
+    // only change year
+    bp.setDate(2005, 2, 29);
+    expect(yearChangedSpy).toHaveBeenCalledTimes(2);
+    expect(monthChangedSpy).toHaveBeenCalledTimes(1);
+    expect(dayChangedSpy).toHaveBeenCalledTimes(2);
+  });
+
 });

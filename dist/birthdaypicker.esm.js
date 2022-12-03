@@ -29,6 +29,9 @@ __webpack_require__.d(__webpack_exports__, {
 
 ;// CONCATENATED MODULE: ./src/helper.js
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 /**
  * add properties and style attributes to a given HTML object
  * @param  {object} el - The HTML object to add properties and styles too.
@@ -93,25 +96,30 @@ var docReady = function docReady(cb) {
  */
 var getJSONData = function getJSONData(el, name) {
   var defaults = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+  if (!el) {
+    return false;
+  }
+
   // get all
   if (undefined === name) {
     return el.dataset;
   }
-  var data = el.dataset[name];
-  if (undefined === data) {
-    return false;
+  if (undefined === el.dataset[name]) {
+    return el.dataset;
   }
+  var data;
   try {
     // eslint-disable-next-line quotes
-    data = JSON.parse(data.replaceAll("'", '"'));
+    data = JSON.parse(el.dataset[name].replaceAll("'", '"'));
     // eslint-disable-next-line no-empty
   } catch (e) {}
+  data = _defineProperty({}, name, 'undefined' !== typeof data ? data : el.dataset[name]);
   var obj = {};
   var len = name.length;
   Object.entries(el.dataset).forEach(function (item) {
     if (item[0].toLowerCase().indexOf(name) >= 0 && item[0].length > len) {
       var key = item[0][len].toLowerCase() + item[0].substring(len + 1);
-      if (defaults && undefined !== defaults[key]) {
+      if (null === defaults || defaults && undefined !== defaults[key]) {
         obj[key] = item[1];
       }
     }
@@ -163,13 +171,16 @@ var dataStorage = {
     }
     if (keyVal.length > 1) {
       this._storage.get(el).set(keyVal[0], keyVal[1]);
-    } else if ('object' === _typeof(keyVal[0])) {
+      return this;
+    }
+    if ('object' === _typeof(keyVal[0])) {
       for (var k in keyVal[0]) {
         if ({}.hasOwnProperty.call(keyVal[0], k)) {
           this._storage.get(el).set(k, keyVal[0][k]);
         }
       }
     }
+    return this;
   },
   get: function get(el, key) {
     if (!this._storage.has(el)) {
@@ -183,12 +194,13 @@ var dataStorage = {
   has: function has(el, key) {
     return this._storage.has(el) && this._storage.get(el).has(key);
   },
+  // todo if no key given: remove all
   remove: function remove(el, key) {
     if (!this._storage.has(el)) {
       return false;
     }
     var ret = this._storage.get(el).delete(key);
-    if (!this._storage.get(el).size === 0) {
+    if (this._storage.get(el).size === 0) {
       this._storage.delete(el);
     }
     return ret;
@@ -221,11 +233,11 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 function _iterableToArrayLimit(arr, i) { var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"]; if (null != _i) { var _s, _e, _x, _r, _arr = [], _n = !0, _d = !1; try { if (_x = (_i = _i.call(arr)).next, 0 === i) { if (Object(_i) !== _i) return; _n = !1; } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0) { ; } } catch (err) { _d = !0, _e = err; } finally { try { if (!_n && null != _i.return && (_r = _i.return(), Object(_r) !== _r)) return; } finally { if (_d) throw _e; } } return _arr; } }
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, src_toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return src_typeof(key) === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (src_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (src_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function src_defineProperty(obj, key, value) { key = src_toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function src_toPropertyKey(arg) { var key = src_toPrimitive(arg, "string"); return src_typeof(key) === "symbol" ? key : String(key); }
+function src_toPrimitive(input, hint) { if (src_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (src_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 /*!
  * (c) wolfgang jungmayer
  */
@@ -261,7 +273,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
   function BirthdayPicker(element, options) {
     var _this = this;
     _classCallCheck(this, BirthdayPicker);
-    _defineProperty(this, "_dateChanged", function (evt) {
+    src_defineProperty(this, "_dateChanged", function (evt) {
       if (evt) {
         if (evt.target === _this._year.el) {
           _this._yearChanged(evt.target.value);
@@ -274,9 +286,10 @@ var BirthdayPicker = /*#__PURE__*/function () {
       if (_this.settings.noFutureDate) {
         _this._nofuturDate();
       }
-      if (!_this._prevent) {
-        _this._triggerEvent(allowedEvents[0]);
-      }
+
+      // if (!this._prevent) {
+      _this._triggerEvent(allowedEvents[0]);
+      // }
     });
     if (!element) {
       return {
@@ -289,6 +302,8 @@ var BirthdayPicker = /*#__PURE__*/function () {
         error: true
       };
     }
+
+    // todo: use dataStorage.has(element) ?
     if (element.dataset.bdpinit) {
       return BirthdayPicker.getInstance(element);
     }
@@ -391,12 +406,13 @@ var BirthdayPicker = /*#__PURE__*/function () {
   }, {
     key: "setDate",
     value: function setDate(year, month, day) {
-      this._prevent = true; // prevent _dateChanged to fire
+      // this._prevent = true; // prevent _dateChanged to fire
 
       this._setYear(year);
       this._setMonth(month);
       this._setDay(day);
-      this._prevent = false; // stop prevent _dateChanged to fire
+
+      // this._prevent = false; // stop prevent _dateChanged to fire
       this._dateChanged();
     }
   }, {
@@ -571,7 +587,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       // todo: set currentDay to the next or the prev. correct date
       // eg. 2010-12-31 -> change month to 11 -> 2010-11-31
       // either: 2010-11-30, or 2010-12-01
-      if (this._day.el.value !== this.currentDay) {
+      if (this.currentDay && this._day.el.value !== this.currentDay) {
         this._dayChanged();
       }
     }
@@ -695,21 +711,40 @@ var BirthdayPicker = /*#__PURE__*/function () {
   }, {
     key: "init",
     value: function init() {
+      if (this.initialized) {
+        return true;
+      }
+      this.initialized = true;
       this._monthDayMapping = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+      var yearElement = this.element.querySelector('[' + dataName + '-year]');
+      var monthElement = this.element.querySelector('[' + dataName + '-month]');
+      var dayElement = this.element.querySelector('[' + dataName + '-day]');
+
+      // todo: add default dataset value data-birthdaypicker-year???
+      if (!yearElement) {
+        yearElement = createEl('select');
+      }
+      if (!monthElement) {
+        monthElement = createEl('select');
+      }
+      if (!dayElement) {
+        dayElement = createEl('select');
+      }
 
       // todo: find or create(!)
       this._year = {
-        el: this.element.querySelector('[' + dataName + '-year]'),
+        el: yearElement,
         df: document.createDocumentFragment(),
-        name: 'year'
+        name: 'year' // placeholder name
       };
+
       this._month = {
-        el: this.element.querySelector('[' + dataName + '-month]'),
+        el: monthElement,
         df: document.createDocumentFragment(),
         name: 'month'
       };
       this._day = {
-        el: this.element.querySelector('[' + dataName + '-day]'),
+        el: dayElement,
         df: document.createDocumentFragment(),
         name: 'day'
       };
@@ -825,6 +860,18 @@ BirthdayPicker.setLanguage = function (lang) {
 };
 BirthdayPicker.getInstance = function (el) {
   return dataStorage.get(el, 'instance');
+};
+BirthdayPicker.kill = function (el) {
+  // let instance = BirthdayPicker.getInstance(el);
+  // todo: reset all to default!
+  // e.g.: instance.kill();
+
+  try {
+    delete el.dataset.bdpinit;
+  } catch (e) {
+    el.dataset.bdpinit = false;
+  }
+  dataStorage.remove(el, 'instance');
 };
 BirthdayPicker.defaults = {
   maxAge: 100,

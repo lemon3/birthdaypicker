@@ -53,6 +53,7 @@ class BirthdayPicker {
       return { error: true };
     }
 
+    // todo: use dataStorage.has(element) ?
     if (element.dataset.bdpinit) {
       return BirthdayPicker.getInstance(element);
     }
@@ -160,13 +161,13 @@ class BirthdayPicker {
    * @param {String | Int} day   The day.
    */
   setDate(year, month, day) {
-    this._prevent = true; // prevent _dateChanged to fire
+    // this._prevent = true; // prevent _dateChanged to fire
 
     this._setYear(year);
     this._setMonth(month);
     this._setDay(day);
 
-    this._prevent = false; // stop prevent _dateChanged to fire
+    // this._prevent = false; // stop prevent _dateChanged to fire
     this._dateChanged();
   }
 
@@ -336,7 +337,7 @@ class BirthdayPicker {
     // todo: set currentDay to the next or the prev. correct date
     // eg. 2010-12-31 -> change month to 11 -> 2010-11-31
     // either: 2010-11-30, or 2010-12-01
-    if (this._day.el.value !== this.currentDay) {
+    if (this.currentDay && this._day.el.value !== this.currentDay) {
       this._dayChanged();
     }
   }
@@ -435,9 +436,9 @@ class BirthdayPicker {
       this._nofuturDate();
     }
 
-    if (!this._prevent) {
-      this._triggerEvent(allowedEvents[0]);
-    }
+    // if (!this._prevent) {
+    this._triggerEvent(allowedEvents[0]);
+    // }
   };
 
   _dayChanged(day) {
@@ -634,6 +635,18 @@ BirthdayPicker.setLanguage = (lang) => {
 };
 
 BirthdayPicker.getInstance = (el) => dataStorage.get(el, 'instance');
+BirthdayPicker.kill = (el) => {
+  // let instance = BirthdayPicker.getInstance(el);
+  // todo: reset all to default!
+  // e.g.: instance.kill();
+
+  try {
+    delete el.dataset.bdpinit;
+  } catch(e) {
+    el.dataset.bdpinit = false;
+  }
+  dataStorage.remove(el, 'instance');
+};
 
 BirthdayPicker.defaults = {
   maxAge: 100, // maximal age for a person

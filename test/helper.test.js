@@ -33,12 +33,25 @@ document.body.innerHTML += `
 `;
 
 describe('test addProps function', () => {
-  let a = document.createElement('div');
-  test('props should be added to DOM element', () => {
+  // props should be added to DOM element
+  test('with properties, style, innerHTML', () => {
+    let a = document.createElement('div');
     addProps(a, { height: 1, width: 1 }, { display: 'none' }, 'super');
     expect(a.innerHTML).toBe('super');
     expect(a.style.display).toBe('none');
     expect(a.getAttribute('height')).toBe('1');
+  });
+  test('with style', () => {
+    let a = document.createElement('div');
+    addProps(a, null, { display: 'flex', zIndex: 10 });
+    expect(a.style.display).toBe('flex');
+    expect(a.style.zIndex).toBe('10');
+  });
+  test('with properties', () => {
+    let a = document.createElement('div');
+    addProps(a, { display: 'flex', test: null });
+    expect(a.style.display).not.toBe('flex');
+    expect(a.getAttribute('test')).toBe('null');
   });
 });
 
@@ -49,14 +62,6 @@ describe('test createEl function', () => {
     expect(typeof a).toBe('object');
     expect(a.nodeType).toBe(1);
     expect(a.nodeName.toLowerCase()).toBe('div');
-  });
-});
-
-describe('test docReady function', () => {
-  test('function should be fired', () => {
-    const hmm = jest.fn();
-    docReady(hmm);
-    expect(hmm).toHaveBeenCalled();
   });
 });
 
@@ -86,7 +91,7 @@ describe('test getJSONData function', () => {
   test('element with multiple data attributes', () => {
     let data = getJSONData(helperData3, 'heels');
     expect(data).toMatchObject({
-      heels: 'true',
+      heels: true,
       color: 'red',
       height: '12',
     });
@@ -99,6 +104,34 @@ describe('test getJSONData function', () => {
       defaultDate: '2012-04-14',
       monthFormat: 'short',
     });
+  });
+
+  test('JSON-string data', () => {
+    const div = document.createElement('div');
+    // eslint-disable-next-line quotes
+    div.dataset.test = "{'foo':'bar'}";
+    let result = getJSONData(div, 'test');
+    let exp = { test: { foo: 'bar' } };
+    expect(result).toEqual(exp);
+  });
+
+  test('with undefined string value', () => {
+    const div = document.createElement('div');
+    div.dataset.test = 'undefined';
+    let result = getJSONData(div, 'test');
+    expect(result).toEqual({ test: 'undefined' });
+  });
+
+  test('with default values', () => {
+    const div = document.createElement('div');
+    div.dataset.test = 'name123';
+    div.dataset.testNew = 'new123';
+    div.dataset.testOld = 'old123';
+    const defaults = {
+      old: 'old123',
+    };
+    let result = getJSONData(div, 'test', defaults);
+    expect(result).toEqual({ test: 'name123', old: 'old123' });
   });
 });
 
@@ -202,6 +235,20 @@ describe('test dataStorage', () => {
 
     expect(dataStorageSpy).toHaveBeenCalled();
   });
+
+  test('test remove', () => {
+    const div = document.createElement('div');
+    const m = new Map();
+    m.set('super', 'man');
+    m.set('bat', 'girl');
+
+    dataStorage.put(div, {
+      super: 'man',
+      bat: 'girl',
+    });
+
+    expect(dataStorage.get(div)).toEqual(m);
+  });
 });
 
 describe('test restrict function', () => {
@@ -248,8 +295,14 @@ describe('test isLeapYear function', () => {
   });
 });
 
-describe('test isLeapYear function', () => {
-  test('docReady() helper function', async () => {
+describe('test docReady function', () => {
+  test('function should be fired', () => {
+    const hmm = jest.fn();
+    docReady(hmm);
+    expect(hmm).toHaveBeenCalled();
+  });
+
+  test('callback should change global var value', async () => {
     let val = false;
     const test = () => {
       val = true;
@@ -260,5 +313,30 @@ describe('test isLeapYear function', () => {
     } catch (e) {
       expect(e).toMatch('error');
     }
+  });
+
+  test('docReady callback called via addEventListener', () => {
+    const cb = jest.fn();
+    // fake states
+    Object.defineProperty(document, 'readyState', {
+      get() {
+        return 'loading';
+      },
+    });
+
+    document.addEventListener = jest
+      .fn()
+      .mockImplementationOnce((event, callback) => {
+        callback();
+      });
+    const mockedDocReady = jest.mocked(docReady);
+    mockedDocReady(cb);
+
+    expect(document.addEventListener).toBeCalledWith(
+      'DOMContentLoaded',
+      cb, // expect.any(Function)
+      expect.any(Boolean)
+    );
+    expect(cb).toHaveBeenCalledTimes(1);
   });
 });
