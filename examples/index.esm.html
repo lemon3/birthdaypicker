@@ -33,7 +33,6 @@
   <body>
     <div class="page">
       <h1>Birthday Picker</h1>
-
       <div class="section" id="test">
         <select data-birthdaypicker-year></select>
         <select data-birthdaypicker-month></select>
@@ -63,7 +62,7 @@
 
       const datechange = (evt) => {
         const i = evt.detail.instance;
-        testInput.value = i.getDate();
+        testInput.value = i.getDate('d.m.yyyy');
       };
 
       const changeLang = (evt) => {

@@ -12,6 +12,10 @@
   </head>
   <body class="bg-slate-500" x-cloak>
     <div class="mx-auto max-w-2xl py-4 px-4">
+      <div data-birthdaypicker
+        data-birthdaypicker-default-date="now"
+        class="inline-flex mb-4"
+      ></div>
       <div
         x-data="{
           initialized: false,
@@ -25,6 +29,7 @@
             { id:0, val: '1926-06-01', label: 'Marilyn Monroe' },
             { id:1, val: '1980-06-06', label: 'Eva Green' },
             { id:2, val: '1967-02-20', label: 'Kurt Cobain' },
+            { id:3, val: '2000-02-29', label: 'Leap Year' },
           ],
           availableDateformat: [
             { id:0, val:'short' },
@@ -56,7 +61,7 @@
           },
           setdate(val) {
             this.instance = this.instance || BirthdayPicker.getInstance(this.el);
-            this.instance.setDate(...val.split('-'));
+            this.instance.setDate(val);
           },
           // event
           datechange(evt) {
@@ -77,7 +82,6 @@
             <div x-text="name"></div>
           </div>
           <div
-            id="marilyn"
             data-birthdaypicker
             :data-birthdaypicker-default-date="date"
             :data-birthdaypicker-month-format="dateformat"

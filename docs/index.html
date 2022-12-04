@@ -9,12 +9,12 @@
   <body class="bg-slate-500" x-cloak>
     <a
       href="https://github.com/lemon3/birthdaypicker"
-      class="group absolute top-0 right-0"
+      class="fixed group top-0 right-0"
       aria-label="View source on GitHub"
     >
       <svg
-        width="120"
-        height="120"
+        width="100"
+        height="100"
         viewbox="0 0 250 250"
         aria-hidden="true"
         class="fill-slate-800 group-hover:fill-slate-900"
@@ -78,7 +78,7 @@
           },
           setdate(val) {
             this.instance = this.instance || BirthdayPicker.getInstance(this.el);
-            this.instance.setDate(...val.split('-'));
+            this.instance.setDate(val);
           },
           // event
           datechange(evt) {

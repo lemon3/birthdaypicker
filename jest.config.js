@@ -9,7 +9,8 @@ const config = {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   testPathIgnorePatterns: [
-    '/node_modules/'
+    '/node_modules/',
+    '_notes'
   ]
 };
 
