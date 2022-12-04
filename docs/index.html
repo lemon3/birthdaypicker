@@ -53,17 +53,25 @@
             { id:1, val:'long' },
             { id:2, val:'numeric' },
           ],
+          currentOutputFormat: null,
+          outputFormat: [
+            { id:0, val:'', label:'default', desc: '(formating based on the selected language)' },
+            { id:1, val:'dd. mm. yyyy', label:'dd. mm. yyyy', desc: '(formating based on dd. mm. yyyy)' },
+            { id:2, val:'mm/dd/yyyy', label:'mm/dd/yyyy', desc: '(formating based on mm/dd/yyyy)' },
+            { id:3, val:'d.m.yyyy', label:'d.m.yyyy', desc: '(formating based on d.m.yyyy)' },
+            { id:4, val:'yyyy-mm-dd', label:'yyyy-mm-dd', desc: '(formating based on yyyy-mm-dd)' },
+          ],
           availableLocale: [
-            { id:0, val:'de', label:'DE' },
-            { id:1, val:'en', label:'EN' },
+            { id:0, val:'en', label:'EN' },
+            { id:1, val:'de', label:'DE' },
             { id:2, val:'fr', label:'FR' },
-            { id:3, val:'ru', label:'RU' },
-            { id:4, val:'fi', label:'FI' },
+            { id:3, val:'fi', label:'FI' },
           ],
           init() {
             if (this.initialized) {
               return;
             }
+            this.currentOutputFormat = this.outputFormat[0];
             this.dateformat = this.availableDateformat[0].val;
             this.locale = this.availableLocale[0].val;
             this.date = this.birthdays[1].val;
@@ -76,16 +84,26 @@
             });
             this.initialized = true;
           },
-          setdate(val) {
-            this.instance = this.instance || BirthdayPicker.getInstance(this.el);
-            this.instance.setDate(val);
+          getInstance() {
+            if (this.instance) {
+              return this.instance;
+            }
+            this.instance = BirthdayPicker.getInstance(this.el);
+            return this.instance;
           },
-          // event
+          setdate(val) {
+            this.getInstance().setDate(val);
+          },
+          // events
+          outputFormatChange(evt) {
+            this.currentOutputFormat = this.outputFormat.filter((op) => op.id === +evt.target.value)[0];
+            this.result = this.getInstance().getDate(this.currentOutputFormat.val);
+          },
           datechange(evt) {
             const i = evt.detail.instance;
-            let tmp = [i.currentYear,('00'+i.currentMonth).slice(-2),('00'+i.currentDay).slice(-2)].join('-');
-            this.date = tmp;
-            this.result = i.getDate();
+            // let tmp = [i.currentYear,('00'+i.currentMonth).slice(-2),('00'+i.currentDay).slice(-2)].join('-');
+            this.date = i.getDate('yyyy-mm-dd');
+            this.result = i.getDate(this.currentOutputFormat.val);
           },
         }"
         :class="initialized ? 'display-block' : 'hidden'"
@@ -308,9 +326,7 @@
           <div class="relative">
             <div class="mb-1">
               selected result
-              <div class="text-xs">
-                (formating based on the selected language)
-              </div>
+              <div class="text-xs" x-text="currentOutputFormat.desc"></div>
             </div>
             <input
               class="px-2 py-2 outline-none border-0 focus:ring-pink-500 focus:ring-2 rounded-md disabled:bg-gray-400 disabled:text-gray-600 disabled:opacity-1"
@@ -348,6 +364,37 @@
               short
             </button>
           </template>
+        </div>
+
+        <div class="mt-8">
+          <div>set output format to:</div>
+          <div class="flex">
+            <div class="relative">
+              <select
+                @change="outputFormatChange"
+                class="peer focus:outline-none pr-7 pl-2 py-2 appearance-none rounded-none cursor-pointer border-0 rounded-md"
+              >
+                <template x-for="oFormat in outputFormat" :key="oFormat.id">
+                  <option :value="oFormat.id" x-text="oFormat.label"></option>
+                </template>
+              </select>
+              <div
+                class="top-0 left-0 pointer-events-none absolute w-full h-full border-0 peer-focus:ring-pink-500 peer-focus:ring-2 peer-focus:z-10 peer-focus:bg-pink-500/10 rounded-md"
+              >
+                <svg
+                  class="w-4 top-2 right-2 absolute"
+                  width="24"
+                  height="24"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="m20.902 7.331c.326-.322.851-.322 1.175 0s.325.841 0 1.163l-9.49 9.396c-.324.322-.848.322-1.175 0l-9.49-9.396c-.324-.322-.324-.841 0-1.163.325-.322.851-.322 1.175 0l8.903 8.569z"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="mt-8">
