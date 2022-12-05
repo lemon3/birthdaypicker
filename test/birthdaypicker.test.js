@@ -18,6 +18,12 @@ document.body.innerHTML += `
   <div id="test3"></div>
 `;
 
+afterEach(() => {
+  jest.clearAllMocks();
+  // only for spyOn mocked Equivalent to .mockRestore()
+  // jest.restoreAllMocks();
+});
+
 describe('dom tests', () => {
   test('DOMContentLoaded test', async () => {
     let val = false;
@@ -91,7 +97,7 @@ describe('BirthdayPicker init stage', () => {
   test('element allready initialized', () => {
     expect(bp3).toBeTruthy();
     expect(bp3).toEqual(bp2);
-    expect(bp3.currentYear).toBe('2012');
+    expect(bp3.currentYear).toBe(2012);
   });
 
   const noChildElements = document.getElementById('test2');
@@ -104,20 +110,22 @@ describe('BirthdayPicker init stage', () => {
 describe('BirthdayPicker events', () => {
   const testEl = document.getElementById('test');
   const testEl2 = document.getElementById('test2');
+  BirthdayPicker.kill(testEl);
   const bp = new BirthdayPicker(testEl);
 
   const eventCallback = {
     datechange() {},
     monthchange() {},
+    init() {},
   };
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  test('allowed events should be', () => {
+    bp.addEventListener('init', eventCallback.init);
   });
 
   test('callback has been called with "datechange"', () => {
     const cb = jest.spyOn(eventCallback, 'datechange');
-    let tmp = bp.addEventListener;
+    const tmp = bp.addEventListener;
     bp.addEventListener = jest
       .fn()
       .mockImplementationOnce((event, callback) => {
@@ -130,20 +138,28 @@ describe('BirthdayPicker events', () => {
       expect.any(Function)
     );
     expect(cb).toHaveBeenCalledTimes(1);
+
+    // restore
     bp.addEventListener = tmp;
+    cb.mockRestore();
   });
 
   test('addEventListener defined on instance is registerd to DOM element', () => {
     const listener = jest.spyOn(testEl, 'addEventListener');
+
     bp.addEventListener('datechange', eventCallback.datechange);
     expect(listener).toHaveBeenCalledTimes(1);
+
+    listener.mockRestore();
   });
 
   test('datechange eventlistener fired on init, listener set after instance is created', () => {
     const cb = jest.spyOn(eventCallback, 'datechange');
-    const bp = new BirthdayPicker(testEl);
+    // const bp = new BirthdayPicker(testEl);
     bp.addEventListener('datechange', eventCallback.datechange);
     expect(cb).toHaveBeenCalledTimes(0);
+
+    cb.mockRestore();
   });
 
   test('datechange eventlistener fired on init, listener is set to DOM element befor instance is created', () => {
@@ -155,6 +171,8 @@ describe('BirthdayPicker events', () => {
       defaultDate: '2012-12-12',
     });
     expect(cb).toHaveBeenCalledTimes(1);
+
+    cb.mockRestore();
   });
 
   test('no default date set, so listener should not bee called', () => {
@@ -166,8 +184,9 @@ describe('BirthdayPicker events', () => {
     const bp = new BirthdayPicker(testEl2);
     // listener on instance
     bp.addEventListener('datechange', eventCallback.datechange);
-
     expect(cb).toHaveBeenCalledTimes(0);
+
+    cb.mockRestore();
   });
 
   test('addEventListener not registerd to element, if wrong event name given', () => {
@@ -175,6 +194,8 @@ describe('BirthdayPicker events', () => {
     const wrong = bp.addEventListener('wrong', () => {});
     expect(wrong).toBe(false);
     expect(spy).toHaveBeenCalledTimes(0);
+
+    spy.mockRestore();
   });
 
   test('removeEventListener test', () => {
@@ -195,6 +216,41 @@ describe('BirthdayPicker events', () => {
 });
 
 // test for _dayChanged
+describe('date setting tests', () => {
+  const bpEl = document.querySelector('#test');
+  BirthdayPicker.kill(bpEl);
+  const defaultDate = '1980-06-06';
+  const newDate = '1990-12-30';
+  let bp = new BirthdayPicker(bpEl, { defaultDate });
+
+  test('set date via setDate()', () => {
+    bp.setDate(newDate);
+
+    const date1 = bp.getDate('yyyy-mm-dd');
+    expect(date1).toEqual(newDate);
+
+    // reset
+    bp.setDate(defaultDate);
+
+    const mapping = ['_year','_month', '_day'];
+    newDate.split('-').forEach((val, ind) => {
+      let el = bp[mapping[ind]].el;
+      const [idx, ] = bp._getNodeIndexByValue(
+        el.childNodes,
+        val
+      );
+      el.selectedIndex = idx;
+      el.dispatchEvent(new Event('change'));
+    });
+    const date2 = bp.getDate('yyyy-mm-dd');
+
+    expect(date1).toEqual(date2);
+
+  });
+
+});
+
+// test for _dayChanged
 describe('update stage, test', () => {
   const bpEl = document.querySelector('#test');
   BirthdayPicker.kill(bpEl);
@@ -203,10 +259,6 @@ describe('update stage, test', () => {
   let monthChangedSpy = jest.spyOn(bp, '_monthChanged');
   let dayChangedSpy = jest.spyOn(bp, '_dayChanged');
   let dateChangedSpy = jest.spyOn(bp, '_dateChanged');
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
 
   test('month change tiggered a day change', () => {
     bp.setDate('2000-12-31'); // frist trigger
@@ -261,9 +313,9 @@ describe('update stage, test', () => {
     expect(yearChangedSpy).toHaveBeenCalledTimes(4);
     expect(monthChangedSpy).toHaveBeenCalledTimes(4);
     expect(dayChangedSpy).toHaveBeenCalledTimes(4);
-    expect(bp.currentYear).toBe('2005');
-    expect(bp.currentMonth).toBe('3');
-    expect(bp.currentDay).toBe('1');
+    expect(bp.currentYear).toBe(2005);
+    expect(bp.currentMonth).toBe(3);
+    expect(bp.currentDay).toBe(1);
     expect(dateChangedSpy).toHaveBeenCalledTimes(6);
 
     bp.setDate('2005-3-1'); // no change!!
@@ -337,10 +389,6 @@ describe('test the setLanguage function', () => {
     useLeadingZero: false,
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
   test('setting lang should work', () => {
     const langChangeSpy = jest.spyOn(BirthdayPicker, 'createLocale');
     bp.setLanguage('de');
@@ -384,17 +432,11 @@ describe('test the setLanguage function', () => {
 });
 
 describe('test the getDate function', () => {
-  const bpEl = document.querySelector('#test');
-  BirthdayPicker.kill(bpEl);
+  const bpEl = document.createElement('div');
   let bp = new BirthdayPicker(bpEl, {
     monthFormat: 'numeric',
     locale: 'en',
-    // defaultDate: '2020-02-02',
     useLeadingZero: false,
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
   });
 
   test('getDate() without value, current-date not set yet!', () => {
@@ -421,14 +463,12 @@ describe('test the getDate function', () => {
     expect(bp.getDate('d. m. yyyy')).toBe('17. 4. 2019');
     expect(bp.getDate('mm / dd / yyyy')).toBe('04 / 17 / 2019');
     expect(bp.getDate('dmyy')).toBe('17419');
-    expect(bp.getDate('d.m.\'yy')).toBe('17.4.\'19');
+    expect(bp.getDate('d.m. yy')).toBe('17.4. 19');
   });
-
 });
 
 describe('public methods tests', () => {
-  const bpEl = document.querySelector('#test');
-  BirthdayPicker.kill(bpEl);
+  const bpEl = document.createElement('div');
   let bp = new BirthdayPicker(bpEl, {
     monthFormat: 'numeric',
     locale: 'en',
@@ -471,30 +511,31 @@ describe('private methods tests', () => {
     monthFormat: 'numeric',
     useLeadingZero: false,
   });
-  let dateChangedSpy = jest.spyOn(bp, '_dateChanged');
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
 
   test('_getNodeIndexByValue - nodelist not set', () => {
     // value not found
-    expect(bp._getNodeIndexByValue()).toEqual([undefined,undefined]);
-    expect(bp._getNodeIndexByValue('fakenodelist')).toEqual([undefined,undefined]);
-    expect(bp._getNodeIndexByValue(null)).toEqual([undefined,undefined]);
-    expect(bp._getNodeIndexByValue(undefined)).toEqual([undefined,undefined]);
+    expect(bp._getNodeIndexByValue()).toEqual([undefined, undefined]);
+    expect(bp._getNodeIndexByValue('fakenodelist')).toEqual([
+      undefined,
+      undefined,
+    ]);
+    expect(bp._getNodeIndexByValue(null)).toEqual([undefined, undefined]);
+    expect(bp._getNodeIndexByValue(undefined)).toEqual([undefined, undefined]);
   });
 
   test('_getNodeIndexByValue - nodelist set, no value', () => {
     // value not found
     const monthNodeList = bp._month.el.childNodes;
-    expect(bp._getNodeIndexByValue(monthNodeList)).toEqual([undefined,undefined]);
+    expect(bp._getNodeIndexByValue(monthNodeList)).toEqual([
+      undefined,
+      undefined,
+    ]);
   });
 
   test('_getNodeIndexByValue - nodelist set, value not found', () => {
     // value not found
     const monthNodeList = bp._month.el.childNodes;
-    expect(bp._getNodeIndexByValue(monthNodeList, 12)).toEqual([12, '12']);
+    expect(bp._getNodeIndexByValue(monthNodeList, 12)).toEqual([12, 12]);
   });
 
   test('test _getMonthText', () => {
@@ -507,22 +548,115 @@ describe('private methods tests', () => {
     bp.useLeadingZero = true;
     expect(bp._getMonthText(12)).toBe('12');
   });
+});
+
+describe('_nofuturDate methods tests', () => {
+  const bpEl = document.querySelector('#test');
+  BirthdayPicker.kill(bpEl);
+  let bp = new BirthdayPicker(bpEl, {
+    defaultDate: '2010-02-20',
+    maxYear: 2030,
+  });
+
+  const orig = bp._nofuturDate;
+  test('try to set to a futur day', () => {
+    const _nofuturDateSpy = jest.spyOn(bp, '_nofuturDate');
+    bp.setDate('2024-11-15');
+
+    expect(_nofuturDateSpy).toHaveBeenCalled();
+    const today = new Date();
+    const todayYear = today.getFullYear();
+    const todayMonth = today.getMonth() + 1;
+    const todayDay = today.getDate();
+    const todayString = `${todayYear}-${todayMonth}-${todayDay}`;
+    expect(bp.getDate('yyyy-m-d')).toEqual(todayString);
+  });
+  // bp._nofuturDate = jest.fun();
+
+  // restore the original implementation
+  bp._nofuturDate = orig;
+});
+
+describe('_setDate methods tests', () => {});
+
+describe('_dateChanged methods tests', () => {
+  const bpEl = document.querySelector('#test');
+  BirthdayPicker.kill(bpEl);
+  let bp = new BirthdayPicker(bpEl, {
+    defaultDate: '2010-02-20'
+  });
 
   test('test for _dateChanged triggering by setting date', () => {
+    const _dateChangedSpy = jest.spyOn(bp, '_dateChanged');
+
     bp.setDate('1234-5-6');
-    expect(dateChangedSpy).toHaveBeenCalled();
-    expect(dateChangedSpy).toHaveBeenCalledTimes(1);
+    bp.setDate('1982-2-6');
+    bp.setDate('1912-10-26');
+
+    expect(_dateChangedSpy).toHaveBeenCalledTimes(3);
+
+    _dateChangedSpy.mockRestore();
   });
 
   test('test for _dateChanged triggering by select change', () => {
+    const _dateChangedSpy = jest.spyOn(bp, '_dateChanged');
+
     bp._year.el.selectedIndex = 2;
     bp._year.el.dispatchEvent(new Event('change'));
-
     const y1 = bp.currentYear;
+
     bp._year.el.selectedIndex = 3;
     bp._year.el.dispatchEvent(new Event('change'));
-
     const y2 = bp.currentYear;
+
     expect(y1).not.toBe(y2);
+    expect(_dateChangedSpy).toHaveBeenCalledTimes(2);
+
+    _dateChangedSpy.mockRestore();
+  });
+});
+
+describe('_updateDays methods tests', () => {
+  const bpEl = document.querySelector('#test');
+  BirthdayPicker.kill(bpEl);
+  let bp = new BirthdayPicker(bpEl, {
+    defaultDate: '2010-02-20',
+  });
+
+  test('test the _updateDays should be called if select changed', () => {
+    const _dateChangedSpy = jest.spyOn(bp, '_dateChanged');
+    bp._year.el.selectedIndex = 21;
+    bp._year.el.dispatchEvent(new Event('change'));
+    expect(_dateChangedSpy).toHaveBeenCalled();
+    _dateChangedSpy.mockRestore();
+  });
+
+  test('test the _updateDays should not be called if value ist set via setDate', () => {
+    const _setDateSpy = jest.spyOn(bp, '_setDate');
+    const _setDaySpy = jest.spyOn(bp, '_setDay');
+    const _updateDaysSpy = jest.spyOn(bp, '_updateDays');
+
+    // change days
+    bp.setDate('2010-2-10');
+    expect(_setDateSpy).toHaveBeenCalledWith(2010, 2, 10);
+    expect(_setDaySpy).toHaveBeenCalledWith(10);
+    expect(_updateDaysSpy).not.toHaveBeenCalled();
+    expect(bp.getDate('yyyy-m-d')).toEqual('2010-2-10');
+
+    // change month
+    bp.setDate('2010-12-10');
+    expect(_updateDaysSpy).not.toHaveBeenCalled();
+
+    // change year
+    bp.setDate('2012-12-10');
+    expect(_updateDaysSpy).not.toHaveBeenCalled();
+
+    // change all
+    bp.setDate('2021-01-15');
+    expect(_updateDaysSpy).not.toHaveBeenCalled();
+
+    _setDateSpy.mockRestore();
+    _setDaySpy.mockRestore();
+    _updateDaysSpy.mockRestore();
   });
 });

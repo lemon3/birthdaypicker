@@ -14,7 +14,7 @@ import {
 const instances = [];
 const dataName = 'data-birthdaypicker';
 const monthFormats = ['short', 'long', 'numeric'];
-const allowedEvents = ['datechange', 'init'];
+const allowedEvents = ['init', 'datechange'];
 
 let today = new Date();
 let todayYear = today.getFullYear();
@@ -76,7 +76,6 @@ class BirthdayPicker {
     this.settings = Object.assign({}, BirthdayPicker.defaults, data, options);
     this.element = element;
 
-    this.eventFired = {};
     // store all disabled elements in an array for quicker reenable
     this.disabledReference = [];
 
@@ -94,6 +93,7 @@ class BirthdayPicker {
     }
 
     this.element.addEventListener(eventName, listener, option);
+    this._registeredEventListeners.push({ eventName, listener, option });
 
     // already fired
     if (this.eventFired[eventName]) {
@@ -103,6 +103,18 @@ class BirthdayPicker {
 
   removeEventListener(eventName, listener, option) {
     this.element.removeEventListener(eventName, listener, option);
+  }
+
+  // todo: undo everything
+  kill() {
+    this.eventFired = {};
+
+    // remove all registerd EventListeners
+    if (this._registeredEventListeners) {
+      this._registeredEventListeners.forEach(() =>
+        this.removeEventListener(arguments)
+      );
+    }
   }
 
   /**
@@ -118,14 +130,14 @@ class BirthdayPicker {
     for (let i = 0; i < nodelist.length; i++) {
       let el = nodelist[i];
       if (+el.value === +value) {
-        return [i, el.value];
+        return [i, +el.value];
       }
     }
     return [undefined, undefined];
   }
 
   _setYear(year) {
-    year = restrict(year, this._yearEnd, this._yearBegin, this._yearEnd);
+    year = restrict(year, this._yearEnd, this._yearBegin);
     const [newYearIndex, newYearValue] = this._getNodeIndexByValue(
       this._year.el.childNodes,
       year
@@ -278,7 +290,7 @@ class BirthdayPicker {
     let result = format.toLowerCase();
 
     result = result.replaceAll('yyyy', this.currentYear);
-    result = result.replaceAll('yy', this.currentYear.slice(2));
+    result = result.replaceAll('yy', ('' + this.currentYear).slice(2));
 
     result = result.replaceAll('mm', ('0' + this.currentMonth).slice(-2));
     result = result.replaceAll('m', this.currentMonth);
@@ -374,8 +386,8 @@ class BirthdayPicker {
     // todo: set currentDay to the next or the prev. correct date
     // eg. 2010-12-31 -> change month to 11 -> 2010-11-31
     // either: 2010-11-30, or 2010-12-01
-    if (this.currentDay && this._day.el.value !== this.currentDay) {
-      this._dayChanged();
+    if (this.currentDay && +this._day.el.value !== this.currentDay) {
+      this._dayChanged(); // to undefined
     }
   }
 
@@ -405,7 +417,15 @@ class BirthdayPicker {
       this.disabledReference = [];
     }
 
-    if (+this.currentYear === todayYear) {
+    if (+this.currentYear > todayYear) {
+      this._setYear(todayYear);
+      if (+this.currentMonth !== todayMonth) {
+        this._setMonth(todayMonth);
+      }
+      if (+this.currentDay !== todayDay) {
+        this._setDay(todayDay);
+      }
+    } else if (+this.currentYear === todayYear) {
       // Disable months greater than the current month
       this._month.el.childNodes.forEach((el) => {
         if (el.value > todayMonth) {
@@ -416,15 +436,7 @@ class BirthdayPicker {
 
       // set month back
       if (+this.currentMonth > todayMonth) {
-        const [newMonthIndex, newMonthValue] = this._getNodeIndexByValue(
-          this._month.el.childNodes,
-          todayMonth
-        );
-        if (this.currentMonth !== newMonthValue) {
-          this._month.el.selectedIndex = newMonthIndex;
-          this._monthChanged(newMonthValue);
-          // this._month.el.dispatchEvent(new Event('change'));
-        }
+        this._setMonth(todayMonth);
       }
 
       // disable all days greater than the current day
@@ -449,14 +461,14 @@ class BirthdayPicker {
    * @param  {Event} e The event
    * @return {void}
    */
-  _dateChanged = (evt) => {
+  _dateChanged(evt) {
     if (evt) {
       if (evt.target === this._year.el) {
-        this._yearChanged(evt.target.value, evt);
+        this._yearChanged(+evt.target.value);
       } else if (evt.target === this._month.el) {
-        this._monthChanged(evt.target.value, evt);
+        this._monthChanged(+evt.target.value);
       } else if (evt.target === this._day.el) {
-        this._dayChanged(evt.target.value, evt);
+        this._dayChanged(+evt.target.value);
       }
     }
 
@@ -464,8 +476,8 @@ class BirthdayPicker {
       this._nofuturDate();
     }
 
-    this._triggerEvent(allowedEvents[0]);
-  };
+    this._triggerEvent(allowedEvents[1]);
+  }
 
   _dayChanged(day) {
     // console.log('_dayChanged:', day);
@@ -512,6 +524,8 @@ class BirthdayPicker {
       return true;
     }
     this.initialized = true;
+    this.eventFired = {};
+    this._registeredEventListeners = [];
     this._monthDayMapping = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     this.settings.placeholder = isTrue(this.settings.placeholder);
 
@@ -530,7 +544,13 @@ class BirthdayPicker {
         name: item, // placeholder name
       };
 
-      itemEl.addEventListener('change', this._dateChanged, false);
+      itemEl.addEventListener(
+        'change',
+        (evt) => {
+          this._dateChanged(evt);
+        },
+        false
+      );
     });
 
     this._date = [this._year, this._month, this._day];
@@ -538,8 +558,9 @@ class BirthdayPicker {
     //calculate the year to add to the select options.
     this._yearBegin = todayYear - this.settings.minAge;
     this._yearEnd = todayYear - this.settings.maxAge;
+
     if (
-      this.settings.maxYear != todayYear &&
+      this.settings.maxYear !== todayYear &&
       this.settings.maxYear > todayYear
     ) {
       this._yearBegin = this.settings.maxYear;
@@ -561,7 +582,7 @@ class BirthdayPicker {
       );
     }
 
-    this._triggerEvent(allowedEvents[1]);
+    this._triggerEvent(allowedEvents[0]);
   }
 }
 
@@ -614,7 +635,7 @@ BirthdayPicker.createLocale = (lang) => {
 
   BirthdayPicker.i18n[lang] = obj;
 
-  return lang;
+  return obj;
 };
 
 /**
@@ -641,7 +662,8 @@ BirthdayPicker.setLanguage = (lang) => {
 
 BirthdayPicker.getInstance = (el) => dataStorage.get(el, 'instance');
 BirthdayPicker.kill = (el) => {
-  // let instance = BirthdayPicker.getInstance(el);
+  let instance = BirthdayPicker.getInstance(el);
+  instance.kill();
   // todo: reset all to default!
   // e.g.: instance.kill();
 
@@ -651,6 +673,7 @@ BirthdayPicker.kill = (el) => {
 };
 
 BirthdayPicker.defaults = {
+  minYear: null, // overriddes the range set by maxAge minAge
   maxYear: todayYear,
   maxAge: 100, // maximal age for a person
   minAge: 0, // minimal age for a person

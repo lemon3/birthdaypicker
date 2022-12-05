@@ -247,7 +247,6 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, src_toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function src_defineProperty(obj, key, value) { key = src_toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function src_toPropertyKey(arg) { var key = src_toPrimitive(arg, "string"); return src_typeof(key) === "symbol" ? key : String(key); }
 function src_toPrimitive(input, hint) { if (src_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (src_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 /*!
@@ -258,7 +257,7 @@ function src_toPrimitive(input, hint) { if (src_typeof(input) !== "object" || in
 var instances = [];
 var dataName = 'data-birthdaypicker';
 var monthFormats = ['short', 'long', 'numeric'];
-var allowedEvents = ['datechange', 'init'];
+var allowedEvents = ['init', 'datechange'];
 var today = new Date();
 var todayYear = today.getFullYear();
 var todayMonth = today.getMonth() + 1;
@@ -286,23 +285,7 @@ var isTrue = function isTrue(value) {
  */
 var BirthdayPicker = /*#__PURE__*/function () {
   function BirthdayPicker(element, options) {
-    var _this = this;
     _classCallCheck(this, BirthdayPicker);
-    src_defineProperty(this, "_dateChanged", function (evt) {
-      if (evt) {
-        if (evt.target === _this._year.el) {
-          _this._yearChanged(evt.target.value, evt);
-        } else if (evt.target === _this._month.el) {
-          _this._monthChanged(evt.target.value, evt);
-        } else if (evt.target === _this._day.el) {
-          _this._dayChanged(evt.target.value, evt);
-        }
-      }
-      if (_this.settings.noFutureDate) {
-        _this._nofuturDate();
-      }
-      _this._triggerEvent(allowedEvents[0]);
-    });
     if (!element) {
       return {
         error: true
@@ -328,7 +311,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
     this.options = options; // user options
     this.settings = Object.assign({}, BirthdayPicker.defaults, data, options);
     this.element = element;
-    this.eventFired = {};
+
     // store all disabled elements in an array for quicker reenable
     this.disabledReference = [];
     if (this.settings.autoinit) {
@@ -342,6 +325,11 @@ var BirthdayPicker = /*#__PURE__*/function () {
         return false;
       }
       this.element.addEventListener(eventName, listener, option);
+      this._registeredEventListeners.push({
+        eventName: eventName,
+        listener: listener,
+        option: option
+      });
 
       // already fired
       if (this.eventFired[eventName]) {
@@ -352,6 +340,22 @@ var BirthdayPicker = /*#__PURE__*/function () {
     key: "removeEventListener",
     value: function removeEventListener(eventName, listener, option) {
       this.element.removeEventListener(eventName, listener, option);
+    }
+
+    // todo: undo everything
+  }, {
+    key: "kill",
+    value: function kill() {
+      var _arguments = arguments,
+        _this = this;
+      this.eventFired = {};
+
+      // remove all registerd EventListeners
+      if (this._registeredEventListeners) {
+        this._registeredEventListeners.forEach(function () {
+          return _this.removeEventListener(_arguments);
+        });
+      }
     }
 
     /**
@@ -369,7 +373,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       for (var i = 0; i < nodelist.length; i++) {
         var el = nodelist[i];
         if (+el.value === +value) {
-          return [i, el.value];
+          return [i, +el.value];
         }
       }
       return [undefined, undefined];
@@ -377,7 +381,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
   }, {
     key: "_setYear",
     value: function _setYear(year) {
-      year = restrict(year, this._yearEnd, this._yearBegin, this._yearEnd);
+      year = restrict(year, this._yearEnd, this._yearBegin);
       var _this$_getNodeIndexBy = this._getNodeIndexByValue(this._year.el.childNodes, year),
         _this$_getNodeIndexBy2 = _slicedToArray(_this$_getNodeIndexBy, 2),
         newYearIndex = _this$_getNodeIndexBy2[0],
@@ -540,7 +544,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       // eg. 'YYYY-MM-DD'
       var result = format.toLowerCase();
       result = result.replaceAll('yyyy', this.currentYear);
-      result = result.replaceAll('yy', this.currentYear.slice(2));
+      result = result.replaceAll('yy', ('' + this.currentYear).slice(2));
       result = result.replaceAll('mm', ('0' + this.currentMonth).slice(-2));
       result = result.replaceAll('m', this.currentMonth);
       result = result.replaceAll('dd', ('0' + this.currentDay).slice(-2));
@@ -640,8 +644,8 @@ var BirthdayPicker = /*#__PURE__*/function () {
       // todo: set currentDay to the next or the prev. correct date
       // eg. 2010-12-31 -> change month to 11 -> 2010-11-31
       // either: 2010-11-30, or 2010-12-01
-      if (this.currentDay && this._day.el.value !== this.currentDay) {
-        this._dayChanged();
+      if (this.currentDay && +this._day.el.value !== this.currentDay) {
+        this._dayChanged(); // to undefined
       }
     }
   }, {
@@ -673,7 +677,15 @@ var BirthdayPicker = /*#__PURE__*/function () {
         });
         this.disabledReference = [];
       }
-      if (+this.currentYear === todayYear) {
+      if (+this.currentYear > todayYear) {
+        this._setYear(todayYear);
+        if (+this.currentMonth !== todayMonth) {
+          this._setMonth(todayMonth);
+        }
+        if (+this.currentDay !== todayDay) {
+          this._setDay(todayDay);
+        }
+      } else if (+this.currentYear === todayYear) {
         // Disable months greater than the current month
         this._month.el.childNodes.forEach(function (el) {
           if (el.value > todayMonth) {
@@ -684,15 +696,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
 
         // set month back
         if (+this.currentMonth > todayMonth) {
-          var _this$_getNodeIndexBy7 = this._getNodeIndexByValue(this._month.el.childNodes, todayMonth),
-            _this$_getNodeIndexBy8 = _slicedToArray(_this$_getNodeIndexBy7, 2),
-            newMonthIndex = _this$_getNodeIndexBy8[0],
-            newMonthValue = _this$_getNodeIndexBy8[1];
-          if (this.currentMonth !== newMonthValue) {
-            this._month.el.selectedIndex = newMonthIndex;
-            this._monthChanged(newMonthValue);
-            // this._month.el.dispatchEvent(new Event('change'));
-          }
+          this._setMonth(todayMonth);
         }
 
         // disable all days greater than the current day
@@ -717,6 +721,23 @@ var BirthdayPicker = /*#__PURE__*/function () {
      * @param  {Event} e The event
      * @return {void}
      */
+  }, {
+    key: "_dateChanged",
+    value: function _dateChanged(evt) {
+      if (evt) {
+        if (evt.target === this._year.el) {
+          this._yearChanged(+evt.target.value);
+        } else if (evt.target === this._month.el) {
+          this._monthChanged(+evt.target.value);
+        } else if (evt.target === this._day.el) {
+          this._dayChanged(+evt.target.value);
+        }
+      }
+      if (this.settings.noFutureDate) {
+        this._nofuturDate();
+      }
+      this._triggerEvent(allowedEvents[1]);
+    }
   }, {
     key: "_dayChanged",
     value: function _dayChanged(day) {
@@ -768,6 +789,8 @@ var BirthdayPicker = /*#__PURE__*/function () {
         return true;
       }
       this.initialized = true;
+      this.eventFired = {};
+      this._registeredEventListeners = [];
       this._monthDayMapping = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
       this.settings.placeholder = isTrue(this.settings.placeholder);
       ['year', 'month', 'day'].forEach(function (item) {
@@ -783,14 +806,16 @@ var BirthdayPicker = /*#__PURE__*/function () {
           name: item // placeholder name
         };
 
-        itemEl.addEventListener('change', _this6._dateChanged, false);
+        itemEl.addEventListener('change', function (evt) {
+          _this6._dateChanged(evt);
+        }, false);
       });
       this._date = [this._year, this._month, this._day];
 
       //calculate the year to add to the select options.
       this._yearBegin = todayYear - this.settings.minAge;
       this._yearEnd = todayYear - this.settings.maxAge;
-      if (this.settings.maxYear != todayYear && this.settings.maxYear > todayYear) {
+      if (this.settings.maxYear !== todayYear && this.settings.maxYear > todayYear) {
         this._yearBegin = this.settings.maxYear;
         this._yearEnd = this._yearEnd + (this.settings.maxYear - todayYear);
       }
@@ -803,7 +828,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       if (this.settings.defaultDate) {
         this.setDate(this.settings.defaultDate === 'now' ? new Date().toString() : this.settings.defaultDate);
       }
-      this._triggerEvent(allowedEvents[1]);
+      this._triggerEvent(allowedEvents[0]);
     }
   }]);
   return BirthdayPicker;
@@ -851,7 +876,7 @@ BirthdayPicker.createLocale = function (lang) {
     });
   }
   BirthdayPicker.i18n[lang] = obj;
-  return lang;
+  return obj;
 };
 
 /**
@@ -879,7 +904,8 @@ BirthdayPicker.getInstance = function (el) {
   return dataStorage.get(el, 'instance');
 };
 BirthdayPicker.kill = function (el) {
-  // let instance = BirthdayPicker.getInstance(el);
+  var instance = BirthdayPicker.getInstance(el);
+  instance.kill();
   // todo: reset all to default!
   // e.g.: instance.kill();
 
@@ -888,6 +914,8 @@ BirthdayPicker.kill = function (el) {
   dataStorage.remove(el, 'instance');
 };
 BirthdayPicker.defaults = {
+  minYear: null,
+  // overriddes the range set by maxAge minAge
   maxYear: todayYear,
   maxAge: 100,
   // maximal age for a person

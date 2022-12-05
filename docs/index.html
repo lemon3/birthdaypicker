@@ -56,8 +56,8 @@
           currentOutputFormat: null,
           outputFormat: [
             { id:0, val:'', label:'default', desc: '(formating based on the selected language)' },
-            { id:1, val:'dd. mm. yyyy', label:'dd. mm. yyyy', desc: '(formating based on dd. mm. yyyy)' },
-            { id:2, val:'mm/dd/yyyy', label:'mm/dd/yyyy', desc: '(formating based on mm/dd/yyyy)' },
+            { id:1, val:'m/d/yyyy', label:'m/d/yyyy', desc: '(formating based on m/d/yyyy)' },
+            { id:2, val:'dd. mm. yyyy', label:'dd. mm. yyyy', desc: '(formating based on dd. mm. yyyy)' },
             { id:3, val:'d.m.yyyy', label:'d.m.yyyy', desc: '(formating based on d.m.yyyy)' },
             { id:4, val:'yyyy-mm-dd', label:'yyyy-mm-dd', desc: '(formating based on yyyy-mm-dd)' },
           ],
@@ -72,23 +72,22 @@
               return;
             }
             this.currentOutputFormat = this.outputFormat[0];
-            this.dateformat = this.availableDateformat[0].val;
-            this.locale = this.availableLocale[0].val;
             this.date = this.birthdays[1].val;
-            this.el = $refs.bp;
             $watch('locale', () => {
               BirthdayPicker.setLanguage(this.locale);
             });
             $watch('dateformat', () => {
               BirthdayPicker.setMonthFormat(this.dateformat);
             });
+            this.locale = this.availableLocale[0].val;
+            this.dateformat = this.availableDateformat[0].val;
             this.initialized = true;
           },
           getInstance() {
             if (this.instance) {
               return this.instance;
             }
-            this.instance = BirthdayPicker.getInstance(this.el);
+            this.instance = BirthdayPicker.getInstance($refs.bp);
             return this.instance;
           },
           setdate(val) {
@@ -251,6 +250,7 @@
           <div
             id="marilyn"
             data-birthdaypicker
+            :data-birthdaypicker-locale="locale"
             :data-birthdaypicker-default-date="date"
             :data-birthdaypicker-month-format="dateformat"
             x-ref="bp"
