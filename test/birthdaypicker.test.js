@@ -386,7 +386,7 @@ describe('test the setLanguage function', () => {
   let bp = new BirthdayPicker(bpEl, {
     monthFormat: 'numeric',
     locale: 'en',
-    useLeadingZero: false,
+    leadingZero: false,
   });
 
   test('setting lang should work', () => {
@@ -436,7 +436,7 @@ describe('test the getDate function', () => {
   let bp = new BirthdayPicker(bpEl, {
     monthFormat: 'numeric',
     locale: 'en',
-    useLeadingZero: false,
+    leadingZero: false,
   });
 
   test('getDate() without value, current-date not set yet!', () => {
@@ -472,7 +472,7 @@ describe('public methods tests', () => {
   let bp = new BirthdayPicker(bpEl, {
     monthFormat: 'numeric',
     locale: 'en',
-    useLeadingZero: false,
+    leadingZero: false,
   });
 
   test('test isLeapYear', () => {
@@ -509,7 +509,7 @@ describe('private methods tests', () => {
   BirthdayPicker.kill(bpEl);
   let bp = new BirthdayPicker(bpEl, {
     monthFormat: 'numeric',
-    useLeadingZero: false,
+    leadingZero: false,
   });
 
   test('_getNodeIndexByValue - nodelist not set', () => {

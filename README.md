@@ -10,7 +10,7 @@
   <a href="https://github.com/lemon3/birthdaypicker">
     <img src="https://raw.githubusercontent.com/lemon3/birthdaypicker/main/_assets/images/logo.svg" alt="Logo" width="360" height="auto">
   </a>
-  <h3 align="center">A i18n javascript birthday picker</h3>
+  <h3 align="center">an i18n javascript birthday picker</h3>
 </div>
 
 <!-- TABLE OF CONTENTS -->
@@ -134,10 +134,29 @@ npm run
 const bp1 = new BirthdayPicker('#bp1');
 
 // initialize with current date (new Date(), or 'now')
-const bp2 = new BirthdayPicker('#bp2', { defaultDate: new Date() });
+const el = document.getElementById('bp2');
+const options = { defaultDate: new Date() };
+const bp2 = new BirthdayPicker(el, options);
 ```
 
+###API
+current option API (may change)
+```js
+options = {
+  maxYear: '2040',      // default: (new Date()).getFullYear()
+  minAge: 0,            // default: 0, min age for a person,animal,...
+  maxAge: 100,          // default: 100, max age for a person,animal,...
+  monthFormat: 'short', // default: 'short', available: 'short', 'long', 'numeric'
+  placeholder: true,    // default: true, available: true | false
+  defaultDate: null,    // default: null, available: 'now', new Date(), formated String eg.: '2012-12-23'
+  autoinit: true,       // default: true, available: true | false
+  leadingZero: true,    // default: true, available: true | false
+  locale: 'en',         // default: 'en', available: 'en', 'de', 'fr', ... all country codes with 2chars (ISO 3166-1 alpha-2)
+  selectFuture: false,  // default: false, available: true | false
+};
+```
 
+###Demo
 A **small demo** of this tool can be view here: [BirthdayPicker Demo](https://lemon3.github.io/birthdaypicker/)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>

@@ -183,7 +183,7 @@ class BirthdayPicker {
   // Setter
   set useLeadingZero(value) {
     if ('boolean' === typeof value || !isNaN(value)) {
-      this.settings.useLeadingZero = value;
+      this.settings.leadingZero = value;
     }
   }
 
@@ -306,7 +306,7 @@ class BirthdayPicker {
     if ('numeric' !== this.settings.monthFormat) {
       return text;
     }
-    return this.settings.useLeadingZero
+    return this.settings.leadingZero
       ? +text < 10
         ? '0' + text
         : '' + text
@@ -346,7 +346,7 @@ class BirthdayPicker {
     // add day
     let number;
     for (let i = 1; i <= 31; i++) {
-      number = this.settings.useLeadingZero ? (i < 10 ? '0' + i : i) : i;
+      number = this.settings.leadingZero ? (i < 10 ? '0' + i : i) : i;
       const el = createEl('option', { value: i }, '', number);
       this._day.df.append(el);
     }
@@ -472,7 +472,7 @@ class BirthdayPicker {
       }
     }
 
-    if (this.settings.noFutureDate) {
+    if (!this.settings.selectFuture) {
       this._nofuturDate();
     }
 
@@ -675,15 +675,15 @@ BirthdayPicker.kill = (el) => {
 BirthdayPicker.defaults = {
   minYear: null, // overriddes the range set by maxAge minAge
   maxYear: todayYear,
-  maxAge: 100, // maximal age for a person
-  minAge: 0, // minimal age for a person
+  minAge: 0,
+  maxAge: 100,
   monthFormat: 'short',
   placeholder: true,
-  defaultDate: null, // null || 'now'
+  defaultDate: null,
   autoinit: true,
-  useLeadingZero: true,
+  leadingZero: true,
   locale: 'de',
-  noFutureDate: true, // max date is current date
+  selectFuture: false,
 };
 
 const init = () => {
