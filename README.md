@@ -139,7 +139,8 @@ const options = { defaultDate: new Date() };
 const bp2 = new BirthdayPicker(el, options);
 ```
 
-###API
+### API
+
 current option API (may change)
 ```js
 options = {
