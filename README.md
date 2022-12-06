@@ -157,7 +157,7 @@ options = {
 };
 ```
 
-###Demo
+### Demo
 A **small demo** of this tool can be view here: [BirthdayPicker Demo](https://lemon3.github.io/birthdaypicker/)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
