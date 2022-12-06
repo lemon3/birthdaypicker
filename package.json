@@ -1,8 +1,9 @@
 {
-  "name": "brithday-picker",
-  "version": "1.0.0",
+  "name": "@lemon3/birthdaypicker",
+  "version": "0.1.1",
   "description": "i18n birthday picker",
-  "main": "dist/birthdaypicker.min.js",
+  "browser": "dist/birthdaypicker.esm.min.js",
+  "main": "src/index.js",
   "module": "src/index.js",
   "author": "wolfgang jungmayer",
   "license": "MIT",
@@ -16,13 +17,19 @@
     "coverage": "jest --coverage",
     "updatedemo": "cp ./dist/birthdaypicker.min.js ./docs/js/vendor/ "
   },
+  "private": false,
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "keywords": [
     "birthdaypicker, datepicker"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/lemon3/birthdaypicker"
+    "url": "https://github.com/lemon3/birthdaypicker.git"
   },
+  "homepage": "https://lemon3.github.io/birthdaypicker",
   "devDependencies": {
     "@babel/cli": "^7.19.3",
     "@babel/core": "^7.20.5",
@@ -34,7 +41,7 @@
     "jest-environment-jsdom": "^29.3.1",
     "prettier": "^2.8.0",
     "webpack": "^5.75.0",
-    "webpack-cli": "^5.0.0",
+    "webpack-cli": "^5.0.1",
     "webpack-dev-server": "^4.11.1",
     "webpack-merge": "^5.8.0"
   },
