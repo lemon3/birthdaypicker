@@ -178,6 +178,8 @@ Project Link: [https://github.com/lemon3/birthdaypicker](https://github.com/lemo
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+<div align="center">coded with ❤ in vienna<br>by wolfgang jungmayer</div>
+
 
 <!-- MARKDOWN LINKS & IMAGES -->
 [license-shield]: https://img.shields.io/github/license/lemon3/birthdaypicker.svg?style=for-the-badge
