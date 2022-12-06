@@ -1,6 +1,6 @@
 {
   "name": "@lemon3/brithdaypicker",
-  "version": "0.2.0-0",
+  "version": "0.2.0",
   "description": "i18n birthday picker",
   "browser": "dist/birthdaypicker.esm.min.js",
   "module": "src/index.js",
