@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-/* global jest, describe, test, expect */
+/* global afterEach, jest, describe, test, expect */
 
 import {
   addProps,
@@ -31,6 +31,12 @@ document.body.innerHTML += `
   ></div>
   <div id="dataStorageEl"></div>
 `;
+
+afterEach(() => {
+  jest.clearAllMocks();
+  // only for spyOn mocked Equivalent to .mockRestore()
+  jest.restoreAllMocks();
+});
 
 describe('test addProps function', () => {
   // props should be added to DOM element
@@ -208,10 +214,10 @@ describe('test dataStorage', () => {
     expect(dataStorageSpy).toHaveBeenCalled();
   });
   test('get from undefined element', () => {
-    expect(dataStorage.get() instanceof Map).toBe(true);
-    expect(dataStorage.get(null) instanceof Map).toBe(true);
-    expect(dataStorage.get(undefined) instanceof Map).toBe(true);
-    expect(dataStorage.get('') instanceof Map).toBe(true);
+    expect(dataStorage.get()).toBe(false);
+    expect(dataStorage.get(null)).toBe(false);
+    expect(dataStorage.get(undefined)).toBe(false);
+    expect(dataStorage.get('')).toBe(false);
   });
   test('test has', () => {
     expect(dataStorage.has()).toBe(false);
@@ -236,18 +242,43 @@ describe('test dataStorage', () => {
     expect(dataStorageSpy).toHaveBeenCalled();
   });
 
-  test('test remove', () => {
+  test('test put with object', () => {
     const div = document.createElement('div');
+    const toStore = { bat: 'girl', super: 'man' };
+
+    // construct map
     const m = new Map();
-    m.set('super', 'man');
-    m.set('bat', 'girl');
+    for (const key in toStore) {
+      if (Object.hasOwnProperty.call(toStore, key)) {
+        m.set(key, toStore[key]);
+      }
+    }
 
-    dataStorage.put(div, {
-      super: 'man',
-      bat: 'girl',
-    });
+    const dataStorageMock = jest.mocked(dataStorage);
+    const putSpy = jest.spyOn(dataStorageMock, 'put');
 
-    expect(dataStorage.get(div)).toEqual(m);
+    const wmSetSyp = jest.spyOn(dataStorageMock._storage, 'set');
+    const wmGetSyp = jest.spyOn(dataStorageMock._storage, 'get');
+    const wmHasSyp = jest.spyOn(dataStorageMock._storage, 'has');
+    const wmDeleteSyp = jest.spyOn(dataStorageMock._storage, 'delete');
+
+    dataStorageMock.put(div, toStore);
+
+    // spy the calls to add
+    expect(putSpy).toHaveBeenCalledTimes(1);
+    expect(putSpy).toHaveBeenCalledWith(div, toStore);
+    expect(putSpy).toHaveReturnedTimes(1);
+    expect(putSpy).toHaveReturnedWith(dataStorageMock); // for chaining
+
+    // weakMap
+    expect(wmHasSyp).toHaveBeenCalledTimes(1);
+    expect(wmSetSyp).toHaveBeenCalledTimes(1);
+    expect(wmGetSyp).toHaveBeenCalledTimes(1);
+    expect(wmGetSyp).toHaveBeenCalledWith(div);
+
+    expect(wmDeleteSyp).toHaveBeenCalledTimes(0);
+
+    expect(dataStorageMock.get(div)).toEqual(m); // returns a map
   });
 });
 

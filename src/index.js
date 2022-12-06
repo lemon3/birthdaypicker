@@ -111,8 +111,8 @@ class BirthdayPicker {
 
     // remove all registerd EventListeners
     if (this._registeredEventListeners) {
-      this._registeredEventListeners.forEach(() =>
-        this.removeEventListener(arguments)
+      this._registeredEventListeners.forEach((r) =>
+        this.removeEventListener(r.eventName, r.listener, r.option)
       );
     }
   }
@@ -142,11 +142,12 @@ class BirthdayPicker {
       this._year.el.childNodes,
       year
     );
-    if (this.currentYear !== newYearValue) {
+    const valueChanged = this.currentYear !== newYearValue;
+    if (valueChanged) {
       this._year.el.selectedIndex = newYearIndex;
       this._yearChanged(newYearValue);
-      // this._year.el.dispatchEvent(new Event('change'));
     }
+    return valueChanged;
   }
 
   _setMonth(month) {
@@ -155,10 +156,12 @@ class BirthdayPicker {
       this._month.el.childNodes,
       month
     );
-    if (this.currentMonth !== newMonthValue) {
+    const valueChanged = this.currentMonth !== newMonthValue;
+    if (valueChanged) {
       this._month.el.selectedIndex = newMonthIndex;
       this._monthChanged(newMonthValue);
     }
+    return valueChanged;
   }
 
   _setDay(day) {
@@ -167,10 +170,12 @@ class BirthdayPicker {
       this._day.el.childNodes,
       day
     );
-    if (this.currentDay !== newDayValue) {
+    const valueChanged = this.currentDay !== newDayValue;
+    if (valueChanged) {
       this._day.el.selectedIndex = newDayIndex;
       this._dayChanged(newDayValue);
     }
+    return valueChanged;
   }
 
   setDate(dateString) {
@@ -194,14 +199,25 @@ class BirthdayPicker {
    * @param {String | Int} day   The day.
    */
   _setDate(year, month, day) {
-    this._prevent = true; // prevent events on direct input
+    // this._prevent = true; // prevent events on direct input
+
+    this._yChanged = year !== this.currentYear;
+    this._mChanged = month !== this.currentMonth;
+    this._dChanged = day !== this.currentDay;
 
     this._setYear(year);
     this._setMonth(month);
     this._setDay(day);
 
-    this._prevent = false;
-    this._dateChanged();
+    // this._prevent = false;
+
+    if (this._yChanged || this._mChanged || this._dChanged) {
+      this._dateChanged();
+    }
+
+    this._yChanged = false;
+    this._mChanged = false;
+    this._dChanged = false;
   }
 
   setLanguage(lang) {
@@ -487,9 +503,9 @@ class BirthdayPicker {
   _monthChanged(month) {
     // console.log('_monthChanged:', month);
     this.currentMonth = month;
-    if (this._prevent) {
-      return false;
-    }
+    // if (this._prevent) {
+    //   return false;
+    // }
     this._updateDays(month);
   }
 
@@ -498,11 +514,16 @@ class BirthdayPicker {
     this.currentYear = year;
     this._monthDayMapping[1] = isLeapYear(year) ? 29 : 28;
 
-    if (this._prevent) {
-      return false;
+    // if (this._prevent) {
+    //   return false;
+    // }
+
+    // if month changed to early exit
+    if (this._mChanged) {
+      return true;
     }
 
-    // if feb
+    // if feb and leap year
     let month = this._month.el.value;
     if (2 === +month) {
       this._updateDays(month);
@@ -663,6 +684,9 @@ BirthdayPicker.setLanguage = (lang) => {
 BirthdayPicker.getInstance = (el) => dataStorage.get(el, 'instance');
 BirthdayPicker.kill = (el) => {
   let instance = BirthdayPicker.getInstance(el);
+  if (!instance) {
+    return;
+  }
   instance.kill();
   // todo: reset all to default!
   // e.g.: instance.kill();

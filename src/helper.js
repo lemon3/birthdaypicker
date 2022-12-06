@@ -134,14 +134,15 @@ const dataStorage = {
     if (!this._storage.has(el)) {
       this._storage.set(el, new Map());
     }
+    let storeEl = this._storage.get(el);
     if (keyVal.length > 1) {
-      this._storage.get(el).set(keyVal[0], keyVal[1]);
+      storeEl.set(keyVal[0], keyVal[1]);
       return this;
     }
     if ('object' === typeof keyVal[0]) {
       for (var k in keyVal[0]) {
         if ({}.hasOwnProperty.call(keyVal[0], k)) {
-          this._storage.get(el).set(k, keyVal[0][k]);
+          storeEl.set(k, keyVal[0][k]);
         }
       }
     }
@@ -149,7 +150,8 @@ const dataStorage = {
   },
   get(el, key) {
     if (!this._storage.has(el)) {
-      return new Map();
+      return false;
+      // return new Map();
     }
     if (key) {
       return this._storage.get(el).get(key);
