@@ -577,11 +577,10 @@ class BirthdayPicker {
       );
     });
 
-    //calculate the year to add to the select options.
-    if (this.settings.maxYear && +this.settings.maxYear !== todayYear) {
-      this._yearStart = this.settings.maxYear;
-    } else {
+    if ('now' === this.settings.maxYear) {
       this._yearStart = todayYear;
+    } else {
+      this._yearStart = this.settings.maxYear;
     }
 
     this._yearStart -= +this.settings.minAge;
@@ -673,7 +672,7 @@ BirthdayPicker.kill = (el) => {
 
 BirthdayPicker.defaults = {
   minYear: null, // overriddes the value set by maxAge
-  maxYear: todayYear,
+  maxYear: 'now',
   minAge: 0,
   maxAge: 100,
   monthFormat: 'short',

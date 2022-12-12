@@ -3,6 +3,8 @@
 <!-- PROJECT SHIELDS -->
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
+![min coverage][mincoverage-shield]
+![minified size][minified-shield]
 
 <!-- PROJECT LOGO -->
 <br />
@@ -141,19 +143,80 @@ const bp2 = new BirthdayPicker(el, options);
 
 ### API
 
-current option API (may change)
+initialize
+```js
+// element: a dom reference to one element, or a querySelector string
+const element = '#my-div';
+// an options-object, see below
+const options = {};
+const myBirthdayPicker = new BirthdayPicker(element, options);
+```
+
+option API (may change)
 ```js
 options = {
-  maxYear: '2040',      // default: (new Date()).getFullYear()
-  minAge: 0,            // default: 0, min age for a person,animal,...
-  maxAge: 100,          // default: 100, max age for a person,animal,...
-  monthFormat: 'short', // default: 'short', available: 'short', 'long', 'numeric'
-  placeholder: true,    // default: true, available: true | false
-  defaultDate: null,    // default: null, available: 'now', new Date(), formated String eg.: '2012-12-23'
-  autoinit: true,       // default: true, available: true | false
-  leadingZero: true,    // default: true, available: true | false
-  locale: 'en',         // default: 'en', available: 'en', 'de', 'fr', ... all country codes with 2chars (ISO 3166-1 alpha-2)
-  selectFuture: false,  // default: false, available: true | false
+  // sets the minimal age for a person, animal,...
+  // if set > 0 it changes the maximal selectable year by it's value
+  // e.g.: maxYear: 2022, minAge: 10 -> max selectable year: 2012!
+  // default: 0
+  // example: 10
+  minAge: 0,
+
+  // sets the maximal age for a person, animal,...
+  // min selectable year is 1922 if maxYear is 2022 (2022 - 100)
+  // default: 100,
+  maxAge: 100,
+
+  // sets the minimal year (overrides maxAge)
+  // default: null
+  // example: 1980
+  minYear: null,
+
+  // sets the maximal year
+  // default: '(new Date()).getFullYear()'
+  // example: 2040 | 'now'
+  maxYear: 'now',
+
+  // sets the month format for the select box
+  // available: 'short', 'long', 'numeric'
+  // default: 'short'
+  monthFormat: 'short',
+
+  // shows a placeholder for each select box
+  // available: true | false
+  // default: true
+  placeholder: true,
+
+  // sets the selected start date
+  // available: 'now' | new Date() | '2020-10-12' (YYYY-MM-DD)
+  // default: null
+  // example: '2012-12-04'
+  defaultDate: null,
+
+  // if the initialize function should be called on creating an instance:
+  // const myBp = new BirthdayPicker(el, {})
+  // if set to false, you have to call myBp.init() afterwards.
+  // available: true | false
+  // default: true
+  autoinit: true,
+
+  // if the month and day values in the select-box should have a leading
+  // zero or not. If set to true, you will get: 01, 02, 03, ... 10, 11, ...
+  // if set to false, you will get: 1, 2, 3, ... 10, 11, ...
+  // available: true | false
+  // default: true
+  leadingZero: true,
+
+  // sets the language to be used
+  // available: 'en', 'de', 'fr', ... all country codes with 2chars (ISO 3166-1 alpha-2)
+  // default: 'en'
+  locale: 'en',
+
+  // if it should be possible to select a 'future' date
+  // false means: unable to select a date in the future
+  // available: true | false
+  // default: false
+  selectFuture: false,
 };
 ```
 
@@ -182,7 +245,12 @@ Project Link: [https://github.com/lemon3/birthdaypicker](https://github.com/lemo
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
-[license-shield]: https://img.shields.io/github/license/lemon3/birthdaypicker.svg?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/lemon3/birthdaypicker?style=for-the-badge
 [license-url]: https://github.com/lemon3/birthdaypicker/blob/main/LICENSE
+
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/wolfgangjungmayer/
+
+[mincoverage-shield]: https://img.shields.io/nycrc/lemon3/birthdaypicker?style=for-the-badge
+
+[minified-shield]: https://img.shields.io/github/size/lemon3/birthdaypicker/dist/birthdaypicker.esm.min.js?label=Minified%20Size&style=for-the-badge
