@@ -137,7 +137,7 @@ class BirthdayPicker {
   }
 
   _setYear(year) {
-    year = restrict(year, this._yearEnd, this._yearBegin);
+    year = restrict(year, this._yearEnd, this._yearStart);
     const [newYearIndex, newYearValue] = this._getNodeIndexByValue(
       this._year.el.childNodes,
       year
@@ -343,7 +343,7 @@ class BirthdayPicker {
     }
 
     // add option data to year field
-    for (let i = this._yearBegin; i >= this._yearEnd; i--) {
+    for (let i = this._yearStart; i >= this._yearEnd; i--) {
       const el = createEl('option', { value: i }, '', i);
       this._year.df.append(el);
     }
@@ -424,7 +424,7 @@ class BirthdayPicker {
     trigger(this.element, eventName, ce);
   }
 
-  _nofuturDate() {
+  _nofutureDate(year, month, day) {
     // set all to false (again)
     if (this.disabledReference.length) {
       this.disabledReference.forEach((el) => {
@@ -433,40 +433,40 @@ class BirthdayPicker {
       this.disabledReference = [];
     }
 
-    if (+this.currentYear > todayYear) {
-      this._setYear(todayYear);
-      if (+this.currentMonth !== todayMonth) {
-        this._setMonth(todayMonth);
+    if (+this.currentYear > year) {
+      this._setYear(year);
+      if (+this.currentMonth !== month) {
+        this._setMonth(month);
       }
-      if (+this.currentDay !== todayDay) {
-        this._setDay(todayDay);
+      if (+this.currentDay !== day) {
+        this._setDay(day);
       }
-    } else if (+this.currentYear === todayYear) {
+    } else if (+this.currentYear === year) {
       // Disable months greater than the current month
       this._month.el.childNodes.forEach((el) => {
-        if (el.value > todayMonth) {
+        if (el.value > month) {
           el.disabled = true;
           this.disabledReference.push(el);
         }
       });
 
       // set month back
-      if (+this.currentMonth > todayMonth) {
-        this._setMonth(todayMonth);
+      if (+this.currentMonth !== month) {
+        this._setMonth(month);
       }
 
       // disable all days greater than the current day
-      if (+this.currentMonth === todayMonth) {
+      if (+this.currentMonth === month) {
         this._day.el.childNodes.forEach((el) => {
-          if (el.value > todayDay) {
+          if (el.value > day) {
             el.disabled = true;
             this.disabledReference.push(el);
           }
         });
 
         // set days back
-        if (+this.currentDay >= todayDay) {
-          this._setDay(todayDay);
+        if (+this.currentDay !== day) {
+          this._setDay(day);
         }
       }
     }
@@ -489,7 +489,7 @@ class BirthdayPicker {
     }
 
     if (!this.settings.selectFuture) {
-      this._nofuturDate();
+      this._nofutureDate(todayYear, todayMonth, todayDay);
     }
 
     this._triggerEvent(allowedEvents[1]);
@@ -549,6 +549,7 @@ class BirthdayPicker {
     this._registeredEventListeners = [];
     this._monthDayMapping = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     this.settings.placeholder = isTrue(this.settings.placeholder);
+    this._date = [];
 
     ['year', 'month', 'day'].forEach((item) => {
       let itemEl = this.element.querySelector(
@@ -565,6 +566,8 @@ class BirthdayPicker {
         name: item, // placeholder name
       };
 
+      this._date.push(this['_' + item]);
+
       itemEl.addEventListener(
         'change',
         (evt) => {
@@ -574,18 +577,19 @@ class BirthdayPicker {
       );
     });
 
-    this._date = [this._year, this._month, this._day];
-
     //calculate the year to add to the select options.
-    this._yearBegin = todayYear - this.settings.minAge;
-    this._yearEnd = todayYear - this.settings.maxAge;
+    if (this.settings.maxYear && +this.settings.maxYear !== todayYear) {
+      this._yearStart = this.settings.maxYear;
+    } else {
+      this._yearStart = todayYear;
+    }
 
-    if (
-      this.settings.maxYear !== todayYear &&
-      this.settings.maxYear > todayYear
-    ) {
-      this._yearBegin = this.settings.maxYear;
-      this._yearEnd = this._yearEnd + (this.settings.maxYear - todayYear);
+    this._yearStart -= +this.settings.minAge;
+
+    if (this.settings.minYear) {
+      this._yearEnd = +this.settings.minYear;
+    } else {
+      this._yearEnd = this._yearStart - +this.settings.maxAge;
     }
 
     this.settings.locale;
@@ -607,36 +611,8 @@ class BirthdayPicker {
   }
 }
 
-const dataapi = (element) => {
-  if (!element) {
-    return !1;
-  }
-
-  element =
-    'string' === typeof element ? document.querySelectorAll(element) : element;
-
-  if (0 === element.length) {
-    return !1;
-  }
-
-  if (undefined === element.length) {
-    element = [element];
-  }
-
-  element.forEach((el) => {
-    if (el.dataset.bdpinit) {
-      return BirthdayPicker.getInstance(el);
-    }
-    const data = getJSONData(el, 'birthdaypicker');
-    new BirthdayPicker(el, data);
-  });
-
-  // return 1 === len ? instances[0] : instances[1];
-  // return 1 === instances.length ? instances[0] : instances;
-};
-
 BirthdayPicker.i18n = {};
-BirthdayPicker.defaultLocale = 'en';
+BirthdayPicker.currentLocale = 'en';
 
 BirthdayPicker.createLocale = (lang) => {
   if (BirthdayPicker.i18n[lang]) {
@@ -674,8 +650,7 @@ BirthdayPicker.setMonthFormat = (format) => {
  * @param  {String} lang The language string, eg.: 'en', 'de'
  */
 BirthdayPicker.setLanguage = (lang) => {
-  BirthdayPicker.createLocale(lang);
-  BirthdayPicker.defaultLocale = lang;
+  BirthdayPicker.currentLocale = lang;
   instances.forEach((bp) => {
     bp.setLanguage(lang);
   });
@@ -697,7 +672,7 @@ BirthdayPicker.kill = (el) => {
 };
 
 BirthdayPicker.defaults = {
-  minYear: null, // overriddes the range set by maxAge minAge
+  minYear: null, // overriddes the value set by maxAge
   maxYear: todayYear,
   minAge: 0,
   maxAge: 100,
@@ -706,19 +681,44 @@ BirthdayPicker.defaults = {
   defaultDate: null,
   autoinit: true,
   leadingZero: true,
-  locale: 'de',
+  locale: 'en',
   selectFuture: false,
 };
 
-const init = () => {
+BirthdayPicker.init = () => {
   if (initialized) {
     return false;
   }
   initialized = true;
-  BirthdayPicker.createLocale(BirthdayPicker.defaultLocale);
-  dataapi('[' + dataName + ']');
+  BirthdayPicker.createLocale(BirthdayPicker.currentLocale);
+  const elementName = '[' + dataName + ']';
+
+  let element =
+    'string' === typeof elementName
+      ? document.querySelectorAll(elementName)
+      : elementName;
+
+  if (0 === element.length) {
+    return !1;
+  }
+
+  if (undefined === element.length) {
+    element = [element];
+  }
+
+  element.forEach((el) => {
+    if (el.dataset.bdpinit) {
+      return BirthdayPicker.getInstance(el);
+    }
+    const data = getJSONData(el, 'birthdaypicker');
+    new BirthdayPicker(el, data);
+  });
+
+  return instances;
+  // return 1 === len ? instances[0] : instances[1];
+  // return 1 === instances.length ? instances[0] : instances;
 };
 
-docReady(init);
+docReady(BirthdayPicker.init);
 
 export default BirthdayPicker;

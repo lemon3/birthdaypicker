@@ -3,8 +3,6 @@
   "version": "0.1.1",
   "description": "i18n birthday picker",
   "browser": "dist/birthdaypicker.esm.min.js",
-  "main": "src/index.js",
-  "module": "src/index.js",
   "author": "wolfgang jungmayer",
   "license": "MIT",
   "scripts": {
@@ -22,6 +20,11 @@
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
   "keywords": [
     "birthdaypicker, datepicker"
   ],

@@ -16,6 +16,9 @@ document.body.innerHTML += `
 
   <div id="test2"></div>
   <div id="test3"></div>
+
+  <div id="test4" data-birthdaypicker></div>
+  <div id="test5" data-birthdaypicker></div>
 `;
 
 afterEach(() => {
@@ -105,6 +108,24 @@ describe('BirthdayPicker init stage', () => {
   test('element has no select-child elements', () => {
     expect(bp4).toBeTruthy();
   });
+
+  test('it should return true if init is called again, ', () => {
+    const div = document.createElement('div');
+    const bp = new BirthdayPicker(div);
+
+    expect(bp.init()).toBe(true);
+  });
+});
+
+describe('dataapi test', () => {
+  // todo
+  window.docReady = () => {};
+  jest.mock('../src/index.js');
+  const initSpy = jest.spyOn(BirthdayPicker, 'init');
+  expect(initSpy).toHaveBeenCalledTimes(0);
+
+  BirthdayPicker.init();
+  expect(initSpy).toHaveBeenCalledTimes(1);
 });
 
 describe('BirthdayPicker kill', () => {
@@ -129,7 +150,6 @@ describe('BirthdayPicker kill', () => {
   bp.kill();
   bp.setDate(new Date());
   expect(cbDatechange).toHaveBeenCalledTimes(1);
-
 });
 
 describe('BirthdayPicker events', () => {
@@ -257,22 +277,17 @@ describe('date setting tests', () => {
     // reset
     bp.setDate(defaultDate);
 
-    const mapping = ['_year','_month', '_day'];
+    const mapping = ['_year', '_month', '_day'];
     newDate.split('-').forEach((val, ind) => {
       let el = bp[mapping[ind]].el;
-      const [idx, ] = bp._getNodeIndexByValue(
-        el.childNodes,
-        val
-      );
+      const [idx] = bp._getNodeIndexByValue(el.childNodes, val);
       el.selectedIndex = idx;
       el.dispatchEvent(new Event('change'));
     });
     const date2 = bp.getDate('yyyy-mm-dd');
 
     expect(date1).toEqual(date2);
-
   });
-
 });
 
 // test for _dayChanged
@@ -430,6 +445,50 @@ describe('test the _parseDate function', () => {
     expect(bp._parseDate('11/0/2022')).toStrictEqual(false);
     expect(bp._parseDate('0/10/2022')).toStrictEqual(false);
   });
+});
+
+describe('test the settings', () => {
+  test('minYear, should be 2004', () => {
+    const options = {
+      minYear: 2004,
+    };
+    const el = document.createElement('div');
+    const bp = new BirthdayPicker(el, options);
+    expect(bp._yearEnd).toBe(options.minYear);
+  });
+
+  test('maxYear, should be 2018', () => {
+    const options = {
+      maxYear: 2018,
+    };
+    const el = document.createElement('div');
+    const bp = new BirthdayPicker(el, options);
+    expect(bp._yearStart).toBe(options.maxYear);
+  });
+
+  test('maxYear, should be 2008', () => {
+    const options = {
+      maxYear: 2018,
+      minAge: 10,
+    };
+    const el = document.createElement('div');
+    const bp = new BirthdayPicker(el, options);
+    expect(bp._yearStart).toBe(2008);
+  });
+
+  test('maxYear, should be 2008', () => {
+    const options = {
+      minYear: 1960,
+      maxYear: 2020,
+      minAge: 10,
+      maxAge: 20,
+    };
+    const el = document.createElement('div');
+    const bp = new BirthdayPicker(el, options);
+    expect(bp._yearStart).toBe(2010);
+    expect(bp._yearEnd).toBe(1960);
+  });
+
 });
 
 describe('test the setLanguage function', () => {
@@ -610,23 +669,89 @@ describe('_nofuturDate methods tests', () => {
     maxYear: 2030,
   });
 
-  const orig = bp._nofuturDate;
+  // const orig = bp._nofuturDate;
   test('try to set to a futur day', () => {
-    const _nofuturDateSpy = jest.spyOn(bp, '_nofuturDate');
-    bp.setDate('2024-11-15');
+    const _nofutureDateSpy = jest.spyOn(bp, '_nofutureDate');
+    bp.setDate('2044-11-15');
 
-    expect(_nofuturDateSpy).toHaveBeenCalled();
+    expect(_nofutureDateSpy).toHaveBeenCalled();
     const today = new Date();
     const todayYear = today.getFullYear();
     const todayMonth = today.getMonth() + 1;
     const todayDay = today.getDate();
     const todayString = `${todayYear}-${todayMonth}-${todayDay}`;
     expect(bp.getDate('yyyy-m-d')).toEqual(todayString);
+
+    _nofutureDateSpy.mockRestore();
   });
-  // bp._nofuturDate = jest.fun();
+
+  test('try to set to a futur day', () => {
+    bp.setDate('2020-10-13');
+
+    const _nofutureDateSpy = jest.spyOn(bp, '_nofutureDate');
+    const _setYearSpy = jest.spyOn(bp, '_setYear');
+    const _setMonthSpy = jest.spyOn(bp, '_setMonth');
+    const _setDaySpy = jest.spyOn(bp, '_setDay');
+
+    // change only the day value: only day should change
+    let year = 2020;
+    let month = 10;
+    let day = 12;
+    bp._nofutureDate(year,month,day);
+    expect(_nofutureDateSpy).lastCalledWith(year,month,day);
+    expect(_setYearSpy).toHaveBeenCalledTimes(0);
+    expect(_setMonthSpy).toHaveBeenCalledTimes(0);
+    expect(_setDaySpy).toHaveBeenCalledTimes(1);
+    expect(bp.getDate('yyyy-m-d')).toEqual(year+'-'+month+'-'+day);
+
+    // change month
+    month = 9;
+    bp._nofutureDate(year,month,day);
+    expect(_nofutureDateSpy).lastCalledWith(year,month,day);
+    expect(_setYearSpy).toHaveBeenCalledTimes(0);
+    expect(_setMonthSpy).toHaveBeenCalledTimes(1);
+    expect(_setDaySpy).toHaveBeenCalledTimes(1);
+    expect(bp.getDate('yyyy-m-d')).toEqual(year+'-'+month+'-'+day);
+
+    // change year
+    year = 2019;
+    bp._nofutureDate(year,month,day);
+    expect(_nofutureDateSpy).lastCalledWith(year,month,day);
+    expect(_setYearSpy).toHaveBeenCalledTimes(1);
+    expect(_setMonthSpy).toHaveBeenCalledTimes(1);
+    expect(_setDaySpy).toHaveBeenCalledTimes(1);
+    expect(bp.getDate('yyyy-m-d')).toEqual(year+'-'+month+'-'+day);
+
+    // change all
+    year = 2017;
+    month = 10;
+    day = 21;
+    bp._nofutureDate(year,month,day);
+    expect(_nofutureDateSpy).lastCalledWith(year,month,day);
+    expect(_setYearSpy).toHaveBeenCalledTimes(2);
+    expect(_setMonthSpy).toHaveBeenCalledTimes(2);
+    expect(_setDaySpy).toHaveBeenCalledTimes(2);
+    expect(bp.getDate('yyyy-m-d')).toEqual(year+'-'+month+'-'+day);
+
+    // change month and day
+    month = 12;
+    day = 22;
+    bp._nofutureDate(year,month,day);
+    expect(_nofutureDateSpy).lastCalledWith(year,month,day);
+    expect(_setYearSpy).toHaveBeenCalledTimes(2);
+    expect(_setMonthSpy).toHaveBeenCalledTimes(3);
+    expect(_setDaySpy).toHaveBeenCalledTimes(3);
+    expect(bp.getDate('yyyy-m-d')).toEqual(year+'-'+month+'-'+day);
+
+    _nofutureDateSpy.mockRestore();
+    _setYearSpy.mockRestore();
+    _setMonthSpy.mockRestore();
+    _setDaySpy.mockRestore();
+  });
 
   // restore the original implementation
-  bp._nofuturDate = orig;
+  // bp._nofuturDate = orig;
+
 });
 
 describe('_setDate methods tests', () => {});
@@ -635,7 +760,7 @@ describe('_dateChanged methods tests', () => {
   const bpEl = document.querySelector('#test');
   BirthdayPicker.kill(bpEl);
   let bp = new BirthdayPicker(bpEl, {
-    defaultDate: '2010-02-20'
+    defaultDate: '2010-02-20',
   });
 
   test('test for _dateChanged triggering by setting date', () => {
@@ -688,7 +813,6 @@ describe('_dateChanged methods tests', () => {
     expect(_dateChangedSpy).not.toHaveBeenCalled();
     _dateChangedSpy.mockRestore();
   });
-
 });
 
 describe('_updateDays methods tests', () => {
@@ -697,7 +821,7 @@ describe('_updateDays methods tests', () => {
   const placeholder = true;
   let bp = new BirthdayPicker(bpEl, {
     defaultDate: '2010-02-20',
-    placeholder
+    placeholder,
   });
 
   test('test the _updateDays should called if value ist set via setDate', () => {
@@ -785,10 +909,7 @@ describe('_updateDays methods tests', () => {
     expect(bp.isLeapYear(leapYear)).toBe(true);
 
     // change year
-    const [idx,] = bp._getNodeIndexByValue(
-      bp._year.el.childNodes,
-      leapYear
-    );
+    const [idx] = bp._getNodeIndexByValue(bp._year.el.childNodes, leapYear);
     bp._year.el.selectedIndex = idx;
     bp._year.el.dispatchEvent(new Event('change'));
 
@@ -806,10 +927,7 @@ describe('_updateDays methods tests', () => {
     expect(bp.isLeapYear(nonleapYear)).toBe(false);
 
     // change year
-    const [idx,] = bp._getNodeIndexByValue(
-      bp._year.el.childNodes,
-      nonleapYear
-    );
+    const [idx] = bp._getNodeIndexByValue(bp._year.el.childNodes, nonleapYear);
     bp._year.el.selectedIndex = idx;
     bp._year.el.dispatchEvent(new Event('change'));
 
@@ -857,7 +975,8 @@ describe('_updateDays methods tests', () => {
 
     const numberOfDaysNew = bp._monthDayMapping[11];
     // check lenght of option nodelist
-    const numerChildNodesInDaysNew = bp._day.el.childNodes.length - (placeholder ? 1 : 0);
+    const numerChildNodesInDaysNew =
+      bp._day.el.childNodes.length - (placeholder ? 1 : 0);
 
     const diff = Math.abs(numberOfDays - numberOfDaysNew);
 
@@ -876,6 +995,49 @@ describe('_updateDays methods tests', () => {
 
     _updateDaysSpy.mockRestore();
     _dayChangedSpy.mockRestore();
+  });
+});
+
+describe('static function tests', () => {
+
+  test('test the setMonthFormat function', () => {
+    const options = {
+      monthFormat: 'short'
+    };
+    const bp1 = new BirthdayPicker(document.createElement('div'), options);
+    const bp2 = new BirthdayPicker(document.createElement('div'), options);
+
+    expect(bp1.settings.monthFormat).toBe(options.monthFormat);
+    expect(bp1.settings.monthFormat).toBe(bp2.settings.monthFormat);
+
+    // change all to wrong value, nothing should chang
+    BirthdayPicker.setMonthFormat('wrong');
+    expect(bp1.settings.monthFormat).toBe(options.monthFormat);
+
+    // change all formates to 'long'
+    BirthdayPicker.setMonthFormat('long');
+    expect(bp1.settings.monthFormat).toBe('long');
+    expect(bp2.settings.monthFormat).toBe('long');
+  });
+
+  test('test the setLanguage function', () => {
+    const options = {
+      locale: 'en'
+    };
+    const bp1 = new BirthdayPicker(document.createElement('div'), options);
+    const bp2 = new BirthdayPicker(document.createElement('div'), options);
+
+    expect(bp1.settings.locale).toBe(options.locale);
+    expect(bp1.settings.locale).toBe(bp2.settings.locale);
+
+    // change all to wrong value, nothing should chang
+    BirthdayPicker.setLanguage('wrong');
+    expect(bp1.settings.locale).toBe(options.locale);
+
+    // change all formates to 'long'
+    BirthdayPicker.setLanguage('en');
+    expect(bp1.settings.locale).toBe('en');
+    expect(bp2.settings.locale).toBe('en');
   });
 
 });
