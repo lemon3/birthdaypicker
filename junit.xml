@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="87" failures="0" errors="0" time="0.936">
+  <testsuite name="BirthdayPicker Class tests" errors="0" failures="0" skipped="0" timestamp="2022-12-12T14:15:54" time="0.661" tests="59">
+    <testcase classname="BirthdayPicker Class tests BirthdayPicker is Object" name="BirthdayPicker Class tests BirthdayPicker is Object" time="0">
+    </testcase>
+    <testcase classname="BirthdayPicker Class tests new BirthdayPicker() is Object" name="BirthdayPicker Class tests new BirthdayPicker() is Object" time="0">
+    </testcase>
+    <testcase classname="BirthdayPicker Class tests BirthdayPicker.defaults -&gt; is Object" name="BirthdayPicker Class tests BirthdayPicker.defaults -&gt; is Object" time="0.001">
+    </testcase>
+    <testcase classname="BirthdayPicker.createLocale() generate &quot;ru&quot; locales should create an" name="BirthdayPicker.createLocale() generate &quot;ru&quot; locales should create an" time="0.002">
+    </testcase>
+    <testcase classname="BirthdayPicker init stage element does not exist" name="BirthdayPicker init stage element does not exist" time="0.001">
+    </testcase>
+    <testcase classname="BirthdayPicker init stage element exists" name="BirthdayPicker init stage element exists" time="0">
+    </testcase>
+    <testcase classname="BirthdayPicker init stage element allready initialized" name="BirthdayPicker init stage element allready initialized" time="0">
+    </testcase>
+    <testcase classname="BirthdayPicker init stage element has no select-child elements" name="BirthdayPicker init stage element has no select-child elements" time="0">
+    </testcase>
+    <testcase classname="BirthdayPicker init stage it should return true if init is called again, " name="BirthdayPicker init stage it should return true if init is called again, " time="0.004">
+    </testcase>
+    <testcase classname="BirthdayPicker events allowed events should be" name="BirthdayPicker events allowed events should be" time="0">
+    </testcase>
+    <testcase classname="BirthdayPicker events callback has been called with &quot;datechange&quot;" name="BirthdayPicker events callback has been called with &quot;datechange&quot;" time="0.001">
+    </testcase>
+    <testcase classname="BirthdayPicker events addEventListener defined on instance is registerd to DOM element" name="BirthdayPicker events addEventListener defined on instance is registerd to DOM element" time="0">
+    </testcase>
+    <testcase classname="BirthdayPicker events datechange eventlistener fired on init, listener set after instance is created" name="BirthdayPicker events datechange eventlistener fired on init, listener set after instance is created" time="0">
+    </testcase>
+    <testcase classname="BirthdayPicker events datechange eventlistener fired on init, listener is set to DOM element befor instance is created" name="BirthdayPicker events datechange eventlistener fired on init, listener is set to DOM element befor instance is created" time="0.005">
+    </testcase>
+    <testcase classname="BirthdayPicker events no default date set, so listener should not bee called" name="BirthdayPicker events no default date set, so listener should not bee called" time="0.004">
+    </testcase>
+    <testcase classname="BirthdayPicker events addEventListener not registerd to element, if wrong event name given" name="BirthdayPicker events addEventListener not registerd to element, if wrong event name given" time="0">
+    </testcase>
+    <testcase classname="BirthdayPicker events removeEventListener test" name="BirthdayPicker events removeEventListener test" time="0.014">
+    </testcase>
+    <testcase classname="date setting tests set date via setDate()" name="date setting tests set date via setDate()" time="0.002">
+    </testcase>
+    <testcase classname="update stage, test month change tiggered a day change via setDate()" name="update stage, test month change tiggered a day change via setDate()" time="0">
+    </testcase>
+    <testcase classname="update stage, test test day, month, year trigger" name="update stage, test test day, month, year trigger" time="0.001">
+    </testcase>
+    <testcase classname="update stage, test change from leap year, should trigger day change" name="update stage, test change from leap year, should trigger day change" time="0.002">
+    </testcase>
+    <testcase classname="test the _parseDate function _parseDate (YYYY-MM-DD format)" name="test the _parseDate function _parseDate (YYYY-MM-DD format)" time="0">
+    </testcase>
+    <testcase classname="test the _parseDate function _parseDate (MM/DD/YYYY format)" name="test the _parseDate function _parseDate (MM/DD/YYYY format)" time="0">
+    </testcase>
+    <testcase classname="test the settings minYear, should be 2004" name="test the settings minYear, should be 2004" time="0.003">
+    </testcase>
+    <testcase classname="test the settings maxYear, should be 2018" name="test the settings maxYear, should be 2018" time="0.004">
+    </testcase>
+    <testcase classname="test the settings maxYear, should be 2008" name="test the settings maxYear, should be 2008" time="0.003">
+    </testcase>
+    <testcase classname="test the settings maxYear, should be 2008" name="test the settings maxYear, should be 2008" time="0.003">
+    </testcase>
+    <testcase classname="test the setLanguage function setting lang should work" name="test the setLanguage function setting lang should work" time="0.003">
+    </testcase>
+    <testcase classname="test the setLanguage function set lang to current active lang should return false" name="test the setLanguage function set lang to current active lang should return false" time="0.001">
+    </testcase>
+    <testcase classname="test the setLanguage function lang code should contain 2 chars" name="test the setLanguage function lang code should contain 2 chars" time="0">
+    </testcase>
+    <testcase classname="test the setLanguage function lang code should not be null, undefinde" name="test the setLanguage function lang code should not be null, undefinde" time="0">
+    </testcase>
+    <testcase classname="test the setLanguage function test setLanguage trigger a dateChange event" name="test the setLanguage function test setLanguage trigger a dateChange event" time="0.004">
+    </testcase>
+    <testcase classname="test the getDate function getDate() without value, current-date not set yet!" name="test the getDate function getDate() without value, current-date not set yet!" time="0.001">
+    </testcase>
+    <testcase classname="test the getDate function getDate() with value, current-date not set yet!" name="test the getDate function getDate() with value, current-date not set yet!" time="0">
+    </testcase>
+    <testcase classname="test the getDate function getDate() without value, date is set!" name="test the getDate function getDate() without value, date is set!" time="0">
+    </testcase>
+    <testcase classname="test the getDate function getDate() with value, date is set!" name="test the getDate function getDate() with value, date is set!" time="0.001">
+    </testcase>
+    <testcase classname="public methods tests test isLeapYear" name="public methods tests test isLeapYear" time="0">
+    </testcase>
+    <testcase classname="public methods tests test setMonthFormat with wrong (not allowed) value" name="public methods tests test setMonthFormat with wrong (not allowed) value" time="0">
+    </testcase>
+    <testcase classname="public methods tests test setMonthFormat" name="public methods tests test setMonthFormat" time="0.001">
+    </testcase>
+    <testcase classname="private methods tests _getNodeIndexByValue - nodelist not set" name="private methods tests _getNodeIndexByValue - nodelist not set" time="0">
+    </testcase>
+    <testcase classname="private methods tests _getNodeIndexByValue - nodelist set, no value" name="private methods tests _getNodeIndexByValue - nodelist set, no value" time="0">
+    </testcase>
+    <testcase classname="private methods tests _getNodeIndexByValue - nodelist set, value not found" name="private methods tests _getNodeIndexByValue - nodelist set, value not found" time="0.001">
+    </testcase>
+    <testcase classname="private methods tests test _getMonthText" name="private methods tests test _getMonthText" time="0">
+    </testcase>
+    <testcase classname="_nofuturDate methods tests try to set to a futur day" name="_nofuturDate methods tests try to set to a futur day" time="0.002">
+    </testcase>
+    <testcase classname="_nofuturDate methods tests try to set to a futur day" name="_nofuturDate methods tests try to set to a futur day" time="0.003">
+    </testcase>
+    <testcase classname="_dateChanged methods tests test for _dateChanged triggering by setting date" name="_dateChanged methods tests test for _dateChanged triggering by setting date" time="0.001">
+    </testcase>
+    <testcase classname="_dateChanged methods tests test for _dateChanged triggering by select change" name="_dateChanged methods tests test for _dateChanged triggering by select change" time="0.001">
+    </testcase>
+    <testcase classname="_dateChanged methods tests test the _dateChanged should be called if changed via select" name="_dateChanged methods tests test the _dateChanged should be called if changed via select" time="0">
+    </testcase>
+    <testcase classname="_dateChanged methods tests test the _dateChanged should be called if changed via setDate" name="_dateChanged methods tests test the _dateChanged should be called if changed via setDate" time="0">
+    </testcase>
+    <testcase classname="_dateChanged methods tests _dateChanged should NOT be called if date is the same" name="_dateChanged methods tests _dateChanged should NOT be called if date is the same" time="0">
+    </testcase>
+    <testcase classname="_updateDays methods tests test the _updateDays should called if value ist set via setDate" name="_updateDays methods tests test the _updateDays should called if value ist set via setDate" time="0.001">
+    </testcase>
+    <testcase classname="_updateDays methods tests _updateDays should NOT be called if day changes via select" name="_updateDays methods tests _updateDays should NOT be called if day changes via select" time="0.001">
+    </testcase>
+    <testcase classname="_updateDays methods tests _updateDays should be called if month changes via select" name="_updateDays methods tests _updateDays should be called if month changes via select" time="0">
+    </testcase>
+    <testcase classname="_updateDays methods tests _updateDays should be called if year changes to a leap-year and current month is Feb. via select" name="_updateDays methods tests _updateDays should be called if year changes to a leap-year and current month is Feb. via select" time="0.001">
+    </testcase>
+    <testcase classname="_updateDays methods tests _updateDays should be called if year changes to a non-leap-year via select" name="_updateDays methods tests _updateDays should be called if year changes to a non-leap-year via select" time="0">
+    </testcase>
+    <testcase classname="_updateDays methods tests _updateDays should not be called if only day changes via setDate" name="_updateDays methods tests _updateDays should not be called if only day changes via setDate" time="0.001">
+    </testcase>
+    <testcase classname="_updateDays methods tests _updateDays should add days if new month has more days" name="_updateDays methods tests _updateDays should add days if new month has more days" time="0">
+    </testcase>
+    <testcase classname="static function tests test the setMonthFormat function" name="static function tests test the setMonthFormat function" time="0.017">
+    </testcase>
+    <testcase classname="static function tests test the setLanguage function" name="static function tests test the setLanguage function" time="0.009">
+    </testcase>
+  </testsuite>
+  <testsuite name="test addProps function" errors="0" failures="0" skipped="0" timestamp="2022-12-12T14:15:55" time="0.074" tests="28">
+    <testcase classname="test addProps function with properties, style, innerHTML" name="test addProps function with properties, style, innerHTML" time="0.001">
+    </testcase>
+    <testcase classname="test addProps function with style" name="test addProps function with style" time="0">
+    </testcase>
+    <testcase classname="test addProps function with properties" name="test addProps function with properties" time="0.001">
+    </testcase>
+    <testcase classname="test createEl function element should be created correctly" name="test createEl function element should be created correctly" time="0">
+    </testcase>
+    <testcase classname="test getJSONData function element not found or null" name="test getJSONData function element not found or null" time="0">
+    </testcase>
+    <testcase classname="test getJSONData function element has no data attribute" name="test getJSONData function element has no data attribute" time="0">
+    </testcase>
+    <testcase classname="test getJSONData function element with data attribute" name="test getJSONData function element with data attribute" time="0">
+    </testcase>
+    <testcase classname="test getJSONData function element with multiple data attributes" name="test getJSONData function element with multiple data attributes" time="0">
+    </testcase>
+    <testcase classname="test getJSONData function element with multiple data, and JSON-string" name="test getJSONData function element with multiple data, and JSON-string" time="0">
+    </testcase>
+    <testcase classname="test getJSONData function JSON-string data" name="test getJSONData function JSON-string data" time="0">
+    </testcase>
+    <testcase classname="test getJSONData function with undefined string value" name="test getJSONData function with undefined string value" time="0">
+    </testcase>
+    <testcase classname="test getJSONData function with default values" name="test getJSONData function with default values" time="0">
+    </testcase>
+    <testcase classname="test monthNumbers function with leading zero" name="test monthNumbers function with leading zero" time="0.001">
+    </testcase>
+    <testcase classname="test monthNumbers function without leading zero" name="test monthNumbers function without leading zero" time="0">
+    </testcase>
+    <testcase classname="test dataStorage test put and get" name="test dataStorage test put and get" time="0">
+    </testcase>
+    <testcase classname="test dataStorage test put (update)" name="test dataStorage test put (update)" time="0.001">
+    </testcase>
+    <testcase classname="test dataStorage get from undefined element" name="test dataStorage get from undefined element" time="0">
+    </testcase>
+    <testcase classname="test dataStorage test has" name="test dataStorage test has" time="0">
+    </testcase>
+    <testcase classname="test dataStorage test remove" name="test dataStorage test remove" time="0">
+    </testcase>
+    <testcase classname="test dataStorage test put with object" name="test dataStorage test put with object" time="0.001">
+    </testcase>
+    <testcase classname="test restrict function restrict value in between" name="test restrict function restrict value in between" time="0.001">
+    </testcase>
+    <testcase classname="test restrict function restrict value less or equal than min" name="test restrict function restrict value less or equal than min" time="0">
+    </testcase>
+    <testcase classname="test restrict function restrict value greater or equal than max" name="test restrict function restrict value greater or equal than max" time="0">
+    </testcase>
+    <testcase classname="test isLeapYear function is a leap-year" name="test isLeapYear function is a leap-year" time="0.002">
+    </testcase>
+    <testcase classname="test isLeapYear function is not a leap-year" name="test isLeapYear function is not a leap-year" time="0">
+    </testcase>
+    <testcase classname="test docReady function function should be fired" name="test docReady function function should be fired" time="0.001">
+    </testcase>
+    <testcase classname="test docReady function callback should change global var value" name="test docReady function callback should change global var value" time="0">
+    </testcase>
+    <testcase classname="test docReady function docReady callback called via addEventListener" name="test docReady function docReady callback called via addEventListener" time="0">
+    </testcase>
+  </testsuite>
+</testsuites>

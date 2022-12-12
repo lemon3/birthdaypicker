@@ -27,24 +27,6 @@ afterEach(() => {
   // jest.restoreAllMocks();
 });
 
-describe('dom tests', () => {
-  test('DOMContentLoaded test', async () => {
-    let val = false;
-    const test = () => {
-      val = true;
-    };
-    try {
-      await document.addEventListener('DOMContentLoaded', test, false);
-      const inintialized =
-        'complete' === document.readyState ||
-        'interactive' === document.readyState;
-      expect(val || inintialized).toBe(true);
-    } catch (e) {
-      expect(e).toMatch('error');
-    }
-  });
-});
-
 describe('BirthdayPicker Class tests', () => {
   test('BirthdayPicker is Object', () => {
     expect(BirthdayPicker).toBeTruthy();
@@ -64,7 +46,7 @@ describe('BirthdayPicker Class tests', () => {
 });
 
 describe('BirthdayPicker.createLocale()', () => {
-  test('generate "ru" locales', () => {
+  test('generate "ru" locales should create an', () => {
     BirthdayPicker.createLocale('ru');
     expect(typeof BirthdayPicker.i18n.ru).toBe('object');
     expect(BirthdayPicker.i18n.ru.month.short[0]).toBe('янв.');
@@ -488,7 +470,6 @@ describe('test the settings', () => {
     expect(bp._yearStart).toBe(2010);
     expect(bp._yearEnd).toBe(1960);
   });
-
 });
 
 describe('test the setLanguage function', () => {
@@ -697,51 +678,51 @@ describe('_nofuturDate methods tests', () => {
     let year = 2020;
     let month = 10;
     let day = 12;
-    bp._nofutureDate(year,month,day);
-    expect(_nofutureDateSpy).lastCalledWith(year,month,day);
+    bp._nofutureDate(year, month, day);
+    expect(_nofutureDateSpy).lastCalledWith(year, month, day);
     expect(_setYearSpy).toHaveBeenCalledTimes(0);
     expect(_setMonthSpy).toHaveBeenCalledTimes(0);
     expect(_setDaySpy).toHaveBeenCalledTimes(1);
-    expect(bp.getDate('yyyy-m-d')).toEqual(year+'-'+month+'-'+day);
+    expect(bp.getDate('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
 
     // change month
     month = 9;
-    bp._nofutureDate(year,month,day);
-    expect(_nofutureDateSpy).lastCalledWith(year,month,day);
+    bp._nofutureDate(year, month, day);
+    expect(_nofutureDateSpy).lastCalledWith(year, month, day);
     expect(_setYearSpy).toHaveBeenCalledTimes(0);
     expect(_setMonthSpy).toHaveBeenCalledTimes(1);
     expect(_setDaySpy).toHaveBeenCalledTimes(1);
-    expect(bp.getDate('yyyy-m-d')).toEqual(year+'-'+month+'-'+day);
+    expect(bp.getDate('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
 
     // change year
     year = 2019;
-    bp._nofutureDate(year,month,day);
-    expect(_nofutureDateSpy).lastCalledWith(year,month,day);
+    bp._nofutureDate(year, month, day);
+    expect(_nofutureDateSpy).lastCalledWith(year, month, day);
     expect(_setYearSpy).toHaveBeenCalledTimes(1);
     expect(_setMonthSpy).toHaveBeenCalledTimes(1);
     expect(_setDaySpy).toHaveBeenCalledTimes(1);
-    expect(bp.getDate('yyyy-m-d')).toEqual(year+'-'+month+'-'+day);
+    expect(bp.getDate('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
 
     // change all
     year = 2017;
     month = 10;
     day = 21;
-    bp._nofutureDate(year,month,day);
-    expect(_nofutureDateSpy).lastCalledWith(year,month,day);
+    bp._nofutureDate(year, month, day);
+    expect(_nofutureDateSpy).lastCalledWith(year, month, day);
     expect(_setYearSpy).toHaveBeenCalledTimes(2);
     expect(_setMonthSpy).toHaveBeenCalledTimes(2);
     expect(_setDaySpy).toHaveBeenCalledTimes(2);
-    expect(bp.getDate('yyyy-m-d')).toEqual(year+'-'+month+'-'+day);
+    expect(bp.getDate('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
 
     // change month and day
     month = 12;
     day = 22;
-    bp._nofutureDate(year,month,day);
-    expect(_nofutureDateSpy).lastCalledWith(year,month,day);
+    bp._nofutureDate(year, month, day);
+    expect(_nofutureDateSpy).lastCalledWith(year, month, day);
     expect(_setYearSpy).toHaveBeenCalledTimes(2);
     expect(_setMonthSpy).toHaveBeenCalledTimes(3);
     expect(_setDaySpy).toHaveBeenCalledTimes(3);
-    expect(bp.getDate('yyyy-m-d')).toEqual(year+'-'+month+'-'+day);
+    expect(bp.getDate('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
 
     _nofutureDateSpy.mockRestore();
     _setYearSpy.mockRestore();
@@ -751,7 +732,6 @@ describe('_nofuturDate methods tests', () => {
 
   // restore the original implementation
   // bp._nofuturDate = orig;
-
 });
 
 describe('_setDate methods tests', () => {});
@@ -999,10 +979,9 @@ describe('_updateDays methods tests', () => {
 });
 
 describe('static function tests', () => {
-
   test('test the setMonthFormat function', () => {
     const options = {
-      monthFormat: 'short'
+      monthFormat: 'short',
     };
     const bp1 = new BirthdayPicker(document.createElement('div'), options);
     const bp2 = new BirthdayPicker(document.createElement('div'), options);
@@ -1022,7 +1001,7 @@ describe('static function tests', () => {
 
   test('test the setLanguage function', () => {
     const options = {
-      locale: 'en'
+      locale: 'en',
     };
     const bp1 = new BirthdayPicker(document.createElement('div'), options);
     const bp2 = new BirthdayPicker(document.createElement('div'), options);
@@ -1039,5 +1018,4 @@ describe('static function tests', () => {
     expect(bp1.settings.locale).toBe('en');
     expect(bp2.settings.locale).toBe('en');
   });
-
 });
