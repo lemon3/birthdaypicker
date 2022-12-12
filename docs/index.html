@@ -67,10 +67,15 @@
             { id:2, val:'fr', label:'FR' },
             { id:3, val:'fi', label:'FI' },
           ],
+          leadingZeros: [
+            { id:0, val: 'true', label:'YES' },
+            { id:1, val: 'false', label:'NO' },
+          ],
           init() {
             if (this.initialized) {
               return;
             }
+            this.leadingZero = this.leadingZeros[1].val,
             this.currentOutputFormat = this.outputFormat[0];
             this.date = this.birthdays[1].val;
             $watch('locale', () => {
@@ -78,6 +83,9 @@
             });
             $watch('dateformat', () => {
               BirthdayPicker.setMonthFormat(this.dateformat);
+            });
+            $watch('leadingZero', () => {
+              this.getInstance().useLeadingZero(this.leadingZero);
             });
             this.locale = this.availableLocale[0].val;
             this.dateformat = this.availableDateformat[0].val;
@@ -111,7 +119,7 @@
         <header class="flex justify-center mb-6">
           <svg
             width="320"
-            height="auto"
+            height="114"
             class="max-w-[320px]"
             viewbox="0 0 471.6 167.3"
             xmlns="http://www.w3.org/2000/svg"
@@ -252,6 +260,7 @@
           <div
             id="marilyn"
             data-birthdaypicker
+            :data-birthdaypicker-leading-zero="leadingZero"
             :data-birthdaypicker-locale="locale"
             :data-birthdaypicker-default-date="date"
             :data-birthdaypicker-month-format="dateformat"
@@ -362,6 +371,21 @@
               @click="dateformat=df.val"
               :class="[ dateformat===df.val ? 'bg-pink-600 hover:bg-pink-700' : '']"
               class="px-4 py-2 inline-block text-white mb-2 mr-2 outline-none bg-slate-800 hover:bg-slate-900"
+            >
+              short
+            </button>
+          </template>
+        </div>
+
+        <div class="mt-4">
+          <div>use leading zero:</div>
+          <template x-for="lz in leadingZeros" :key="lz.id">
+            <button
+              type="button"
+              x-text="lz.val"
+              @click="leadingZero=lz.val"
+              :class="leadingZero===lz.val ? 'bg-pink-600' : ''"
+              class="px-4 py-2 inline-block bg-slate-800 text-white mr-2 outline-none"
             >
               short
             </button>

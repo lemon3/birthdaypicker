@@ -84,39 +84,6 @@ class BirthdayPicker {
     }
   }
 
-  addEventListener(eventName, listener, option) {
-    if (
-      allowedEvents.indexOf(eventName) < 0 ||
-      'function' !== typeof listener
-    ) {
-      return false;
-    }
-
-    this.element.addEventListener(eventName, listener, option);
-    this._registeredEventListeners.push({ eventName, listener, option });
-
-    // already fired
-    if (this.eventFired[eventName]) {
-      listener.call(this.element, this.eventFired[eventName]);
-    }
-  }
-
-  removeEventListener(eventName, listener, option) {
-    this.element.removeEventListener(eventName, listener, option);
-  }
-
-  // todo: undo everything
-  kill() {
-    this.eventFired = {};
-
-    // remove all registerd EventListeners
-    if (this._registeredEventListeners) {
-      this._registeredEventListeners.forEach((r) =>
-        this.removeEventListener(r.eventName, r.listener, r.option)
-      );
-    }
-  }
-
   /**
    * Function to return the index of a chosen value for a given NodeList
    * @param  {NodeList} nodes Option List
@@ -178,20 +145,6 @@ class BirthdayPicker {
     return valueChanged;
   }
 
-  setDate(dateString) {
-    let parsed = this._parseDate(dateString);
-    if (parsed) {
-      this._setDate(parsed.year, parsed.month, parsed.day);
-    }
-  }
-
-  // Setter
-  set useLeadingZero(value) {
-    if ('boolean' === typeof value || !isNaN(value)) {
-      this.settings.leadingZero = value;
-    }
-  }
-
   /**
    * Set the date
    * @param {String | Int} year  The year.
@@ -220,57 +173,6 @@ class BirthdayPicker {
     this._dChanged = false;
   }
 
-  setLanguage(lang) {
-    if (
-      lang === this.settings.locale ||
-      ('' + lang).length < 2 ||
-      ('' + lang).length > 2
-    ) {
-      // console.log('nothing to change');
-      return false;
-    }
-
-    BirthdayPicker.createLocale(lang);
-    this.monthFormat = BirthdayPicker.i18n[lang].month;
-    this.settings.locale = lang;
-
-    // todo: is this correct for all languages?
-    if ('numeric' === this.settings.monthFormat) {
-      return false;
-    }
-
-    let filter = this.settings.placeholder ? 1 : 0;
-    this.monthFormat[this.settings.monthFormat].forEach((el, ind) => {
-      this._month.el.childNodes[filter + ind].innerHTML = el;
-    });
-
-    // trigger a datechange event
-    this._dateChanged();
-  }
-
-  /**
-   * Change the current active month format
-   * @param  {[type]} format [description]
-   * @return {[type]}        [description]
-   */
-  setMonthFormat(format) {
-    if (!this.monthFormat[format] || format === this.settings.monthFormat) {
-      return false;
-    }
-
-    this.settings.monthFormat = format;
-    let filter = this.settings.placeholder ? 1 : 0;
-    this.monthFormat[format].forEach((text, ind) => {
-      this._month.el.childNodes[filter + ind].innerHTML =
-        this._getMonthText(text);
-    });
-  }
-
-  // getter
-  isLeapYear(year = this.currentYear) {
-    return undefined === year ? undefined : isLeapYear(year);
-  }
-
   _parseDate(dateString) {
     // unix timestamp
     const parse = Date.parse(dateString);
@@ -288,33 +190,6 @@ class BirthdayPicker {
     const month = date.getMonth() + 1;
     const day = date.getDate();
     return { year, month, day };
-  }
-
-  getDate(format) {
-    if (!this.currentYear || !this.currentMonth || !this.currentDay) {
-      return '';
-    }
-    // use the language default
-    if (!format) {
-      let tmp = new Date(
-        Date.UTC(this.currentYear, +this.currentMonth - 1, this.currentDay)
-      );
-      return tmp.toLocaleDateString(this.settings.locale);
-    }
-
-    // eg. 'YYYY-MM-DD'
-    let result = format.toLowerCase();
-
-    result = result.replaceAll('yyyy', this.currentYear);
-    result = result.replaceAll('yy', ('' + this.currentYear).slice(2));
-
-    result = result.replaceAll('mm', ('0' + this.currentMonth).slice(-2));
-    result = result.replaceAll('m', this.currentMonth);
-
-    result = result.replaceAll('dd', ('0' + this.currentDay).slice(-2));
-    result = result.replaceAll('d', this.currentDay);
-
-    return result;
   }
 
   // function for update or create
@@ -533,6 +408,149 @@ class BirthdayPicker {
     }
   }
 
+  useLeadingZero(value) {
+    value = isTrue(value);
+    if (value === this.settings.leadingZero) {
+      return false;
+    }
+
+    this.settings.leadingZero = value;
+
+    if ('numeric' === this.settings.monthFormat) {
+      this._updateMonthList();
+    }
+    this._updateDayList();
+  }
+
+  _updateDayList() {
+    const offset = this.settings.placeholder ? 1 : 0;
+    for (let i = 0; i < 9; i++) {
+      const el = this._day.el.childNodes[i + offset];
+      el.innerHTML = (this.settings.leadingZero ? '0' : '') + (i + 1);
+    }
+  }
+
+  _updateMonthList() {
+    const format = this.settings.monthFormat;
+    const filter = this.settings.placeholder ? 1 : 0;
+    this.monthFormat[format].forEach((text, ind) => {
+      this._month.el.childNodes[filter + ind].innerHTML =
+        this._getMonthText(text);
+    });
+  }
+
+  /**
+   * Change the current active month format
+   * @param  {[type]} format [description]
+   * @return {[type]}        [description]
+   */
+  setMonthFormat(format) {
+    if (!this.monthFormat[format] || format === this.settings.monthFormat) {
+      return false;
+    }
+    this.settings.monthFormat = format;
+    this._updateMonthList();
+  }
+
+  setLanguage(lang) {
+    if (
+      lang === this.settings.locale ||
+      ('' + lang).length < 2 ||
+      ('' + lang).length > 2
+    ) {
+      // console.log('nothing to change');
+      return false;
+    }
+
+    BirthdayPicker.createLocale(lang);
+    this.monthFormat = BirthdayPicker.i18n[lang].month;
+    this.settings.locale = lang;
+
+    // todo: is this correct for all languages?
+    if ('numeric' === this.settings.monthFormat) {
+      return false;
+    }
+
+    let filter = this.settings.placeholder ? 1 : 0;
+    this.monthFormat[this.settings.monthFormat].forEach((el, ind) => {
+      this._month.el.childNodes[filter + ind].innerHTML = el;
+    });
+
+    // trigger a datechange event
+    this._dateChanged();
+  }
+
+  setDate(dateString) {
+    let parsed = this._parseDate(dateString);
+    if (parsed) {
+      this._setDate(parsed.year, parsed.month, parsed.day);
+    }
+  }
+
+  addEventListener(eventName, listener, option) {
+    if (
+      allowedEvents.indexOf(eventName) < 0 ||
+      'function' !== typeof listener
+    ) {
+      return false;
+    }
+
+    this.element.addEventListener(eventName, listener, option);
+    this._registeredEventListeners.push({ eventName, listener, option });
+
+    // already fired
+    if (this.eventFired[eventName]) {
+      listener.call(this.element, this.eventFired[eventName]);
+    }
+  }
+
+  removeEventListener(eventName, listener, option) {
+    this.element.removeEventListener(eventName, listener, option);
+  }
+
+  // todo: undo everything
+  kill() {
+    this.eventFired = {};
+
+    // remove all registerd EventListeners
+    if (this._registeredEventListeners) {
+      this._registeredEventListeners.forEach((r) =>
+        this.removeEventListener(r.eventName, r.listener, r.option)
+      );
+    }
+  }
+
+  isLeapYear(year = this.currentYear) {
+    return undefined === year ? undefined : isLeapYear(year);
+  }
+
+  getDate(format) {
+    if (!this.currentYear || !this.currentMonth || !this.currentDay) {
+      return '';
+    }
+    // use the language default
+    if (!format) {
+      let tmp = new Date(
+        Date.UTC(this.currentYear, +this.currentMonth - 1, this.currentDay)
+      );
+      return tmp.toLocaleDateString(this.settings.locale);
+    }
+
+    // eg. 'YYYY-MM-DD'
+    let result = format.toLowerCase();
+
+    result = result.replaceAll('yyyy', this.currentYear);
+    result = result.replaceAll('yy', ('' + this.currentYear).slice(2));
+
+    result = result.replaceAll('mm', ('0' + this.currentMonth).slice(-2));
+    result = result.replaceAll('m', this.currentMonth);
+
+    result = result.replaceAll('dd', ('0' + this.currentDay).slice(-2));
+    result = result.replaceAll('d', this.currentDay);
+
+    return result;
+  }
+
   /**
    * The init method
    * todo: test all(!) option values for correctness
@@ -549,6 +567,7 @@ class BirthdayPicker {
     this._registeredEventListeners = [];
     this._monthDayMapping = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     this.settings.placeholder = isTrue(this.settings.placeholder);
+    this.settings.leadingZero = isTrue(this.settings.leadingZero);
     this._date = [];
 
     ['year', 'month', 'day'].forEach((item) => {

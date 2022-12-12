@@ -489,7 +489,7 @@ describe('test the setLanguage function', () => {
 
     bp.setLanguage('ru');
     bp.setMonthFormat('short');
-    bp.useLeadingZero = true;
+    bp.useLeadingZero(true);
 
     expect(langChangeSpy).toHaveBeenCalledTimes(2);
     expect(bp.settings.locale).toBe('ru');
@@ -632,12 +632,12 @@ describe('private methods tests', () => {
 
   test('test _getMonthText', () => {
     expect(bp._getMonthText(1)).toBe('1');
-    bp.useLeadingZero = true;
+    bp.useLeadingZero(true);
     expect(bp._getMonthText(4)).toBe('04');
     expect(bp._getMonthText(12)).toBe('12');
-    bp.useLeadingZero = false;
+    bp.useLeadingZero(false);
     expect(bp._getMonthText(12)).toBe('12');
-    bp.useLeadingZero = true;
+    bp.useLeadingZero(true);
     expect(bp._getMonthText(12)).toBe('12');
   });
 });

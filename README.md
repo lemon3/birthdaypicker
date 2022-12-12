@@ -29,6 +29,9 @@
       <a href="#usage">Usage</a>
     </li>
     <li>
+      <a href="#api">Usage</a>
+    </li>
+    <li>
       <a href="#license">License</a>
     </li>
     <li>
@@ -114,7 +117,8 @@ npm run
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-1. simple example (via data API)
+### simple example (via data API)
+#### html:
 ```html
 <!-- initialize with default values -->
 <div data-birthdaypicker></div>
@@ -126,11 +130,13 @@ npm run
 ></div>
 ```
 
-2. simple example (via js)
+### simple example (via js)
+#### html:
 ```html
 <div id="bp1"></div>
 <div id="bp2"></div>
 ```
+#### js:
 ```js
 // initialize with default values
 const bp1 = new BirthdayPicker('#bp1');
@@ -141,9 +147,9 @@ const options = { defaultDate: new Date() };
 const bp2 = new BirthdayPicker(el, options);
 ```
 
-### API
-
-initialize
+## API
+note: the API may change ...
+### initialize
 ```js
 // element: a dom reference to one element, or a querySelector string
 const element = '#my-div';
@@ -152,7 +158,7 @@ const options = {};
 const myBirthdayPicker = new BirthdayPicker(element, options);
 ```
 
-option API (may change)
+### option API
 ```js
 options = {
   // sets the minimal age for a person, animal,...
@@ -218,6 +224,60 @@ options = {
   // default: false
   selectFuture: false,
 };
+```
+### methods
+```js
+const element = '#my-div';
+const options = {
+  autoinit: false
+};
+const myBirthdayPicker = new BirthdayPicker(element, options);
+
+// init: initializes the picker
+myBirthdayPicker.init();
+
+// getDate returns the current selected date with the language default date-formating!
+// you can change the format, by calling the method with a specific data-format value.
+// e.g.: 'yyyy-m-d'
+// if date is 2. Sep. 1994
+// return values are:
+// 'yy'   -> 94
+// 'yyyy' -> 1994
+// 'mm'   -> 09
+// 'm'    -> 9
+// 'dd'   -> 02
+// 'd'    -> 2
+myBirthdayPicker.getDate('yyyy-m-d');
+
+// just a small helper function, returns true or false
+myBirthdayPicker.isLeapYear(2020); // true
+
+// listen to different events eg.
+// available events: init | datechange
+const myEventListener = () => {};
+myBirthdayPicker.addEventListener('datechange', myEventListener, false);
+
+// remove the eventlistener
+myBirthdayPicker.removeEventListener('datechange', myEventListener);
+
+// set the date to a given value
+// e.g.: '2020-10-22' // yyyy-mm-dd: this is the 22. oct. 2020
+// or to the current date with new Date()
+myBirthdayPicker.setDate(new Date());
+
+// sets the language for the current instance
+// e.g.: 'en', 'de', 'fr', ...
+myBirthdayPicker.setLanguage('en');
+
+// sets the month format for the current instance
+// available: 'short', 'long', 'numeric'
+myBirthdayPicker.setMonthFormat('short');
+
+// setter, if the
+myBirthdayPicker.useLeadingZero(true); // true | false
+
+// kills the current instance and removes all event-listeners
+myBirthdayPicker.kill();
 ```
 
 ### Demo
