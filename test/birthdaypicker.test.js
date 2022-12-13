@@ -100,14 +100,16 @@ describe('BirthdayPicker init stage', () => {
 });
 
 describe('dataapi test', () => {
-  // todo
-  window.docReady = () => {};
-  jest.mock('../src/index.js');
-  const initSpy = jest.spyOn(BirthdayPicker, 'init');
-  expect(initSpy).toHaveBeenCalledTimes(0);
+  test('should be called', () => {
+    // todo
+    window.docReady = () => {};
+    jest.mock('../src/index.js');
+    const initSpy = jest.spyOn(BirthdayPicker, 'init');
+    expect(initSpy).toHaveBeenCalledTimes(0);
 
-  BirthdayPicker.init();
-  expect(initSpy).toHaveBeenCalledTimes(1);
+    BirthdayPicker.init();
+    expect(initSpy).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('BirthdayPicker kill', () => {
@@ -117,21 +119,30 @@ describe('BirthdayPicker kill', () => {
   const cbInit = jest.fn();
   const cbDatechange = jest.fn();
 
-  bp.addEventListener('init', cbInit);
   bp.addEventListener('datechange', cbDatechange);
 
-  expect(cbInit).toHaveBeenCalled();
-  expect(cbInit).toHaveBeenCalledTimes(1);
+  describe('first test if eventlisteners are working', () => {
+    test('init callbacks should be called', () => {
+      bp.addEventListener('init', cbInit);
+      expect(cbInit).toHaveBeenCalled();
+      expect(cbInit).toHaveBeenCalledTimes(1);
+    });
+    test('datechange callbacks should be called after setting date', () => {
+      expect(cbDatechange).not.toHaveBeenCalled();
+      bp.setDate('2000-10-10');
+      bp.setDate(new Date());
+      expect(cbDatechange).toHaveBeenCalledTimes(2);
+    });
+  });
 
-  expect(cbDatechange).not.toHaveBeenCalled();
-
-  bp.setDate(new Date());
-  expect(cbDatechange).toHaveBeenCalledTimes(1);
-
-  // now kill (removes the eventlistener too)
-  bp.kill();
-  bp.setDate(new Date());
-  expect(cbDatechange).toHaveBeenCalledTimes(1);
+  describe('now call kill method', () => {
+    test('evt callbacks should not work', () => {
+      // now kill (removes the eventlistener too)
+      bp.kill();
+      bp.setDate(new Date());
+      expect(cbDatechange).not.toHaveBeenCalled();
+    });
+  });
 });
 
 describe('BirthdayPicker events', () => {
@@ -375,136 +386,190 @@ describe('BirthdayPicker events', () => {
   });
 });
 
-// test for _dayChanged
 describe('date setting tests', () => {
   const bpEl = document.createElement('div');
   BirthdayPicker.kill(bpEl);
   const defaultDate = '1980-06-06';
   const newDate = '1990-12-30';
   let bp = new BirthdayPicker(bpEl, { defaultDate });
+  let date1, date2;
 
-  test('set date via setDate()', () => {
-    bp.setDate(newDate);
-
-    const date1 = bp.getDate('yyyy-mm-dd');
-    expect(date1).toEqual(newDate);
-
-    // reset
-    bp.setDate(defaultDate);
-
-    const mapping = ['_year', '_month', '_day'];
-    newDate.split('-').forEach((val, ind) => {
-      let el = bp[mapping[ind]].el;
-      const [idx] = bp._getNodeIndexByValue(el.childNodes, val);
-      el.selectedIndex = idx;
-      el.dispatchEvent(new Event('change'));
+  describe('set date via setDate()', () => {
+    test('should work correctly', () => {
+      bp.setDate(newDate);
+      date1 = bp.getDate('yyyy-mm-dd');
+      expect(date1).toEqual(newDate);
     });
-    const date2 = bp.getDate('yyyy-mm-dd');
 
-    expect(date1).toEqual(date2);
+    test('new date out of date range should return ""', () => {
+      bp.setDate('1823-10-12');
+      const result = bp.getDate('yyyy-mm-dd');
+      expect(result).toEqual('');
+    });
+
+    test('new date out of date range should return ""', () => {
+      bp.setDate('2075-05-06');
+      const result = bp.getDate('yyyy-mm-dd');
+      const today = new Date();
+      const todayYear = today.getFullYear();
+      const todayMonth = today.getMonth() + 1;
+      const todayDay = today.getDate();
+      const todayString = `${todayYear}-${todayMonth}-${todayDay}`;
+      expect(result).toEqual(todayString);
+    });
+  });
+
+  describe('set date via select boxes', () => {
+    test('should work correctly', () => {
+      // reset
+      bp.setDate(defaultDate);
+      const mapping = ['_year', '_month', '_day'];
+
+      newDate.split('-').forEach((val, ind) => {
+        let el = bp[mapping[ind]].el;
+        const [idx] = bp._getNodeIndexByValue(el.childNodes, val);
+        el.selectedIndex = idx;
+        el.dispatchEvent(new Event('change'));
+      });
+      date2 = bp.getDate('yyyy-mm-dd');
+
+      expect(date1).toEqual(date2);
+    });
   });
 });
 
 // test for _dayChanged
-describe('update stage, test', () => {
+describe('setDate tests', () => {
   const bpEl = document.querySelector('#test');
   BirthdayPicker.kill(bpEl);
   let bp = new BirthdayPicker(bpEl);
+  let yearChangedSpy;
+  let monthChangedSpy;
+  let dayChangedSpy;
+  let dateChangedSpy;
 
-  test('month change tiggered a day change via setDate()', () => {
-    // init state
+  beforeEach(() => {
+    //int date
     bp.setDate('2000-12-31');
 
-    const dayChangedSpy = jest.spyOn(bp, '_dayChanged');
-    bp.setDate('2000-2-31'); // second trigger
-
-    // a set to an undefinde das, eg. 2000-2-31 should
-    // update to the next correct day -> feb 2000 has only 29 day
-    // so there is no 31 -> 2 days forward -> 2. Mar.
-    expect(bp.getDate('yyyy-m-d')).toEqual('2000-3-2');
-
-    // should only fire 1 time, as dec and mar have 31 days!
-    expect(dayChangedSpy).toHaveBeenCalledTimes(1);
-
-    dayChangedSpy.mockRestore();
+    yearChangedSpy = jest.spyOn(bp, '_yearChanged');
+    monthChangedSpy = jest.spyOn(bp, '_monthChanged');
+    dayChangedSpy = jest.spyOn(bp, '_dayChanged');
+    dateChangedSpy = jest.spyOn(bp, '_dateChanged');
   });
 
-  test('test day, month, year trigger', () => {
-    const yearChangedSpy = jest.spyOn(bp, '_yearChanged');
-    const monthChangedSpy = jest.spyOn(bp, '_monthChanged');
-    const dayChangedSpy = jest.spyOn(bp, '_dayChanged');
-
-    bp.setDate('1999-4-15');
-
-    expect(yearChangedSpy).toHaveBeenCalledTimes(1);
-    expect(monthChangedSpy).toHaveBeenCalledTimes(1);
-    expect(dayChangedSpy).toHaveBeenCalledTimes(1);
-
-    yearChangedSpy.mockRestore();
-    monthChangedSpy.mockRestore();
-    dayChangedSpy.mockRestore();
-  });
-
-  test('change from leap year, should trigger day change', () => {
-    //int
-    bp.setDate('2002-2-29');
-
-    const yearChangedSpy = jest.spyOn(bp, '_yearChanged');
-    const monthChangedSpy = jest.spyOn(bp, '_monthChanged');
-    const dayChangedSpy = jest.spyOn(bp, '_dayChanged');
-    const dateChangedSpy = jest.spyOn(bp, '_dateChanged');
-
-    // leap year
-    bp.setDate('2004-2-29');
-    expect(yearChangedSpy).toHaveBeenCalledTimes(1);
-    expect(monthChangedSpy).toHaveBeenCalledTimes(1);
-    expect(dayChangedSpy).toHaveBeenCalledTimes(1);
-    expect(dateChangedSpy).toHaveBeenCalledTimes(1);
-
-    bp.setDate('2004-2-20'); // day changed
-    expect(yearChangedSpy).toHaveBeenCalledTimes(1);
-    expect(monthChangedSpy).toHaveBeenCalledTimes(1);
-    expect(dayChangedSpy).toHaveBeenCalledTimes(2);
-    expect(dateChangedSpy).toHaveBeenCalledTimes(2);
-
-    bp.setDate('2004-3-20'); // month changed
-    expect(yearChangedSpy).toHaveBeenCalledTimes(1);
-    expect(monthChangedSpy).toHaveBeenCalledTimes(2);
-    expect(dayChangedSpy).toHaveBeenCalledTimes(2);
-    expect(dateChangedSpy).toHaveBeenCalledTimes(3);
-
-    bp.setDate('2012-3-20'); // year changed
-    expect(yearChangedSpy).toHaveBeenCalledTimes(2);
-    expect(monthChangedSpy).toHaveBeenCalledTimes(2);
-    expect(dayChangedSpy).toHaveBeenCalledTimes(2);
-    expect(dateChangedSpy).toHaveBeenCalledTimes(4);
-
-    bp.setDate('2000-2-29'); // year, month and day changed
-    expect(yearChangedSpy).toHaveBeenCalledTimes(3);
-    expect(monthChangedSpy).toHaveBeenCalledTimes(3);
-    expect(dayChangedSpy).toHaveBeenCalledTimes(3);
-    expect(dateChangedSpy).toHaveBeenCalledTimes(5);
-
-    // only change year
-    bp.setDate('2005-2-29'); // --> 2005-3-1
-    expect(bp.currentYear).toBe(2005);
-    expect(bp.currentMonth).toBe(3);
-    expect(bp.currentDay).toBe(1);
-    expect(yearChangedSpy).toHaveBeenCalledTimes(4);
-    expect(monthChangedSpy).toHaveBeenCalledTimes(4);
-    expect(dayChangedSpy).toHaveBeenCalledTimes(4);
-    expect(dateChangedSpy).toHaveBeenCalledTimes(6);
-
-    bp.setDate('2005-3-1'); // no change!!
-    expect(yearChangedSpy).toHaveBeenCalledTimes(4);
-    expect(monthChangedSpy).toHaveBeenCalledTimes(4);
-    expect(dayChangedSpy).toHaveBeenCalledTimes(4);
-    expect(dateChangedSpy).toHaveBeenCalledTimes(6);
-
+  afterEach(() => {
     yearChangedSpy.mockRestore();
     monthChangedSpy.mockRestore();
     dayChangedSpy.mockRestore();
     dateChangedSpy.mockRestore();
+    jest.clearAllMocks();
+  });
+
+  describe('change month via setDate()', () => {
+    test('should tiggered a day change', () => {
+      bp.setDate('2000-2-31');
+
+      // if set to an undefinded day, eg. 2000-2-31
+      // it should update to the next correct day -> feb 2000 has only 29 day
+      // so there is no 31 -> 2 days forward results in -> 2. Mar. 2000
+      expect(bp.getDate('yyyy-m-d')).toEqual('2000-3-2');
+      expect(bp.currentYear).toBe(2000);
+      expect(bp.currentMonth).toBe(3);
+      expect(bp.currentDay).toBe(2);
+
+      // should only fire 1 time, as dec and mar have 31 days!
+      expect(dayChangedSpy).toHaveBeenCalledTimes(1);
+
+      dayChangedSpy.mockRestore();
+    });
+  });
+
+  describe('change all values (year month day) via setDate()', () => {
+    test('should call the associated changed methods', () => {
+      bp.setDate('1999-4-15');
+      expect(yearChangedSpy).toHaveBeenCalledTimes(1);
+      expect(monthChangedSpy).toHaveBeenCalledTimes(1);
+      expect(dayChangedSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('change from leap year to a normal year', () => {
+    test('should trigger day change', () => {
+      // leap year
+      bp.setDate('1996-2-14');
+      // none leap year
+      bp.setDate('1997-2-14');
+      expect(yearChangedSpy).toHaveBeenCalledTimes(2);
+      expect(monthChangedSpy).toHaveBeenCalledTimes(1);
+      expect(dayChangedSpy).toHaveBeenCalledTimes(2);
+      expect(dateChangedSpy).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('change form a leap year day', () => {
+    beforeEach(() => {
+      bp.setDate('2004-2-29');
+      jest.clearAllMocks();
+    });
+    test('should trigger year, month, day changes, by only changing the year', () => {
+      // only change year(!)
+      bp.setDate('2005-2-29'); // should be 2005-3-1
+      expect(yearChangedSpy).toHaveBeenCalledTimes(1);
+      expect(monthChangedSpy).toHaveBeenCalledTimes(1);
+      expect(dayChangedSpy).toHaveBeenCalledTimes(1);
+      expect(dateChangedSpy).toHaveBeenCalledTimes(1);
+      expect(bp.getDate('yyyy-mm-dd')).toBe('2005-03-01');
+    });
+  });
+
+  describe('only day changed', () => {
+    test('should only call day and date changed', () => {
+      bp.setDate('2000-12-20'); // day changed
+      expect(yearChangedSpy).toHaveBeenCalledTimes(0);
+      expect(monthChangedSpy).toHaveBeenCalledTimes(0);
+      expect(dayChangedSpy).toHaveBeenCalledTimes(1);
+      expect(dateChangedSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('only month changed', () => {
+    test('should call only month and date changed', () => {
+      bp.setDate('2000-10-31'); // month changed
+      expect(yearChangedSpy).toHaveBeenCalledTimes(0);
+      expect(monthChangedSpy).toHaveBeenCalledTimes(1);
+      expect(dayChangedSpy).toHaveBeenCalledTimes(0);
+      expect(dateChangedSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('only year changed', () => {
+    test('should call only year and date changed', () => {
+      bp.setDate('2020-12-31'); // year changed
+      expect(yearChangedSpy).toHaveBeenCalledTimes(1);
+      expect(monthChangedSpy).toHaveBeenCalledTimes(0);
+      expect(dayChangedSpy).toHaveBeenCalledTimes(0);
+      expect(dateChangedSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('all values change', () => {
+    test('should trigger all changes', () => {
+      bp.setDate('1999-1-15'); // year, month and day changed
+      expect(yearChangedSpy).toHaveBeenCalledTimes(1);
+      expect(monthChangedSpy).toHaveBeenCalledTimes(1);
+      expect(dayChangedSpy).toHaveBeenCalledTimes(1);
+      expect(dateChangedSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+  describe('no values change', () => {
+    test('nothing should be triggerd', () => {
+      bp.setDate('2000-12-31'); // no change!!
+      expect(yearChangedSpy).not.toHaveBeenCalled();
+      expect(monthChangedSpy).not.toHaveBeenCalled();
+      expect(dayChangedSpy).not.toHaveBeenCalled();
+      expect(dateChangedSpy).not.toHaveBeenCalled();
+    });
   });
 });
 
@@ -698,6 +763,14 @@ describe('public methods tests', () => {
     monthFormat: 'numeric',
     locale: 'en',
     leadingZero: false,
+  });
+
+  test('useLeadingZero set to true and false', () => {
+    expect(bp.settings.leadingZero).toBe(false);
+    bp.useLeadingZero(true);
+    expect(bp.settings.leadingZero).toBe(true);
+    bp.useLeadingZero(false);
+    expect(bp.settings.leadingZero).toBe(false);
   });
 
   test('test isLeapYear', () => {
@@ -896,12 +969,7 @@ describe('_nofuturDate methods tests', () => {
       });
     });
   });
-
-  // restore the original implementation
-  // bp._nofuturDate = orig;
 });
-
-describe('_setDate methods tests', () => {});
 
 describe('_dateChanged methods tests', () => {
   const bpEl = document.querySelector('#test');
@@ -978,7 +1046,7 @@ describe('_updateDays methods tests', () => {
 
     // change days
     bp.setDate('2010-2-10');
-    expect(_setDateSpy).toHaveBeenCalledWith(2010, 2, 10);
+    expect(_setDateSpy).toHaveBeenCalledWith({ year: 2010, month: 2, day: 10 });
     expect(_setDaySpy).toHaveBeenCalledWith(10);
     expect(_updateDaysSpy).toHaveBeenCalledTimes(0);
     expect(bp.getDate('yyyy-m-d')).toEqual('2010-2-10');

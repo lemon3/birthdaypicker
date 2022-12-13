@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.3
+### Added or Changed
+- test updates
+- bug fixing
+- added an option to set the order of the select boxes
+
 ## v0.1.2
 ### Added or Changed
 - added *daychange*, *monthchange* and *yearchange* events.

@@ -148,7 +148,7 @@ const el = document.getElementById('bp2');
 const options = { defaultDate: new Date() };
 const bp2 = new BirthdayPicker(el, options);
 ```
-
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 ## API
 note: the API may change ...
 ### initialize
@@ -225,6 +225,13 @@ options = {
   // available: true | false
   // default: false
   selectFuture: false,
+
+  // to arrange the selectboxes
+  // y: year, m: month, d: day
+  // so ymd means:  year | month | day
+  // available: 'ymd', 'ydm', 'myd', 'mdy', 'dmy', 'dym'
+  // default: 'ymd'
+  arrange: 'ymd',
 };
 ```
 ### methods

@@ -14,6 +14,7 @@ import {
 const instances = [];
 const dataName = 'data-birthdaypicker';
 const monthFormats = ['short', 'long', 'numeric'];
+const allowedArrangement = ['ymd', 'ydm', 'myd', 'mdy', 'dmy', 'dym'];
 const allowedEvents = [
   'init',
   'datechange',
@@ -151,15 +152,32 @@ class BirthdayPicker {
     return valueChanged;
   }
 
+  _getDateValuesInRange({ year, month, day }) {
+    // todo: define a min & max date
+    if (year < this._yearEnd) {
+      year = month = day = undefined;
+    } else if (year > this._yearStart) {
+      year = todayYear;
+      month = todayMonth;
+      day = todayDay;
+    } else if (year === this._yearStart) {
+      if (month > todayMonth) {
+        month = todayMonth;
+        day = todayDay;
+      } else if (month === todayMonth && day > todayDay) {
+        day = todayDay;
+      }
+    }
+
+    return { year, month, day };
+  }
+
   /**
    * Set the date
-   * @param {String | Int} year  The year.
-   * @param {String | Int} month The month.
-   * @param {String | Int} day   The day.
+   * @param {Object} obj with year, month, day as String or Integer
    */
-  _setDate(year, month, day) {
+  _setDate({ year, month, day }) {
     // this._prevent = true; // prevent events on direct input
-
     this._yChanged = year !== this.currentYear;
     this._mChanged = month !== this.currentMonth;
     this._dChanged = day !== this.currentDay;
@@ -419,16 +437,14 @@ class BirthdayPicker {
 
   useLeadingZero(value) {
     value = isTrue(value);
-    if (value === this.settings.leadingZero) {
-      return false;
-    }
+    if (value !== this.settings.leadingZero) {
+      this.settings.leadingZero = value;
 
-    this.settings.leadingZero = value;
-
-    if ('numeric' === this.settings.monthFormat) {
-      this._updateMonthList();
+      if ('numeric' === this.settings.monthFormat) {
+        this._updateMonthList();
+      }
+      this._updateDayList();
     }
-    this._updateDayList();
   }
 
   _updateDayList() {
@@ -492,8 +508,10 @@ class BirthdayPicker {
   setDate(dateString) {
     let parsed = this._parseDate(dateString);
     if (parsed) {
-      this._setDate(parsed.year, parsed.month, parsed.day);
+      parsed = this._getDateValuesInRange(parsed);
+      this._setDate(parsed);
     }
+    return parsed;
   }
 
   addEventListener(eventName, listener, option) {
@@ -575,13 +593,23 @@ class BirthdayPicker {
     this.eventFired = {};
     this._registeredEventListeners = [];
     this._monthDayMapping = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-    this.settings.placeholder = isTrue(this.settings.placeholder);
-    this.settings.leadingZero = isTrue(this.settings.leadingZero);
-    this.settings.selectFuture = isTrue(this.settings.selectFuture);
-
     this._date = [];
 
-    ['year', 'month', 'day'].forEach((item) => {
+    const s = this.settings;
+    s.placeholder = isTrue(s.placeholder);
+    s.leadingZero = isTrue(s.leadingZero);
+    s.selectFuture = isTrue(s.selectFuture);
+
+    // bigEndian:    ymd
+    // littleEndian: dmy
+    // else:         mdy
+    const lookup = { y: 'year', m: 'month', d: 'day' };
+    if (allowedArrangement.indexOf(s.arange) < 0) {
+      s.arange = 'ymd';
+    }
+
+    s.arange.split('').forEach((i) => {
+      const item = lookup[i];
       let itemEl = this.element.querySelector(
         '[' + dataName + '-' + item + ']'
       );
@@ -595,7 +623,6 @@ class BirthdayPicker {
         df: document.createDocumentFragment(),
         name: item, // placeholder name
       };
-
       this._date.push(this['_' + item]);
 
       itemEl.addEventListener(
@@ -607,32 +634,28 @@ class BirthdayPicker {
       );
     });
 
-    if ('now' === this.settings.maxYear) {
+    if ('now' === s.maxYear) {
       this._yearStart = todayYear;
     } else {
-      this._yearStart = this.settings.maxYear;
+      this._yearStart = s.maxYear;
     }
-    this._yearStart -= +this.settings.minAge;
-    if (this.settings.minYear) {
-      this._yearEnd = +this.settings.minYear;
+    this._yearStart -= +s.minAge;
+    if (s.minYear) {
+      this._yearEnd = +s.minYear;
     } else {
-      this._yearEnd = this._yearStart - +this.settings.maxAge;
+      this._yearEnd = this._yearStart - +s.maxAge;
     }
 
-    this.settings.locale;
-    BirthdayPicker.createLocale(this.settings.locale);
-    this.monthFormat = BirthdayPicker.i18n[this.settings.locale].month;
+    BirthdayPicker.createLocale(s.locale);
+    this.monthFormat = BirthdayPicker.i18n[s.locale].month;
 
     this._createBirthdayPicker();
-
     this._triggerEvent(allowedEvents[0]);
 
     // set default start value
-    if (this.settings.defaultDate) {
+    if (s.defaultDate) {
       this.setDate(
-        this.settings.defaultDate === 'now'
-          ? new Date().toString()
-          : this.settings.defaultDate
+        s.defaultDate === 'now' ? new Date().toString() : s.defaultDate
       );
     }
   }
@@ -710,6 +733,7 @@ BirthdayPicker.defaults = {
   leadingZero: true,
   locale: 'en',
   selectFuture: false,
+  arange: 'ymd',
 };
 
 BirthdayPicker.init = () => {
