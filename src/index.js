@@ -14,7 +14,13 @@ import {
 const instances = [];
 const dataName = 'data-birthdaypicker';
 const monthFormats = ['short', 'long', 'numeric'];
-const allowedEvents = ['init', 'datechange', 'daychange', 'monthchange', 'yearchange'];
+const allowedEvents = [
+  'init',
+  'datechange',
+  'daychange',
+  'monthchange',
+  'yearchange',
+];
 
 let today = new Date();
 let todayYear = today.getFullYear();
@@ -288,6 +294,7 @@ class BirthdayPicker {
         year: this._year.el.value,
         month: this._month.el.value,
         day: this._day.el.value,
+        date: this.getDate(),
       },
     };
     let ce = new CustomEvent(eventName, eventData);
@@ -325,7 +332,7 @@ class BirthdayPicker {
       });
 
       // set month back
-      if (+this.currentMonth !== month) {
+      if (+this.currentMonth > month) {
         this._setMonth(month);
       }
 
@@ -339,7 +346,7 @@ class BirthdayPicker {
         });
 
         // set days back
-        if (+this.currentDay !== day) {
+        if (+this.currentDay > day) {
           this._setDay(day);
         }
       }
@@ -478,7 +485,7 @@ class BirthdayPicker {
       this._month.el.childNodes[filter + ind].innerHTML = el;
     });
 
-    // trigger a datechange event
+    // trigger a datechange event, as the formating might change
     this._dateChanged();
   }
 
@@ -570,6 +577,8 @@ class BirthdayPicker {
     this._monthDayMapping = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     this.settings.placeholder = isTrue(this.settings.placeholder);
     this.settings.leadingZero = isTrue(this.settings.leadingZero);
+    this.settings.selectFuture = isTrue(this.settings.selectFuture);
+
     this._date = [];
 
     ['year', 'month', 'day'].forEach((item) => {
@@ -603,9 +612,7 @@ class BirthdayPicker {
     } else {
       this._yearStart = this.settings.maxYear;
     }
-
     this._yearStart -= +this.settings.minAge;
-
     if (this.settings.minYear) {
       this._yearEnd = +this.settings.minYear;
     } else {
@@ -618,6 +625,8 @@ class BirthdayPicker {
 
     this._createBirthdayPicker();
 
+    this._triggerEvent(allowedEvents[0]);
+
     // set default start value
     if (this.settings.defaultDate) {
       this.setDate(
@@ -626,8 +635,6 @@ class BirthdayPicker {
           : this.settings.defaultDate
       );
     }
-
-    this._triggerEvent(allowedEvents[0]);
   }
 }
 

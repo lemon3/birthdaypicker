@@ -41,7 +41,8 @@
           locale: '',
           date: '',
           result: '',
-          el: null,
+          eventLines: 0,
+          events: null,
           instance: null,
           birthdays: [
             { id:0, val: '1926-06-01', label: 'Marilyn Monroe' },
@@ -77,7 +78,7 @@
             }
             this.leadingZero = this.leadingZeros[1].val,
             this.currentOutputFormat = this.outputFormat[0];
-            this.date = this.birthdays[1].val;
+            this.date = ''; //this.birthdays[1].val;
             $watch('locale', () => {
               BirthdayPicker.setLanguage(this.locale);
             });
@@ -90,6 +91,22 @@
             this.locale = this.availableLocale[0].val;
             this.dateformat = this.availableDateformat[0].val;
             this.initialized = true;
+            this.events = $refs.events;
+            this.events.innerHTML = '';
+
+            $refs.bp.addEventListener('datechange', (evt) => { this.updateEvents(evt); });
+            $refs.bp.addEventListener('yearchange', (evt) => { this.updateEvents(evt); });
+            $refs.bp.addEventListener('monthchange', (evt) => { this.updateEvents(evt); });
+            $refs.bp.addEventListener('daychange', (evt) => { this.updateEvents(evt); });
+            $refs.bp.addEventListener('init', (evt) => { this.updateEvents(evt); });
+          },
+          updateEvents(evt) {
+            const name = evt.type;
+            this.eventLines++;
+            const line = (this.eventLines % 2 === 0) ? ' bg-slate-200' : '';
+            this.events.innerHTML += `<div class='${line}'><span class='text-right text-white bg-pink-600 w-6 px-1 inline-block'>${this.eventLines}.</span> <span class='font-bold italic'>${name}</span> called</div>`;
+            // '<div>' this.eventLines + ': \'<b>' + name + '\'</b> called<div>';
+            this.events.scrollTop = this.events.scrollHeight - this.events.offsetHeight;
           },
           getInstance() {
             if (this.instance) {
@@ -253,99 +270,107 @@
           tailwindcss and alpine.js demo
         </h1>
 
-        <div>
-          <div class="mb-1">
-            <div x-text="name"></div>
-          </div>
-          <div
-            id="marilyn"
-            data-birthdaypicker
-            :data-birthdaypicker-leading-zero="leadingZero"
-            :data-birthdaypicker-locale="locale"
-            :data-birthdaypicker-default-date="date"
-            :data-birthdaypicker-month-format="dateformat"
-            x-ref="bp"
-            @datechange="datechange"
-            class="inline-flex mb-4"
-          >
-            <div class="relative">
-              <select
-                class="peer focus:outline-none pr-7 pl-2 py-2 appearance-none rounded-none cursor-pointer border-0 rounded-l-md"
-                data-birthdaypicker-year
-              ></select>
-              <div
-                class="top-0 left-0 pointer-events-none absolute w-full h-full border-0 peer-focus:ring-pink-500 peer-focus:ring-2 peer-focus:z-10 peer-focus:bg-pink-500/10 rounded-l-md"
-              >
-                <svg
-                  class="w-4 top-2 right-2 absolute"
-                  width="24"
-                  height="24"
-                  viewbox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
+        <div class="flex flex-col md:flex-row">
+          <div class="md:w-1/2">
+            <div>date:</div>
+            <div
+              id="marilyn"
+              data-birthdaypicker
+              :data-birthdaypicker-leading-zero="leadingZero"
+              :data-birthdaypicker-locale="locale"
+              :data-birthdaypicker-default-date="date"
+              :data-birthdaypicker-month-format="dateformat"
+              x-ref="bp"
+              @datechange="datechange"
+              class="inline-flex mb-4"
+            >
+              <div class="relative">
+                <select
+                  class="peer focus:outline-none pr-7 pl-2 py-2 appearance-none rounded-none cursor-pointer border-0 rounded-l-md"
+                  data-birthdaypicker-year
+                ></select>
+                <div
+                  class="top-0 left-0 pointer-events-none absolute w-full h-full border-0 peer-focus:ring-pink-500 peer-focus:ring-2 peer-focus:z-10 peer-focus:bg-pink-500/10 rounded-l-md"
                 >
-                  <path
-                    d="m20.902 7.331c.326-.322.851-.322 1.175 0s.325.841 0 1.163l-9.49 9.396c-.324.322-.848.322-1.175 0l-9.49-9.396c-.324-.322-.324-.841 0-1.163.325-.322.851-.322 1.175 0l8.903 8.569z"
-                  />
-                </svg>
+                  <svg
+                    class="w-4 top-2 right-2 absolute"
+                    width="24"
+                    height="24"
+                    viewbox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="m20.902 7.331c.326-.322.851-.322 1.175 0s.325.841 0 1.163l-9.49 9.396c-.324.322-.848.322-1.175 0l-9.49-9.396c-.324-.322-.324-.841 0-1.163.325-.322.851-.322 1.175 0l8.903 8.569z"
+                    />
+                  </svg>
+                </div>
               </div>
-            </div>
 
-            <div class="relative">
-              <select
-                class="peer focus:outline-none pr-7 pl-2 py-2 appearance-none rounded-none cursor-pointer border-0"
-                data-birthdaypicker-month
-              ></select>
-              <div
-                class="top-0 left-0 pointer-events-none absolute w-full h-full border-0 peer-focus:ring-pink-500 peer-focus:ring-2 peer-focus:z-10 peer-focus:bg-pink-500/10"
-              >
-                <svg
-                  class="w-4 top-2 right-2 absolute"
-                  width="24"
-                  height="24"
-                  viewbox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
+              <div class="relative">
+                <select
+                  class="peer focus:outline-none pr-7 pl-2 py-2 appearance-none rounded-none cursor-pointer border-0"
+                  data-birthdaypicker-month
+                ></select>
+                <div
+                  class="top-0 left-0 pointer-events-none absolute w-full h-full border-0 peer-focus:ring-pink-500 peer-focus:ring-2 peer-focus:z-10 peer-focus:bg-pink-500/10"
                 >
-                  <path
-                    d="m20.902 7.331c.326-.322.851-.322 1.175 0s.325.841 0 1.163l-9.49 9.396c-.324.322-.848.322-1.175 0l-9.49-9.396c-.324-.322-.324-.841 0-1.163.325-.322.851-.322 1.175 0l8.903 8.569z"
-                  />
-                </svg>
+                  <svg
+                    class="w-4 top-2 right-2 absolute"
+                    width="24"
+                    height="24"
+                    viewbox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="m20.902 7.331c.326-.322.851-.322 1.175 0s.325.841 0 1.163l-9.49 9.396c-.324.322-.848.322-1.175 0l-9.49-9.396c-.324-.322-.324-.841 0-1.163.325-.322.851-.322 1.175 0l8.903 8.569z"
+                    />
+                  </svg>
+                </div>
+              </div>
+
+              <div class="relative">
+                <select
+                  class="peer focus:outline-none pr-7 pl-2 py-2 appearance-none rounded-none cursor-pointer border-0 rounded-r-md"
+                  data-birthdaypicker-day
+                ></select>
+                <div
+                  class="top-0 left-0 pointer-events-none absolute w-full h-full border-0 peer-focus:ring-pink-500 peer-focus:ring-2 peer-focus:z-10 peer-focus:bg-pink-500/10 rounded-r-md"
+                >
+                  <svg
+                    class="w-4 top-2 right-2 absolute"
+                    width="24"
+                    height="24"
+                    viewbox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="m20.902 7.331c.326-.322.851-.322 1.175 0s.325.841 0 1.163l-9.49 9.396c-.324.322-.848.322-1.175 0l-9.49-9.396c-.324-.322-.324-.841 0-1.163.325-.322.851-.322 1.175 0l8.903 8.569z"
+                    />
+                  </svg>
+                </div>
               </div>
             </div>
-
-            <div class="relative">
-              <select
-                class="peer focus:outline-none pr-7 pl-2 py-2 appearance-none rounded-none cursor-pointer border-0 rounded-r-md"
-                data-birthdaypicker-day
-              ></select>
-              <div
-                class="top-0 left-0 pointer-events-none absolute w-full h-full border-0 peer-focus:ring-pink-500 peer-focus:ring-2 peer-focus:z-10 peer-focus:bg-pink-500/10 rounded-r-md"
-              >
-                <svg
-                  class="w-4 top-2 right-2 absolute"
-                  width="24"
-                  height="24"
-                  viewbox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="m20.902 7.331c.326-.322.851-.322 1.175 0s.325.841 0 1.163l-9.49 9.396c-.324.322-.848.322-1.175 0l-9.49-9.396c-.324-.322-.324-.841 0-1.163.325-.322.851-.322 1.175 0l8.903 8.569z"
-                  />
-                </svg>
+            <div class="relative mb-4">
+              <div class="mb-1">
+                selected result
+                <div class="text-xs" x-text="currentOutputFormat.desc"></div>
               </div>
+              <input
+                class="px-2 py-2 outline-none border-0 focus:ring-pink-500 focus:ring-2 rounded-md disabled:bg-gray-400 disabled:text-gray-600 disabled:opacity-1"
+                id="mm-input"
+                type="text"
+                :value="result"
+                disabled
+              />
             </div>
           </div>
-          <div class="relative">
-            <div class="mb-1">
-              selected result
-              <div class="text-xs" x-text="currentOutputFormat.desc"></div>
-            </div>
-            <input
-              class="px-2 py-2 outline-none border-0 focus:ring-pink-500 focus:ring-2 rounded-md disabled:bg-gray-400 disabled:text-gray-600 disabled:opacity-1"
-              id="mm-input"
-              type="text"
-              :value="result"
-              disabled
-            />
+          <div class="md:w-1/2">
+            <div>events:</div>
+            <div
+              class="text-xs w-full px-2 py-2 rounded-md bg-white h-36 overflow-y-scroll"
+              x-ref="events"
+              id="events"
+            ></div>
           </div>
         </div>
 
@@ -398,7 +423,7 @@
             <div class="relative">
               <select
                 @change="outputFormatChange"
-                class="peer focus:outline-none pr-7 pl-2 py-2 appearance-none rounded-none cursor-pointer border-0 rounded-md"
+                class="peer focus:outline-none pr-7 pl-2 py-2 appearance-none cursor-pointer border-0 rounded-md"
               >
                 <template x-for="oFormat in outputFormat" :key="oFormat.id">
                   <option :value="oFormat.id" x-text="oFormat.label"></option>
@@ -440,8 +465,6 @@
     </div>
 
     <script src="./js/vendor/birthdaypicker.min.js"></script>
-    <script
-      src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
-    ></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   </body>
 </html>

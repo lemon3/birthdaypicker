@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-/* global afterEach, jest, describe, test, expect */
+/* global beforeEach, afterEach, jest, describe, test, expect */
 
 import BirthdayPicker from '../src/index.js';
 
@@ -158,10 +158,7 @@ describe('BirthdayPicker events', () => {
           callback();
         });
       bp.addEventListener('init', cb);
-      expect(bp.addEventListener).toBeCalledWith(
-        'init',
-        expect.any(Function)
-      );
+      expect(bp.addEventListener).toBeCalledWith('init', expect.any(Function));
       expect(cb).toHaveBeenCalledTimes(1);
       // restore
       bp.addEventListener = tmp;
@@ -180,14 +177,14 @@ describe('BirthdayPicker events', () => {
       describe('default date set', () => {
         test('should be called times', () => {
           const bp = new BirthdayPicker(document.createElement('div'), options);
-          bp.addEventListener(name +'change', cb);
+          bp.addEventListener(name + 'change', cb);
           expect(cb).toHaveBeenCalledTimes(1);
         });
       });
       describe('default date set (event set to element)', () => {
         test('should be called times', () => {
           const el = document.createElement('div');
-          el.addEventListener(name +'change', cb);
+          el.addEventListener(name + 'change', cb);
           new BirthdayPicker(el, options);
           expect(cb).toHaveBeenCalledTimes(1);
         });
@@ -204,7 +201,7 @@ describe('BirthdayPicker events', () => {
       describe('defaultDate set, update via setDate()', () => {
         test('should be called times', () => {
           const bp = new BirthdayPicker(document.createElement('div'), options);
-          bp.addEventListener(name +'change', cb);
+          bp.addEventListener(name + 'change', cb);
           bp.setDate(dates[name]);
           expect(cb).toHaveBeenCalledTimes(2);
         });
@@ -787,83 +784,117 @@ describe('_nofuturDate methods tests', () => {
   });
 
   // const orig = bp._nofuturDate;
-  test('try to set to a futur day', () => {
-    const _nofutureDateSpy = jest.spyOn(bp, '_nofutureDate');
-    bp.setDate('2044-11-15');
+  describe('try to set to a future day', () => {
+    test('should result in the current date', () => {
+      const _nofutureDateSpy = jest.spyOn(bp, '_nofutureDate');
+      bp.setDate('2044-11-15');
+      expect(_nofutureDateSpy).toHaveBeenCalled();
+      const today = new Date();
+      const todayYear = today.getFullYear();
+      const todayMonth = today.getMonth() + 1;
+      const todayDay = today.getDate();
+      const todayString = `${todayYear}-${todayMonth}-${todayDay}`;
+      expect(bp.getDate('yyyy-m-d')).toEqual(todayString);
 
-    expect(_nofutureDateSpy).toHaveBeenCalled();
-    const today = new Date();
-    const todayYear = today.getFullYear();
-    const todayMonth = today.getMonth() + 1;
-    const todayDay = today.getDate();
-    const todayString = `${todayYear}-${todayMonth}-${todayDay}`;
-    expect(bp.getDate('yyyy-m-d')).toEqual(todayString);
-
-    _nofutureDateSpy.mockRestore();
+      _nofutureDateSpy.mockRestore();
+    });
   });
 
-  test('try to set to a futur day', () => {
-    bp.setDate('2020-10-13');
+  describe('try to set to a future day', () => {
+    let year;
+    let month;
+    let day;
 
-    const _nofutureDateSpy = jest.spyOn(bp, '_nofutureDate');
-    const _setYearSpy = jest.spyOn(bp, '_setYear');
-    const _setMonthSpy = jest.spyOn(bp, '_setMonth');
-    const _setDaySpy = jest.spyOn(bp, '_setDay');
+    let _nofutureDateSpy;
+    let _setYearSpy;
+    let _setMonthSpy;
+    let _setDaySpy;
 
-    // change only the day value: only day should change
-    let year = 2020;
-    let month = 10;
-    let day = 12;
-    bp._nofutureDate(year, month, day);
-    expect(_nofutureDateSpy).lastCalledWith(year, month, day);
-    expect(_setYearSpy).toHaveBeenCalledTimes(0);
-    expect(_setMonthSpy).toHaveBeenCalledTimes(0);
-    expect(_setDaySpy).toHaveBeenCalledTimes(1);
-    expect(bp.getDate('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
+    beforeEach(() => {
+      year = 2020;
+      month = 10;
+      day = 13;
 
-    // change month
-    month = 9;
-    bp._nofutureDate(year, month, day);
-    expect(_nofutureDateSpy).lastCalledWith(year, month, day);
-    expect(_setYearSpy).toHaveBeenCalledTimes(0);
-    expect(_setMonthSpy).toHaveBeenCalledTimes(1);
-    expect(_setDaySpy).toHaveBeenCalledTimes(1);
-    expect(bp.getDate('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
+      bp.setDate(year + '-' + month + '-' + day);
 
-    // change year
-    year = 2019;
-    bp._nofutureDate(year, month, day);
-    expect(_nofutureDateSpy).lastCalledWith(year, month, day);
-    expect(_setYearSpy).toHaveBeenCalledTimes(1);
-    expect(_setMonthSpy).toHaveBeenCalledTimes(1);
-    expect(_setDaySpy).toHaveBeenCalledTimes(1);
-    expect(bp.getDate('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
+      _nofutureDateSpy = jest.spyOn(bp, '_nofutureDate');
+      _setYearSpy = jest.spyOn(bp, '_setYear');
+      _setMonthSpy = jest.spyOn(bp, '_setMonth');
+      _setDaySpy = jest.spyOn(bp, '_setDay');
+    });
 
-    // change all
-    year = 2017;
-    month = 10;
-    day = 21;
-    bp._nofutureDate(year, month, day);
-    expect(_nofutureDateSpy).lastCalledWith(year, month, day);
-    expect(_setYearSpy).toHaveBeenCalledTimes(2);
-    expect(_setMonthSpy).toHaveBeenCalledTimes(2);
-    expect(_setDaySpy).toHaveBeenCalledTimes(2);
-    expect(bp.getDate('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
+    afterEach(() => {
+      _nofutureDateSpy.mockRestore();
+      _setYearSpy.mockRestore();
+      _setMonthSpy.mockRestore();
+      _setDaySpy.mockRestore();
+    });
+
+    describe('change only the max day value down', () => {
+      test('only _setDay should be called', () => {
+        expect(bp.getDate('yyyy-mm-dd')).toBe('2020-10-13');
+        day = 12;
+        bp._nofutureDate(year, month, day);
+        expect(_nofutureDateSpy).lastCalledWith(year, month, day);
+        expect(_setYearSpy).toHaveBeenCalledTimes(0);
+        expect(_setMonthSpy).toHaveBeenCalledTimes(0);
+        expect(_setDaySpy).toHaveBeenCalledTimes(1);
+        expect(bp.getDate('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
+      });
+    });
+
+    describe('change only the max month value down', () => {
+      test('only _setMonth should be called', () => {
+        month = 9;
+        bp._nofutureDate(year, month, day);
+        expect(_nofutureDateSpy).lastCalledWith(year, month, day);
+        expect(_setYearSpy).toHaveBeenCalledTimes(0);
+        expect(_setMonthSpy).toHaveBeenCalledTimes(1);
+        expect(_setDaySpy).toHaveBeenCalledTimes(0);
+        expect(bp.getDate('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
+      });
+    });
+
+    describe('change only the year value', () => {
+      test('only _setYear should be called', () => {
+        year = 2019;
+        bp._nofutureDate(year, month, day);
+        expect(_nofutureDateSpy).lastCalledWith(year, month, day);
+        expect(_setYearSpy).toHaveBeenCalledTimes(1);
+        expect(_setMonthSpy).toHaveBeenCalledTimes(0);
+        expect(_setDaySpy).toHaveBeenCalledTimes(0);
+        expect(bp.getDate('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
+      });
+    });
+
+    describe('change all values', () => {
+      // change all
+      test('all setter should be called', () => {
+        year = 2016;
+        month = 8;
+        day = 11;
+        bp._nofutureDate(year, month, day);
+        expect(_nofutureDateSpy).lastCalledWith(year, month, day);
+        expect(_setYearSpy).toHaveBeenCalledTimes(1);
+        expect(_setMonthSpy).toHaveBeenCalledTimes(1);
+        expect(_setDaySpy).toHaveBeenCalledTimes(1);
+        expect(bp.getDate('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
+      });
+    });
 
     // change month and day
-    month = 12;
-    day = 22;
-    bp._nofutureDate(year, month, day);
-    expect(_nofutureDateSpy).lastCalledWith(year, month, day);
-    expect(_setYearSpy).toHaveBeenCalledTimes(2);
-    expect(_setMonthSpy).toHaveBeenCalledTimes(3);
-    expect(_setDaySpy).toHaveBeenCalledTimes(3);
-    expect(bp.getDate('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
-
-    _nofutureDateSpy.mockRestore();
-    _setYearSpy.mockRestore();
-    _setMonthSpy.mockRestore();
-    _setDaySpy.mockRestore();
+    describe('change max month and day values down', () => {
+      test('_setMonth and _setDay should be called', () => {
+        month = 7;
+        day = 10;
+        bp._nofutureDate(year, month, day);
+        expect(_nofutureDateSpy).lastCalledWith(year, month, day);
+        expect(_setYearSpy).toHaveBeenCalledTimes(0);
+        expect(_setMonthSpy).toHaveBeenCalledTimes(1);
+        expect(_setDaySpy).toHaveBeenCalledTimes(1);
+        expect(bp.getDate('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
+      });
+    });
   });
 
   // restore the original implementation
