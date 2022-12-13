@@ -14,7 +14,7 @@ import {
 const instances = [];
 const dataName = 'data-birthdaypicker';
 const monthFormats = ['short', 'long', 'numeric'];
-const allowedEvents = ['init', 'datechange'];
+const allowedEvents = ['init', 'datechange', 'daychange', 'monthchange', 'yearchange'];
 
 let today = new Date();
 let todayYear = today.getFullYear();
@@ -168,9 +168,8 @@ class BirthdayPicker {
       this._dateChanged();
     }
 
-    this._yChanged = false;
-    this._mChanged = false;
-    this._dChanged = false;
+    // reset
+    this._yChanged = this._mChanged = this._dChanged = false;
   }
 
   _parseDate(dateString) {
@@ -373,11 +372,13 @@ class BirthdayPicker {
   _dayChanged(day) {
     // console.log('_dayChanged:', day);
     this.currentDay = day;
+    this._triggerEvent(allowedEvents[2]);
   }
 
   _monthChanged(month) {
     // console.log('_monthChanged:', month);
     this.currentMonth = month;
+    this._triggerEvent(allowedEvents[3]);
     // if (this._prevent) {
     //   return false;
     // }
@@ -389,6 +390,7 @@ class BirthdayPicker {
     this.currentYear = year;
     this._monthDayMapping[1] = isLeapYear(year) ? 29 : 28;
 
+    this._triggerEvent(allowedEvents[4]);
     // if (this._prevent) {
     //   return false;
     // }

@@ -140,105 +140,241 @@ describe('BirthdayPicker events', () => {
   BirthdayPicker.kill(testEl);
   const bp = new BirthdayPicker(testEl);
 
-  const eventCallback = {
-    datechange() {},
-    monthchange() {},
-    init() {},
+  describe('init events', () => {
+    test('should be called times', () => {
+      const bp = new BirthdayPicker(document.createElement('div'));
+      const cb = jest.fn();
+      bp.addEventListener('init', cb);
+      bp.addEventListener('init', cb);
+      expect(cb).toHaveBeenCalledTimes(2);
+    });
+
+    test('should be called with "init"', () => {
+      const cb = jest.fn();
+      const tmp = bp.addEventListener;
+      bp.addEventListener = jest
+        .fn()
+        .mockImplementationOnce((event, callback) => {
+          callback();
+        });
+      bp.addEventListener('init', cb);
+      expect(bp.addEventListener).toBeCalledWith(
+        'init',
+        expect.any(Function)
+      );
+      expect(cb).toHaveBeenCalledTimes(1);
+      // restore
+      bp.addEventListener = tmp;
+    });
+  });
+
+  const options = { defaultDate: '2020-06-10' };
+  const dates = {
+    day: '2020-06-12',
+    month: '2020-08-10',
+    year: '2019-06-10',
   };
-
-  test('allowed events should be', () => {
-    bp.addEventListener('init', eventCallback.init);
-  });
-
-  test('callback has been called with "datechange"', () => {
-    const cb = jest.spyOn(eventCallback, 'datechange');
-    const tmp = bp.addEventListener;
-    bp.addEventListener = jest
-      .fn()
-      .mockImplementationOnce((event, callback) => {
-        callback();
+  const cb = jest.fn();
+  ['day', 'month', 'year'].forEach((name) => {
+    describe(name + 'change events after init', () => {
+      describe('default date set', () => {
+        test('should be called times', () => {
+          const bp = new BirthdayPicker(document.createElement('div'), options);
+          bp.addEventListener(name +'change', cb);
+          expect(cb).toHaveBeenCalledTimes(1);
+        });
       });
-    bp.addEventListener('datechange', eventCallback.datechange);
-    expect(bp.addEventListener).toBeCalledWith(
-      'datechange',
-      // eventCallback.datechange
-      expect.any(Function)
-    );
-    expect(cb).toHaveBeenCalledTimes(1);
-
-    // restore
-    bp.addEventListener = tmp;
-    cb.mockRestore();
-  });
-
-  test('addEventListener defined on instance is registerd to DOM element', () => {
-    const listener = jest.spyOn(testEl, 'addEventListener');
-
-    bp.addEventListener('datechange', eventCallback.datechange);
-    expect(listener).toHaveBeenCalledTimes(1);
-
-    listener.mockRestore();
-  });
-
-  test('datechange eventlistener fired on init, listener set after instance is created', () => {
-    const cb = jest.spyOn(eventCallback, 'datechange');
-    // const bp = new BirthdayPicker(testEl);
-    bp.addEventListener('datechange', eventCallback.datechange);
-    expect(cb).toHaveBeenCalledTimes(0);
-
-    cb.mockRestore();
-  });
-
-  test('datechange eventlistener fired on init, listener is set to DOM element befor instance is created', () => {
-    const cb = jest.spyOn(eventCallback, 'datechange');
-    BirthdayPicker.kill(testEl2);
-
-    testEl2.addEventListener('datechange', eventCallback.datechange);
-    new BirthdayPicker(testEl2, {
-      defaultDate: '2012-12-12',
+      describe('default date set (event set to element)', () => {
+        test('should be called times', () => {
+          const el = document.createElement('div');
+          el.addEventListener(name +'change', cb);
+          new BirthdayPicker(el, options);
+          expect(cb).toHaveBeenCalledTimes(1);
+        });
+      });
+      describe('default date NOT set', () => {
+        test('should not be called', () => {
+          const bp = new BirthdayPicker(document.createElement('div'));
+          bp.addEventListener(name + 'change', cb);
+          expect(cb).not.toHaveBeenCalled();
+        });
+      });
     });
-    expect(cb).toHaveBeenCalledTimes(1);
-
-    cb.mockRestore();
-  });
-
-  test('no default date set, so listener should not bee called', () => {
-    const cb = jest.spyOn(eventCallback, 'datechange');
-    BirthdayPicker.kill(testEl2);
-
-    // listener on element
-    testEl2.addEventListener('datechange', eventCallback.datechange);
-    const bp = new BirthdayPicker(testEl2);
-    // listener on instance
-    bp.addEventListener('datechange', eventCallback.datechange);
-    expect(cb).toHaveBeenCalledTimes(0);
-
-    cb.mockRestore();
-  });
-
-  test('addEventListener not registerd to element, if wrong event name given', () => {
-    const spy = jest.spyOn(testEl, 'addEventListener');
-    const wrong = bp.addEventListener('wrong', () => {});
-    expect(wrong).toBe(false);
-    expect(spy).toHaveBeenCalledTimes(0);
-
-    spy.mockRestore();
-  });
-
-  test('removeEventListener test', () => {
-    BirthdayPicker.kill(testEl);
-    const bp2 = new BirthdayPicker(testEl, {
-      defaultDate: '2000-10-10',
+    describe(name + 'change events after using setDate()', () => {
+      describe('defaultDate set, update via setDate()', () => {
+        test('should be called times', () => {
+          const bp = new BirthdayPicker(document.createElement('div'), options);
+          bp.addEventListener(name +'change', cb);
+          bp.setDate(dates[name]);
+          expect(cb).toHaveBeenCalledTimes(2);
+        });
+      });
     });
-    const cb = jest.fn();
-    bp2.addEventListener('datechange', cb);
-    expect(cb).toHaveBeenCalledTimes(1);
-    bp2.setDate('2000-10-11');
-    expect(cb).toHaveBeenCalledTimes(2);
-    bp2.removeEventListener('datechange', cb);
-    bp2.setDate('2000-10-11');
-    // no change here
-    expect(cb).toHaveBeenCalledTimes(2);
+  });
+
+  describe('datechange events', () => {
+    test('should be called with', () => {
+      const cb = jest.fn();
+      const tmp = bp.addEventListener;
+      bp.addEventListener = jest
+        .fn()
+        .mockImplementationOnce((event, callback) => {
+          callback();
+        });
+      bp.addEventListener('datechange', cb);
+      expect(bp.addEventListener).toBeCalledWith(
+        'datechange',
+        expect.any(Function)
+      );
+      expect(cb).toHaveBeenCalledTimes(1);
+
+      // restore
+      bp.addEventListener = tmp;
+    });
+  });
+
+  describe('addEventListener (to element)', () => {
+    describe('before instance is created', () => {
+      test('should fired after init, default date is set', () => {
+        const cb = jest.fn();
+        BirthdayPicker.kill(testEl2);
+
+        testEl2.addEventListener('datechange', cb);
+        new BirthdayPicker(testEl2, {
+          defaultDate: '2012-12-12',
+        });
+        expect(cb).toHaveBeenCalledTimes(1);
+      });
+
+      test('should not fire after init, no default date set', () => {
+        const cb = jest.fn();
+        BirthdayPicker.kill(testEl2);
+
+        // listener on element
+        testEl2.addEventListener('datechange', cb);
+        const bp = new BirthdayPicker(testEl2);
+        // listener on instance
+        bp.addEventListener('datechange', cb);
+        expect(cb).toHaveBeenCalledTimes(0);
+      });
+    });
+
+    describe('after instance is created', () => {
+      test('should not fire after init, as event listener was set after', () => {
+        const cb = jest.fn();
+        BirthdayPicker.kill(testEl2);
+        new BirthdayPicker(testEl2, {
+          defaultDate: '2012-12-12',
+        });
+        testEl2.addEventListener('datechange', cb);
+        expect(cb).toHaveBeenCalledTimes(0);
+      });
+    });
+  });
+
+  describe('addEventListener (to instance)', () => {
+    test('should register event on defined element', () => {
+      const listener = jest.spyOn(testEl, 'addEventListener');
+      const cb = jest.fn();
+      bp.addEventListener('datechange', cb);
+      expect(listener).toHaveBeenCalledTimes(1);
+      listener.mockRestore();
+    });
+
+    test('datechange should not fired on init, as no default date is set)', () => {
+      const cb = jest.fn();
+      bp.addEventListener('datechange', cb);
+      expect(cb).toHaveBeenCalledTimes(0);
+    });
+
+    test('addEventListener should not register to element, if wrong event name given', () => {
+      const cb = jest.fn();
+      const wrong = bp.addEventListener('wrong', cb);
+      expect(wrong).toBe(false);
+      expect(cb).toHaveBeenCalledTimes(0);
+    });
+  });
+
+  describe('removeEventListener (to instance)', () => {
+    test('datechange should not be called after removing the event listener', () => {
+      BirthdayPicker.kill(testEl);
+      const bp2 = new BirthdayPicker(testEl, {
+        defaultDate: '2000-10-10',
+      });
+      const cb = jest.fn();
+      bp2.addEventListener('datechange', cb);
+      expect(cb).toHaveBeenCalledTimes(1);
+      bp2.setDate('2000-10-11');
+      expect(cb).toHaveBeenCalledTimes(2);
+
+      bp2.removeEventListener('datechange', cb);
+      bp2.setDate('2000-10-11');
+      // no changes here!
+      expect(cb).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('removeEventListener (to element)', () => {
+    test('datechange should not be called after removing the event listener', () => {
+      const testEl = document.createElement('div');
+      const cb = jest.fn();
+
+      testEl.addEventListener('datechange', cb);
+      const bp2 = new BirthdayPicker(testEl, {
+        defaultDate: '2000-10-10',
+      });
+
+      expect(cb).toHaveBeenCalledTimes(1);
+      bp2.setDate('2000-10-11');
+      expect(cb).toHaveBeenCalledTimes(2);
+
+      testEl.removeEventListener('datechange', cb);
+      bp2.setDate('2000-10-11');
+      // no changes here!
+      expect(cb).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('addEventListener && removeEventListener', () => {
+    describe('add set to element, remove set to instance', () => {
+      test('should work', () => {
+        const testEl = document.createElement('div');
+        const cb = jest.fn();
+        testEl.addEventListener('datechange', cb);
+
+        const bp2 = new BirthdayPicker(testEl, {
+          defaultDate: '2000-10-10',
+        });
+
+        expect(cb).toHaveBeenCalledTimes(1);
+        bp2.setDate('2000-10-11');
+        expect(cb).toHaveBeenCalledTimes(2);
+
+        bp2.removeEventListener('datechange', cb);
+        bp2.setDate('2000-10-11');
+        // no changes here!
+        expect(cb).toHaveBeenCalledTimes(2);
+      });
+    });
+    describe('add set to instance, remove set to element', () => {
+      test('should work', () => {
+        const testEl = document.createElement('div');
+        const cb = jest.fn();
+        const bp2 = new BirthdayPicker(testEl, {
+          defaultDate: '2000-10-10',
+        });
+
+        bp2.addEventListener('datechange', cb);
+        expect(cb).toHaveBeenCalledTimes(1);
+        bp2.setDate('2000-10-11');
+        expect(cb).toHaveBeenCalledTimes(2);
+
+        testEl.removeEventListener('datechange', cb);
+        bp2.setDate('2000-10-11');
+        // no changes here!
+        expect(cb).toHaveBeenCalledTimes(2);
+      });
+    });
   });
 });
 

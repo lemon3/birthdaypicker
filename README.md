@@ -2,9 +2,11 @@
 
 <!-- PROJECT SHIELDS -->
 [![MIT License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
 ![min coverage][mincoverage-shield]
 ![minified size][minified-shield]
+![minified gzip size][minified-gzip-shield]
+
+[![LinkedIn][linkedin-shield]][linkedin-url]
 
 <!-- PROJECT LOGO -->
 <br />
@@ -314,3 +316,5 @@ Project Link: [https://github.com/lemon3/birthdaypicker](https://github.com/lemo
 [mincoverage-shield]: https://img.shields.io/nycrc/lemon3/birthdaypicker?style=for-the-badge
 
 [minified-shield]: https://img.shields.io/github/size/lemon3/birthdaypicker/dist/birthdaypicker.esm.min.js?label=Minified%20Size&style=for-the-badge
+
+[minified-gzip-shield]: https://img.shields.io/badge/minified%20gzip%20Size-4.7%20KB-blue?style=for-the-badge
