@@ -31,7 +31,7 @@
       <a href="#usage">Usage</a>
     </li>
     <li>
-      <a href="#api">Usage</a>
+      <a href="#api">Api</a>
     </li>
     <li>
       <a href="#license">License</a>
