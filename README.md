@@ -122,14 +122,38 @@ npm run
 ### simple example (via data API)
 #### html:
 ```html
-<!-- initialize with default values -->
+<!-- with default values -->
 <div data-birthdaypicker></div>
 
-<!-- initialize with current date -->
+<!-- with current date -->
 <div
   data-birthdaypicker
   data-birthdaypicker-default-date="now"
 ></div>
+
+<!-- with arrangement day | month | year -->
+<div
+  data-birthdaypicker
+  data-birthdaypicker-arrange="dmy"
+></div>
+
+<!-- with language set to 'fr' and current date -->
+<div
+  data-birthdaypicker
+  data-birthdaypicker-locale="fr"
+  data-birthdaypicker-default-date="now"
+></div>
+
+<!-- using the inline-json to set multiple values -->
+<div
+  data-birthdaypicker="{'locale':'de','arrange':'dmy'}"
+></div>
+
+<!-- using the settings string -->
+<div
+  data-birthdaypicker="locale:fr,defaultDate:now,arrange:dmy"
+></div>
+
 ```
 
 ### simple example (via js)
@@ -226,7 +250,7 @@ options = {
   // default: false
   selectFuture: false,
 
-  // to arrange the selectboxes
+  // to arrange the select-boxes
   // y: year, m: month, d: day
   // so ymd means:  year | month | day
   // available: 'ymd', 'ydm', 'myd', 'mdy', 'dmy', 'dym'

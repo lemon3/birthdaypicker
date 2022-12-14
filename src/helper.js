@@ -68,11 +68,7 @@ const getJSONData = (el, name, defaults = null) => {
   }
 
   // get all
-  if (undefined === name) {
-    return el.dataset;
-  }
-
-  if (undefined === el.dataset[name]) {
+  if (undefined === name || undefined === el.dataset[name]) {
     return el.dataset;
   }
 
@@ -83,7 +79,20 @@ const getJSONData = (el, name, defaults = null) => {
     // eslint-disable-next-line no-empty
   } catch (e) {}
 
-  data = { [name]: 'undefined' !== typeof data ? data : el.dataset[name] };
+  if ('object' !== typeof data) {
+    data = el.dataset[name];
+    const newData = {};
+    const split = data.split(',');
+    if (split.length > 1) {
+      split.forEach((item) => {
+        const [key, value] = item.split(':');
+        newData[key.replaceAll('\'','')] = value.replaceAll('\'','');
+      });
+    } else {
+      newData[name] = data;
+    }
+    data = newData;
+  }
 
   let obj = {};
   let len = name.length;
@@ -96,7 +105,7 @@ const getJSONData = (el, name, defaults = null) => {
     }
   });
 
-  return Object.assign(obj, data);
+  return Object.assign(data, obj);
 };
 
 /**

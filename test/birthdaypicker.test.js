@@ -19,6 +19,7 @@ document.body.innerHTML += `
 
   <div id="test4" data-birthdaypicker></div>
   <div id="test5" data-birthdaypicker></div>
+  <div id="obj-test" data-birthdaypicker="{'locale':'fr'}"></div>
 `;
 
 afterEach(() => {
@@ -110,6 +111,15 @@ describe('dataapi test', () => {
     BirthdayPicker.init();
     expect(initSpy).toHaveBeenCalledTimes(1);
   });
+
+  describe('dom element with object data', () => {
+    test('should be correctly initialized', () => {
+      const el = '#obj-test';
+      const bp = new BirthdayPicker(el);
+      expect(bp.settings.locale).toBe('fr');
+    });
+  });
+
 });
 
 describe('BirthdayPicker kill', () => {

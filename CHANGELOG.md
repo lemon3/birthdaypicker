@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.4
+### Added or Changed
+- data API update (a setting string can be used now)
+
 ## v0.1.3
 ### Added or Changed
 - test updates

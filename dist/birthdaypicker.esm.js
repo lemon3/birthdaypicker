@@ -28,10 +28,13 @@ __webpack_require__.d(__webpack_exports__, {
 });
 
 ;// CONCATENATED MODULE: ./src/helper.js
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+function _iterableToArrayLimit(arr, i) { var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"]; if (null != _i) { var _s, _e, _x, _r, _arr = [], _n = !0, _d = !1; try { if (_x = (_i = _i.call(arr)).next, 0 === i) { if (Object(_i) !== _i) return; _n = !1; } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0) { ; } } catch (err) { _d = !0, _e = err; } finally { try { if (!_n && null != _i.return && (_r = _i.return(), Object(_r) !== _r)) return; } finally { if (_d) throw _e; } } return _arr; } }
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 /**
  * add properties and style attributes to a given HTML object
  * @param  {object} el - The HTML object to add properties and styles too.
@@ -101,10 +104,7 @@ var getJSONData = function getJSONData(el, name) {
   }
 
   // get all
-  if (undefined === name) {
-    return el.dataset;
-  }
-  if (undefined === el.dataset[name]) {
+  if (undefined === name || undefined === el.dataset[name]) {
     return el.dataset;
   }
   var data;
@@ -113,7 +113,23 @@ var getJSONData = function getJSONData(el, name) {
     data = JSON.parse(el.dataset[name].replaceAll("'", '"'));
     // eslint-disable-next-line no-empty
   } catch (e) {}
-  data = _defineProperty({}, name, 'undefined' !== typeof data ? data : el.dataset[name]);
+  if ('object' !== _typeof(data)) {
+    data = el.dataset[name];
+    var newData = {};
+    var split = data.split(',');
+    if (split.length > 1) {
+      split.forEach(function (item) {
+        var _item$split = item.split(':'),
+          _item$split2 = _slicedToArray(_item$split, 2),
+          key = _item$split2[0],
+          value = _item$split2[1];
+        newData[key.replaceAll('\'', '')] = value.replaceAll('\'', '');
+      });
+    } else {
+      newData[name] = data;
+    }
+    data = newData;
+  }
   var obj = {};
   var len = name.length;
   Object.entries(el.dataset).forEach(function (item) {
@@ -124,7 +140,7 @@ var getJSONData = function getJSONData(el, name) {
       }
     }
   });
-  return Object.assign(obj, data);
+  return Object.assign(data, obj);
 };
 
 /**
@@ -229,17 +245,17 @@ var restrict = function restrict(value, min, max) {
 
 ;// CONCATENATED MODULE: ./src/index.js
 function src_typeof(obj) { "@babel/helpers - typeof"; return src_typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, src_typeof(obj); }
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-function _iterableToArrayLimit(arr, i) { var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"]; if (null != _i) { var _s, _e, _x, _r, _arr = [], _n = !0, _d = !1; try { if (_x = (_i = _i.call(arr)).next, 0 === i) { if (Object(_i) !== _i) return; _n = !1; } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0) { ; } } catch (err) { _d = !0, _e = err; } finally { try { if (!_n && null != _i.return && (_r = _i.return(), Object(_r) !== _r)) return; } finally { if (_d) throw _e; } } return _arr; } }
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+function src_slicedToArray(arr, i) { return src_arrayWithHoles(arr) || src_iterableToArrayLimit(arr, i) || src_unsupportedIterableToArray(arr, i) || src_nonIterableRest(); }
+function src_nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function src_unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return src_arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return src_arrayLikeToArray(o, minLen); }
+function src_arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+function src_iterableToArrayLimit(arr, i) { var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"]; if (null != _i) { var _s, _e, _x, _r, _arr = [], _n = !0, _d = !1; try { if (_x = (_i = _i.call(arr)).next, 0 === i) { if (Object(_i) !== _i) return; _n = !1; } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0) { ; } } catch (err) { _d = !0, _e = err; } finally { try { if (!_n && null != _i.return && (_r = _i.return(), Object(_r) !== _r)) return; } finally { if (_d) throw _e; } } return _arr; } }
+function src_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, src_toPropertyKey(descriptor.key), descriptor); } }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function src_toPropertyKey(arg) { var key = src_toPrimitive(arg, "string"); return src_typeof(key) === "symbol" ? key : String(key); }
-function src_toPrimitive(input, hint) { if (src_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (src_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return src_typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (src_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (src_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 /*!
  * (c) wolfgang jungmayer
  * www.lemon3.at
@@ -336,7 +352,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
     value: function _setYear(year) {
       year = restrict(year, this._yearEnd, this._yearStart);
       var _this$_getNodeIndexBy = this._getNodeIndexByValue(this._year.el.childNodes, year),
-        _this$_getNodeIndexBy2 = _slicedToArray(_this$_getNodeIndexBy, 2),
+        _this$_getNodeIndexBy2 = src_slicedToArray(_this$_getNodeIndexBy, 2),
         newYearIndex = _this$_getNodeIndexBy2[0],
         newYearValue = _this$_getNodeIndexBy2[1];
       var valueChanged = this.currentYear !== newYearValue;
@@ -351,7 +367,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
     value: function _setMonth(month) {
       month = restrict(month, 1, 12);
       var _this$_getNodeIndexBy3 = this._getNodeIndexByValue(this._month.el.childNodes, month),
-        _this$_getNodeIndexBy4 = _slicedToArray(_this$_getNodeIndexBy3, 2),
+        _this$_getNodeIndexBy4 = src_slicedToArray(_this$_getNodeIndexBy3, 2),
         newMonthIndex = _this$_getNodeIndexBy4[0],
         newMonthValue = _this$_getNodeIndexBy4[1];
       var valueChanged = this.currentMonth !== newMonthValue;
@@ -366,7 +382,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
     value: function _setDay(day) {
       day = restrict(day, 1, 31);
       var _this$_getNodeIndexBy5 = this._getNodeIndexByValue(this._day.el.childNodes, day),
-        _this$_getNodeIndexBy6 = _slicedToArray(_this$_getNodeIndexBy5, 2),
+        _this$_getNodeIndexBy6 = src_slicedToArray(_this$_getNodeIndexBy5, 2),
         newDayIndex = _this$_getNodeIndexBy6[0],
         newDayValue = _this$_getNodeIndexBy6[1];
       var valueChanged = this.currentDay !== newDayValue;
@@ -866,10 +882,10 @@ var BirthdayPicker = /*#__PURE__*/function () {
         m: 'month',
         d: 'day'
       };
-      if (allowedArrangement.indexOf(s.arange) < 0) {
-        s.arange = 'ymd';
+      if (allowedArrangement.indexOf(s.arrange) < 0) {
+        s.arrange = 'ymd';
       }
-      s.arange.split('').forEach(function (i) {
+      s.arrange.split('').forEach(function (i) {
         var item = lookup[i];
         var itemEl = _this6.element.querySelector('[' + dataName + '-' + item + ']');
         if (!itemEl) {
@@ -984,7 +1000,7 @@ BirthdayPicker.defaults = {
   leadingZero: true,
   locale: 'en',
   selectFuture: false,
-  arange: 'ymd'
+  arrange: 'ymd'
 };
 BirthdayPicker.init = function () {
   if (initialized) {

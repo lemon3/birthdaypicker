@@ -604,11 +604,11 @@ class BirthdayPicker {
     // littleEndian: dmy
     // else:         mdy
     const lookup = { y: 'year', m: 'month', d: 'day' };
-    if (allowedArrangement.indexOf(s.arange) < 0) {
-      s.arange = 'ymd';
+    if (allowedArrangement.indexOf(s.arrange) < 0) {
+      s.arrange = 'ymd';
     }
 
-    s.arange.split('').forEach((i) => {
+    s.arrange.split('').forEach((i) => {
       const item = lookup[i];
       let itemEl = this.element.querySelector(
         '[' + dataName + '-' + item + ']'
@@ -733,7 +733,7 @@ BirthdayPicker.defaults = {
   leadingZero: true,
   locale: 'en',
   selectFuture: false,
-  arange: 'ymd',
+  arrange: 'ymd',
 };
 
 BirthdayPicker.init = () => {

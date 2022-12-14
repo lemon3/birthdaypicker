@@ -29,6 +29,12 @@ document.body.innerHTML += `
     data-birthdaypicker-default-date="2012-04-14"
     data-birthdaypicker-month-format="short"
   ></div>
+  <div id="helper-data5"
+    data-birthdaypicker="{'locale':'fr'}"
+  ></div>
+  <div id="helper-data6"
+    data-birthdaypicker="'locale':'fr',defaultDate:now,arrange:dmy"
+  ></div>
   <div id="dataStorageEl"></div>
 `;
 
@@ -96,8 +102,8 @@ describe('test getJSONData function', () => {
   let helperData3 = document.getElementById('helper-data3');
   test('element with multiple data attributes', () => {
     let data = getJSONData(helperData3, 'heels');
-    expect(data).toMatchObject({
-      heels: true,
+    expect(data).toEqual({
+      heels: 'true',
       color: 'red',
       height: '12',
     });
@@ -112,12 +118,30 @@ describe('test getJSONData function', () => {
     });
   });
 
+  let helperData5 = document.getElementById('helper-data5');
+  test('element JSON-string', () => {
+    let data = getJSONData(helperData5, 'birthdaypicker');
+    expect(data).toEqual({
+      locale: 'fr',
+    });
+  });
+
+  let helperData6 = document.getElementById('helper-data6');
+  test('element settings-string', () => {
+    let data = getJSONData(helperData6, 'birthdaypicker');
+    expect(data).toEqual({
+      locale: 'fr',
+      defaultDate: 'now',
+      arrange: 'dmy',
+    });
+  });
+
   test('JSON-string data', () => {
     const div = document.createElement('div');
     // eslint-disable-next-line quotes
     div.dataset.test = "{'foo':'bar'}";
     let result = getJSONData(div, 'test');
-    let exp = { test: { foo: 'bar' } };
+    let exp = { foo: 'bar' };
     expect(result).toEqual(exp);
   });
 
