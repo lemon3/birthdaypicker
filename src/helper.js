@@ -76,18 +76,19 @@ const getJSONData = (el, name, defaults = null) => {
   let data;
   try {
     // eslint-disable-next-line quotes
-    data = JSON.parse(el.dataset[name].replaceAll("'", '"'));
+    data = JSON.parse(el.dataset[name].replace(/'/g, '"'));
     // eslint-disable-next-line no-empty
   } catch (e) {}
 
   if ('object' !== typeof data) {
     data = el.dataset[name];
     const newData = {};
+    data = data.replace(/ /g,'');
     const split = data.split(',');
     if (split.length > 1) {
       split.forEach((item) => {
         const [key, value] = item.split(':');
-        newData[key.replaceAll('\'','')] = value.replaceAll('\'','');
+        newData[key.replace(/'/g, '')] = value.replace(/'/g, '');
       });
     } else {
       newData[name] = data;

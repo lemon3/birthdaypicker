@@ -111,12 +111,13 @@ var getJSONData = function getJSONData(el, name) {
   var data;
   try {
     // eslint-disable-next-line quotes
-    data = JSON.parse(el.dataset[name].replaceAll("'", '"'));
+    data = JSON.parse(el.dataset[name].replace(/'/g, '"'));
     // eslint-disable-next-line no-empty
   } catch (e) {}
   if ('object' !== _typeof(data)) {
     data = el.dataset[name];
     var newData = {};
+    data = data.replace(/ /g, '');
     var split = data.split(',');
     if (split.length > 1) {
       split.forEach(function (item) {
@@ -124,7 +125,7 @@ var getJSONData = function getJSONData(el, name) {
           _item$split2 = _slicedToArray(_item$split, 2),
           key = _item$split2[0],
           value = _item$split2[1];
-        newData[key.replaceAll('\'', '')] = value.replaceAll('\'', '');
+        newData[key.replace(/'/g, '')] = value.replace(/'/g, '');
       });
     } else {
       newData[name] = data;
@@ -842,12 +843,12 @@ var BirthdayPicker = /*#__PURE__*/function () {
 
       // eg. 'YYYY-MM-DD'
       var result = format.toLowerCase();
-      result = result.replaceAll('yyyy', this.currentYear);
-      result = result.replaceAll('yy', ('' + this.currentYear).slice(2));
-      result = result.replaceAll('mm', ('0' + this.currentMonth).slice(-2));
-      result = result.replaceAll('m', this.currentMonth);
-      result = result.replaceAll('dd', ('0' + this.currentDay).slice(-2));
-      result = result.replaceAll('d', this.currentDay);
+      result = result.replace(/yyyy/g, this.currentYear);
+      result = result.replace(/yy/g, ('' + this.currentYear).slice(2));
+      result = result.replace(/mm/g, ('0' + this.currentMonth).slice(-2));
+      result = result.replace(/m/g, this.currentMonth);
+      result = result.replace(/dd/g, ('0' + this.currentDay).slice(-2));
+      result = result.replace(/d/g, this.currentDay);
       return result;
     }
 
@@ -891,9 +892,9 @@ var BirthdayPicker = /*#__PURE__*/function () {
       }
       s.arrange.split('').forEach(function (i) {
         var item = lookup[i];
-        var itemEl = _this6.element.querySelector('[' + dataName + '-' + item + ']');
-        if (!itemEl) {
-          // todo: add default dataset value data-birthdaypicker-year???
+        var query = s[item + 'El'] ? s[item + 'El'] : '[' + dataName + '-' + item + ']';
+        var itemEl = _this6.element.querySelector(query);
+        if (!itemEl || itemEl.dataset.init) {
           itemEl = createEl('select');
           _this6.element.append(itemEl);
         }
@@ -904,6 +905,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
         };
 
         _this6._date.push(_this6['_' + item]);
+        itemEl.dataset.init = true;
         itemEl.addEventListener('change', function (evt) {
           _this6._dateChanged(evt);
         }, false);
@@ -983,10 +985,8 @@ BirthdayPicker.kill = function (el) {
   if (!instance) {
     return;
   }
-  instance.kill();
   // todo: reset all to default!
-  // e.g.: instance.kill();
-
+  instance.kill();
   el.dataset.bdpinit = false;
   delete el.dataset.bdpinit;
   dataStorage.remove(el, 'instance');
@@ -1004,7 +1004,10 @@ BirthdayPicker.defaults = {
   leadingZero: true,
   locale: 'en',
   selectFuture: false,
-  arrange: 'ymd'
+  arrange: 'ymd',
+  yearEl: null,
+  monthEl: null,
+  dayEl: null
 };
 BirthdayPicker.init = function () {
   if (initialized) {
@@ -1012,13 +1015,9 @@ BirthdayPicker.init = function () {
   }
   initialized = true;
   BirthdayPicker.createLocale(BirthdayPicker.currentLocale);
-  var elementName = '[' + dataName + ']';
-  var element = 'string' === typeof elementName ? document.querySelectorAll(elementName) : elementName;
+  var element = document.querySelectorAll('[' + dataName + ']');
   if (0 === element.length) {
     return !1;
-  }
-  if (undefined === element.length) {
-    element = [element];
   }
   element.forEach(function (el) {
     if (el.dataset.bdpinit) {
@@ -1028,10 +1027,7 @@ BirthdayPicker.init = function () {
     new BirthdayPicker(el, data);
   });
   return instances;
-  // return 1 === len ? instances[0] : instances[1];
-  // return 1 === instances.length ? instances[0] : instances;
 };
-
 docReady(BirthdayPicker.init);
 /* harmony default export */ var src = (BirthdayPicker);
 var __webpack_exports__default = __webpack_exports__.Z;

@@ -58,7 +58,7 @@ I needed a birthday input field that is easy to use and without JS dependencies.
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-### simple example (via data API)
+### Examples via data API
 #### html:
 ```html
 <!-- with default values -->
@@ -70,7 +70,7 @@ I needed a birthday input field that is easy to use and without JS dependencies.
   data-birthdaypicker-default-date="now"
 ></div>
 
-<!-- with arrangement day | month | year -->
+<!-- with arrangement set to: day | month | year -->
 <div
   data-birthdaypicker
   data-birthdaypicker-arrange="dmy"
@@ -92,26 +92,61 @@ I needed a birthday input field that is easy to use and without JS dependencies.
 <div
   data-birthdaypicker="locale:fr,defaultDate:now,arrange:dmy"
 ></div>
-
 ```
+### Example via data API (select boxes in DOM)
+Select-boxes boxes must be inside the main container (where the **data-birthdaypicker** attribute is defined)!
+If the data attributes are set to the select-boxes, the plugin knows which box should be used for what.
+Correct syntax for the data attributes (select element):
+- year: data-birthdaypicker-year
+- month: data-birthdaypicker-month
+- day: data-birthdaypicker-day
 
-### simple example (via js)
+Best, when used with [tailwindcss](https://tailwindcss.com/), as the select-boxes can be styled with classes here.
+
+| :memo: INFO |
+|:------------|
+| If select-boxes are already present in the DOM you cannot use the **arrange** option, eg.: { arrange: 'dmy' } |
+
+#### html:
+```html
+<div data-birthdaypicker>
+  <select data-birthdaypicker-year></select>
+  <select data-birthdaypicker-month></select>
+  <select data-birthdaypicker-day></select>
+</div>
+```
+... or use with specified selctors (these selctors take precedence over the data attribute values like **data-birthdaypicker-year**)
+#### html:
+```html
+<div data-birthdaypicker="{
+  'yearEl':'#myYear',
+  'monthEl':'#myMonth',
+  'dayEl':'.myDay'
+}">
+  <select id="myYear"></select>
+  <select id="myMonth"></select>
+  <select class="myDay"></select>
+</div>
+```
+### Example via js
 #### html:
 ```html
 <div id="bp1"></div>
 <div id="bp2"></div>
-```
-#### js:
-```js
-// initialize with default values
-const bp1 = new BirthdayPicker('#bp1');
 
-// initialize with current date (new Date(), or 'now')
-const el = document.getElementById('bp2');
-// see 'option API' section for all available options
-const options = { defaultDate: new Date() };
-const bp2 = new BirthdayPicker(el, options);
+<script src="path/to/birthdaypicker.min.js"></script>
+<script>
+  // initialize with default values
+  const bp1 = new BirthdayPicker('#bp1');
+
+  // initialize with current date (new Date(), or 'now')
+  const el = document.getElementById('bp2');
+  // see 'option API' section for all available options
+  const options = { defaultDate: new Date() };
+  const bp2 = new BirthdayPicker(el, options);
+</script>
 ```
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## API
@@ -194,9 +229,31 @@ options = {
   // to arrange the select-boxes
   // y: year, m: month, d: day
   // so ymd means:  year | month | day
+  // ordering is only available, if select boxes are not present in the DOM
   // available: 'ymd', 'ydm', 'myd', 'mdy', 'dmy', 'dym'
   // default: 'ymd'
   arrange: 'ymd',
+
+  // specify a custom select-box for the year
+  // must be inside the main element
+  // all valid query-strings allowed
+  // default: null
+  // example: '#my-year-select'
+  yearEl: null,
+
+  // specify a custom select-box for the month
+  // must be inside the main element
+  // all valid query-strings allowed
+  // default: null
+  // example: '#my-month-select'
+  monthEl: null,
+
+  // specify a custom select-box for the day
+  // must be inside the main element
+  // all valid query-strings allowed
+  // default: null
+  // example: '#my-day-select'
+  dayEl: null,
 };
 ```
 ### methods

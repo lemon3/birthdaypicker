@@ -497,10 +497,17 @@ describe('setDate tests', () => {
 
   describe('change all values (year month day) via setDate()', () => {
     test('should call the associated changed methods', () => {
-      bp.setDate('1999-4-15');
+      bp.setDate('1999-1-15');
       expect(yearChangedSpy).toHaveBeenCalledTimes(1);
       expect(monthChangedSpy).toHaveBeenCalledTimes(1);
       expect(dayChangedSpy).toHaveBeenCalledTimes(1);
+    });
+
+    test('should call dayChangedSpy twice, as month has les days', () => {
+      bp.setDate('1999-2-15');
+      expect(yearChangedSpy).toHaveBeenCalledTimes(1);
+      expect(monthChangedSpy).toHaveBeenCalledTimes(1);
+      expect(dayChangedSpy).toHaveBeenCalledTimes(2); // <--- twice
     });
   });
 

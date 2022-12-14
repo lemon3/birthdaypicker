@@ -3,6 +3,7 @@
 ## v0.1.4
 ### Added or Changed
 - data API update (a setting string can be used now)
+- possibility to specify selectors for the select-boxes in the option API (yearEl, monthEl, dayEl)
 
 ## v0.1.3
 ### Added or Changed

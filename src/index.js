@@ -560,15 +560,14 @@ class BirthdayPicker {
 
     // eg. 'YYYY-MM-DD'
     let result = format.toLowerCase();
+    result = result.replace(/yyyy/g, this.currentYear);
+    result = result.replace(/yy/g, ('' + this.currentYear).slice(2));
 
-    result = result.replaceAll('yyyy', this.currentYear);
-    result = result.replaceAll('yy', ('' + this.currentYear).slice(2));
+    result = result.replace(/mm/g, ('0' + this.currentMonth).slice(-2));
+    result = result.replace(/m/g, this.currentMonth);
 
-    result = result.replaceAll('mm', ('0' + this.currentMonth).slice(-2));
-    result = result.replaceAll('m', this.currentMonth);
-
-    result = result.replaceAll('dd', ('0' + this.currentDay).slice(-2));
-    result = result.replaceAll('d', this.currentDay);
+    result = result.replace(/dd/g, ('0' + this.currentDay).slice(-2));
+    result = result.replace(/d/g, this.currentDay);
 
     return result;
   }
@@ -608,11 +607,9 @@ class BirthdayPicker {
 
     s.arrange.split('').forEach((i) => {
       const item = lookup[i];
-      let itemEl = this.element.querySelector(
-        '[' + dataName + '-' + item + ']'
-      );
-      if (!itemEl) {
-        // todo: add default dataset value data-birthdaypicker-year???
+      const query = s[item + 'El'] ? s[item + 'El'] : '[' + dataName + '-' + item + ']';
+      let itemEl = this.element.querySelector(query);
+      if (!itemEl || itemEl.dataset.init) {
         itemEl = createEl('select');
         this.element.append(itemEl);
       }
@@ -623,6 +620,7 @@ class BirthdayPicker {
       };
       this._date.push(this['_' + item]);
 
+      itemEl.dataset.init = true;
       itemEl.addEventListener(
         'change',
         (evt) => {
@@ -666,7 +664,6 @@ BirthdayPicker.createLocale = (lang) => {
   if (BirthdayPicker.i18n[lang]) {
     return;
   }
-
   let dd = new Date('2000-01-15');
   let obj = { month: {} };
 
@@ -709,10 +706,8 @@ BirthdayPicker.kill = (el) => {
   if (!instance) {
     return;
   }
-  instance.kill();
   // todo: reset all to default!
-  // e.g.: instance.kill();
-
+  instance.kill();
   el.dataset.bdpinit = false;
   delete el.dataset.bdpinit;
   dataStorage.remove(el, 'instance');
@@ -731,6 +726,9 @@ BirthdayPicker.defaults = {
   locale: 'en',
   selectFuture: false,
   arrange: 'ymd',
+  yearEl: null,
+  monthEl: null,
+  dayEl: null,
 };
 
 BirthdayPicker.init = () => {
@@ -739,19 +737,9 @@ BirthdayPicker.init = () => {
   }
   initialized = true;
   BirthdayPicker.createLocale(BirthdayPicker.currentLocale);
-  const elementName = '[' + dataName + ']';
-
-  let element =
-    'string' === typeof elementName
-      ? document.querySelectorAll(elementName)
-      : elementName;
-
+  let element = document.querySelectorAll('[' + dataName + ']');
   if (0 === element.length) {
     return !1;
-  }
-
-  if (undefined === element.length) {
-    element = [element];
   }
 
   element.forEach((el) => {
@@ -763,8 +751,6 @@ BirthdayPicker.init = () => {
   });
 
   return instances;
-  // return 1 === len ? instances[0] : instances[1];
-  // return 1 === instances.length ? instances[0] : instances;
 };
 
 docReady(BirthdayPicker.init);
