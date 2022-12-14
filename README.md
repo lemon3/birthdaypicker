@@ -101,11 +101,11 @@ Correct syntax for the data attributes (select element):
 - month: data-birthdaypicker-month
 - day: data-birthdaypicker-day
 
-Best, when used with [tailwindcss](https://tailwindcss.com/), as the select-boxes can be styled with classes here.
+This scenario (select-boxes in DOM) works best with [tailwindcss](https://tailwindcss.com/), as the select-boxes can be styled with classes here.
 
 | :memo: INFO |
 |:------------|
-| If select-boxes are already present in the DOM you cannot use the **arrange** option, eg.: { arrange: 'dmy' } |
+| If select-boxes already exist in the DOM you cannot use the **arrange** option, eg.: { arrange: 'dmy' }, as this plugin doesn't rearrange existing Elements |
 
 #### html:
 ```html
