@@ -232,7 +232,7 @@ describe('test dataStorage', () => {
   });
   test('test put (update)', () => {
     // override
-    const dataStorageSpy = jest.spyOn(dataStorage._storage, 'has');
+    const dataStorageSpy = jest.spyOn(dataStorage._s, 'has');
     dataStorage.put(dataStorageEl, 'instance', 'bla');
     expect(dataStorage.get(dataStorageEl, 'instance')).toBe('bla');
     expect(dataStorageSpy).toHaveBeenCalled();
@@ -258,7 +258,7 @@ describe('test dataStorage', () => {
     // remove element available with correct key
     expect(dataStorage.remove(dataStorageEl, 'instance')).toBe(true);
 
-    const dataStorageSpy = jest.spyOn(dataStorage._storage, 'delete');
+    const dataStorageSpy = jest.spyOn(dataStorage._s, 'delete');
     dataStorage.remove(dataStorageEl, 'foo');
     dataStorage.remove(dataStorageEl, 'a');
     dataStorage.remove(dataStorageEl, 'b');
@@ -281,10 +281,10 @@ describe('test dataStorage', () => {
     const dataStorageMock = jest.mocked(dataStorage);
     const putSpy = jest.spyOn(dataStorageMock, 'put');
 
-    const wmSetSyp = jest.spyOn(dataStorageMock._storage, 'set');
-    const wmGetSyp = jest.spyOn(dataStorageMock._storage, 'get');
-    const wmHasSyp = jest.spyOn(dataStorageMock._storage, 'has');
-    const wmDeleteSyp = jest.spyOn(dataStorageMock._storage, 'delete');
+    const wmSetSyp = jest.spyOn(dataStorageMock._s, 'set');
+    const wmGetSyp = jest.spyOn(dataStorageMock._s, 'get');
+    const wmHasSyp = jest.spyOn(dataStorageMock._s, 'has');
+    const wmDeleteSyp = jest.spyOn(dataStorageMock._s, 'delete');
 
     dataStorageMock.put(div, toStore);
 

@@ -437,7 +437,7 @@ describe('date setting tests', () => {
 
       newDate.split('-').forEach((val, ind) => {
         let el = bp[mapping[ind]].el;
-        const [idx] = bp._getNodeIndexByValue(el.childNodes, val);
+        const [idx] = bp._getIdx(el.childNodes, val);
         el.selectedIndex = idx;
         el.dispatchEvent(new Event('change'));
       });
@@ -820,30 +820,30 @@ describe('private methods tests', () => {
     leadingZero: false,
   });
 
-  test('_getNodeIndexByValue - nodelist not set', () => {
+  test('_getIdx - nodelist not set', () => {
     // value not found
-    expect(bp._getNodeIndexByValue()).toEqual([undefined, undefined]);
-    expect(bp._getNodeIndexByValue('fakenodelist')).toEqual([
+    expect(bp._getIdx()).toEqual([undefined, undefined]);
+    expect(bp._getIdx('fakenodelist')).toEqual([
       undefined,
       undefined,
     ]);
-    expect(bp._getNodeIndexByValue(null)).toEqual([undefined, undefined]);
-    expect(bp._getNodeIndexByValue(undefined)).toEqual([undefined, undefined]);
+    expect(bp._getIdx(null)).toEqual([undefined, undefined]);
+    expect(bp._getIdx(undefined)).toEqual([undefined, undefined]);
   });
 
-  test('_getNodeIndexByValue - nodelist set, no value', () => {
+  test('_getIdx - nodelist set, no value', () => {
     // value not found
     const monthNodeList = bp._month.el.childNodes;
-    expect(bp._getNodeIndexByValue(monthNodeList)).toEqual([
+    expect(bp._getIdx(monthNodeList)).toEqual([
       undefined,
       undefined,
     ]);
   });
 
-  test('_getNodeIndexByValue - nodelist set, value not found', () => {
+  test('_getIdx - nodelist set, value not found', () => {
     // value not found
     const monthNodeList = bp._month.el.childNodes;
-    expect(bp._getNodeIndexByValue(monthNodeList, 12)).toEqual([12, 12]);
+    expect(bp._getIdx(monthNodeList, 12)).toEqual([12, 12]);
   });
 
   test('test _getMonthText', () => {
@@ -1134,7 +1134,7 @@ describe('_updateDays methods tests', () => {
     expect(bp.isLeapYear(leapYear)).toBe(true);
 
     // change year
-    const [idx] = bp._getNodeIndexByValue(bp._year.el.childNodes, leapYear);
+    const [idx] = bp._getIdx(bp._year.el.childNodes, leapYear);
     bp._year.el.selectedIndex = idx;
     bp._year.el.dispatchEvent(new Event('change'));
 
@@ -1152,7 +1152,7 @@ describe('_updateDays methods tests', () => {
     expect(bp.isLeapYear(nonleapYear)).toBe(false);
 
     // change year
-    const [idx] = bp._getNodeIndexByValue(bp._year.el.childNodes, nonleapYear);
+    const [idx] = bp._getIdx(bp._year.el.childNodes, nonleapYear);
     bp._year.el.selectedIndex = idx;
     bp._year.el.dispatchEvent(new Event('change'));
 
@@ -1190,7 +1190,7 @@ describe('_updateDays methods tests', () => {
     expect(_setDaySpy).toHaveBeenCalledWith(14);
 
     // const numerChildNodesInDays = bp._day.el.childNodes.length - (placeholder ? 1 : 0);
-    const numberOfDays = bp._monthDayMapping[1];
+    const numberOfDays = bp._map[1];
 
     const _dayChangedSpy = jest.spyOn(bp, '_dayChanged');
     const _monthChangedSpy = jest.spyOn(bp, '_monthChanged');
@@ -1198,7 +1198,7 @@ describe('_updateDays methods tests', () => {
     // set to a month with more days
     bp.setDate('1999-06-14');
 
-    const numberOfDaysNew = bp._monthDayMapping[11];
+    const numberOfDaysNew = bp._map[11];
     // check lenght of option nodelist
     const numerChildNodesInDaysNew =
       bp._day.el.childNodes.length - (placeholder ? 1 : 0);

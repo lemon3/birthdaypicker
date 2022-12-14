@@ -93,11 +93,12 @@ var createEl = function createEl(el, properties, style, innerHTML) {
  * @return {void}
  */
 var docReady = function docReady(cb) {
+  var evt = 'DOMContentLoaded';
   if ('complete' === document.readyState || 'interactive' === document.readyState) {
     cb();
-    document.removeEventListener('DOMContentLoaded', cb);
+    document.removeEventListener(evt, cb);
   } else {
-    document.addEventListener('DOMContentLoaded', cb, false);
+    document.addEventListener(evt, cb, false);
   }
 };
 
@@ -189,12 +190,13 @@ var monthNumbers = function monthNumbers(useLeadingZero) {
   });
 };
 var dataStorage = {
-  _storage: new WeakMap(),
+  // storage
+  _s: new WeakMap(),
   put: function put(el) {
-    if (!this._storage.has(el)) {
-      this._storage.set(el, new Map());
+    if (!this._s.has(el)) {
+      this._s.set(el, new Map());
     }
-    var storeEl = this._storage.get(el);
+    var storeEl = this._s.get(el);
     for (var _len = arguments.length, keyVal = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
       keyVal[_key - 1] = arguments[_key];
     }
@@ -212,27 +214,27 @@ var dataStorage = {
     return this;
   },
   get: function get(el, key) {
-    if (!this._storage.has(el)) {
+    if (!this._s.has(el)) {
       return false;
       // return new Map();
     }
 
     if (key) {
-      return this._storage.get(el).get(key);
+      return this._s.get(el).get(key);
     }
-    return this._storage.get(el);
+    return this._s.get(el);
   },
   has: function has(el, key) {
-    return this._storage.has(el) && this._storage.get(el).has(key);
+    return this._s.has(el) && this._s.get(el).has(key);
   },
   // todo if no key given: remove all
   remove: function remove(el, key) {
-    if (!this._storage.has(el)) {
+    if (!this._s.has(el)) {
       return false;
     }
-    var ret = this._storage.get(el).delete(key);
-    if (this._storage.get(el).size === 0) {
-      this._storage.delete(el);
+    var ret = this._s.get(el).delete(key);
+    if (this._s.get(el).size === 0) {
+      this._s.delete(el);
     }
     return ret;
   }
@@ -274,10 +276,12 @@ function _toPrimitive(input, hint) { if (src_typeof(input) !== "object" || input
  */
 
 var instances = [];
-var dataName = 'data-birthdaypicker';
+var pluginName = 'birthdaypicker';
+var dataName = 'data-' + pluginName;
 var monthFormats = ['short', 'long', 'numeric'];
 var allowedArrangement = ['ymd', 'ydm', 'myd', 'mdy', 'dmy', 'dym'];
 var allowedEvents = ['init', 'datechange', 'daychange', 'monthchange', 'yearchange'];
+var optionTagName = 'option';
 var today = new Date();
 var todayYear = today.getFullYear();
 var todayMonth = today.getMonth() + 1;
@@ -327,13 +331,10 @@ var BirthdayPicker = /*#__PURE__*/function () {
     dataStorage.put(element, 'instance', this);
 
     // from data api
-    var data = getJSONData(element, 'birthdaypicker', BirthdayPicker.defaults);
+    var data = getJSONData(element, pluginName, BirthdayPicker.defaults);
     this.options = options; // user options
     this.settings = Object.assign({}, BirthdayPicker.defaults, data, options);
     this.element = element;
-
-    // store all disabled elements in an array for quicker reenable
-    this.disabledReference = [];
     if (this.settings.autoinit) {
       this.init();
     }
@@ -346,8 +347,8 @@ var BirthdayPicker = /*#__PURE__*/function () {
    * @return {mixed}       The index value or undefined
    */
   _createClass(BirthdayPicker, [{
-    key: "_getNodeIndexByValue",
-    value: function _getNodeIndexByValue(nodelist, value) {
+    key: "_getIdx",
+    value: function _getIdx(nodelist, value) {
       if (!nodelist) {
         return [undefined, undefined];
       }
@@ -363,10 +364,10 @@ var BirthdayPicker = /*#__PURE__*/function () {
     key: "_setYear",
     value: function _setYear(year) {
       year = restrict(year, this._yearEnd, this._yearStart);
-      var _this$_getNodeIndexBy = this._getNodeIndexByValue(this._year.el.childNodes, year),
-        _this$_getNodeIndexBy2 = src_slicedToArray(_this$_getNodeIndexBy, 2),
-        newYearIndex = _this$_getNodeIndexBy2[0],
-        newYearValue = _this$_getNodeIndexBy2[1];
+      var _this$_getIdx = this._getIdx(this._year.el.childNodes, year),
+        _this$_getIdx2 = src_slicedToArray(_this$_getIdx, 2),
+        newYearIndex = _this$_getIdx2[0],
+        newYearValue = _this$_getIdx2[1];
       var valueChanged = this.currentYear !== newYearValue;
       if (valueChanged) {
         this._year.el.selectedIndex = newYearIndex;
@@ -378,10 +379,10 @@ var BirthdayPicker = /*#__PURE__*/function () {
     key: "_setMonth",
     value: function _setMonth(month) {
       month = restrict(month, 1, 12);
-      var _this$_getNodeIndexBy3 = this._getNodeIndexByValue(this._month.el.childNodes, month),
-        _this$_getNodeIndexBy4 = src_slicedToArray(_this$_getNodeIndexBy3, 2),
-        newMonthIndex = _this$_getNodeIndexBy4[0],
-        newMonthValue = _this$_getNodeIndexBy4[1];
+      var _this$_getIdx3 = this._getIdx(this._month.el.childNodes, month),
+        _this$_getIdx4 = src_slicedToArray(_this$_getIdx3, 2),
+        newMonthIndex = _this$_getIdx4[0],
+        newMonthValue = _this$_getIdx4[1];
       var valueChanged = this.currentMonth !== newMonthValue;
       if (valueChanged) {
         this._month.el.selectedIndex = newMonthIndex;
@@ -393,10 +394,10 @@ var BirthdayPicker = /*#__PURE__*/function () {
     key: "_setDay",
     value: function _setDay(day) {
       day = restrict(day, 1, 31);
-      var _this$_getNodeIndexBy5 = this._getNodeIndexByValue(this._day.el.childNodes, day),
-        _this$_getNodeIndexBy6 = src_slicedToArray(_this$_getNodeIndexBy5, 2),
-        newDayIndex = _this$_getNodeIndexBy6[0],
-        newDayValue = _this$_getNodeIndexBy6[1];
+      var _this$_getIdx5 = this._getIdx(this._day.el.childNodes, day),
+        _this$_getIdx6 = src_slicedToArray(_this$_getIdx5, 2),
+        newDayIndex = _this$_getIdx6[0],
+        newDayValue = _this$_getIdx6[1];
       var valueChanged = this.currentDay !== newDayValue;
       if (valueChanged) {
         this._day.el.selectedIndex = newDayIndex;
@@ -500,13 +501,13 @@ var BirthdayPicker = /*#__PURE__*/function () {
      * @return {void}
      */
   }, {
-    key: "_createBirthdayPicker",
-    value: function _createBirthdayPicker() {
+    key: "_create",
+    value: function _create() {
       var _this = this;
       // placeholder
       if (this.settings.placeholder) {
         this._date.forEach(function (item) {
-          var option = createEl('option', {
+          var option = createEl(optionTagName, {
             value: ''
           }, '', item.name);
           item.df.appendChild(option);
@@ -515,7 +516,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
 
       // add option data to year field
       for (var i = this._yearStart; i >= this._yearEnd; i--) {
-        var el = createEl('option', {
+        var el = createEl(optionTagName, {
           value: i
         }, '', i);
         this._year.df.append(el);
@@ -523,7 +524,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
 
       // add to month
       this.monthFormat[this.settings.monthFormat].forEach(function (text, ind) {
-        var el = createEl('option', {
+        var el = createEl(optionTagName, {
           value: ind + 1
         }, '', _this._getMonthText(text));
         _this._month.df.append(el);
@@ -533,7 +534,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       var number;
       for (var _i2 = 1; _i2 <= 31; _i2++) {
         number = this.settings.leadingZero ? _i2 < 10 ? '0' + _i2 : _i2 : _i2;
-        var _el = createEl('option', {
+        var _el = createEl(optionTagName, {
           value: _i2
         }, '', number);
         this._day.df.append(_el);
@@ -553,7 +554,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
   }, {
     key: "_updateDays",
     value: function _updateDays(month) {
-      var newDays = this._monthDayMapping[+month - 1];
+      var newDays = this._map[+month - 1];
       var currentDays = this._day.el.children.length - (this.settings.placeholder ? 1 : 0);
       if (newDays === currentDays) {
         return;
@@ -561,7 +562,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       if (newDays - currentDays > 0) {
         // add days
         for (var i = currentDays; i < newDays; i++) {
-          var el = createEl('option', {
+          var el = createEl(optionTagName, {
             value: i + 1
           }, '', '' + (i + 1));
           this._day.el.append(el);
@@ -605,11 +606,11 @@ var BirthdayPicker = /*#__PURE__*/function () {
     value: function _nofutureDate(year, month, day) {
       var _this2 = this;
       // set all to false (again)
-      if (this.disabledReference.length) {
-        this.disabledReference.forEach(function (el) {
+      if (this._disabled.length) {
+        this._disabled.forEach(function (el) {
           el.disabled = false;
         });
-        this.disabledReference = [];
+        this._disabled = [];
       }
       if (+this.currentYear > year) {
         this._setYear(year);
@@ -624,7 +625,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
         this._month.el.childNodes.forEach(function (el) {
           if (el.value > month) {
             el.disabled = true;
-            _this2.disabledReference.push(el);
+            _this2._disabled.push(el);
           }
         });
 
@@ -638,7 +639,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
           this._day.el.childNodes.forEach(function (el) {
             if (el.value > day) {
               el.disabled = true;
-              _this2.disabledReference.push(el);
+              _this2._disabled.push(el);
             }
           });
 
@@ -695,7 +696,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
     value: function _yearChanged(year) {
       // console.log('_yearChanged:', year);
       this.currentYear = year;
-      this._monthDayMapping[1] = helper_isLeapYear(year) ? 29 : 28;
+      this._map[1] = helper_isLeapYear(year) ? 29 : 28;
       this._triggerEvent(allowedEvents[4]);
       // if (this._prevent) {
       //   return false;
@@ -879,8 +880,11 @@ var BirthdayPicker = /*#__PURE__*/function () {
       this.initialized = true;
       this.eventFired = {};
       this._registeredEventListeners = [];
-      this._monthDayMapping = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+      this._map = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
       this._date = [];
+
+      // store all disabled elements in an array for quicker reenable
+      this._disabled = [];
       var s = this.settings;
       s.placeholder = isTrue(s.placeholder);
       s.leadingZero = isTrue(s.leadingZero);
@@ -929,7 +933,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       }
       BirthdayPicker.createLocale(s.locale);
       this.monthFormat = BirthdayPicker.i18n[s.locale].month;
-      this._createBirthdayPicker();
+      this._create();
       this._triggerEvent(allowedEvents[0]);
 
       // set default start value
@@ -1032,7 +1036,7 @@ BirthdayPicker.init = function () {
     if (el.dataset.bdpinit) {
       return BirthdayPicker.getInstance(el);
     }
-    var data = getJSONData(el, 'birthdaypicker');
+    var data = getJSONData(el, pluginName);
     new BirthdayPicker(el, data);
   });
   return instances;

@@ -43,14 +43,15 @@ const createEl = (el, properties, style, innerHTML) =>
  * @return {void}
  */
 const docReady = (cb) => {
+  const evt = 'DOMContentLoaded';
   if (
     'complete' === document.readyState ||
     'interactive' === document.readyState
   ) {
     cb();
-    document.removeEventListener('DOMContentLoaded', cb);
+    document.removeEventListener(evt, cb);
   } else {
-    document.addEventListener('DOMContentLoaded', cb, false);
+    document.addEventListener(evt, cb, false);
   }
 };
 
@@ -138,12 +139,13 @@ const monthNumbers = (useLeadingZero) =>
   );
 
 const dataStorage = {
-  _storage: new WeakMap(),
+  // storage
+  _s: new WeakMap(),
   put(el, ...keyVal) {
-    if (!this._storage.has(el)) {
-      this._storage.set(el, new Map());
+    if (!this._s.has(el)) {
+      this._s.set(el, new Map());
     }
-    let storeEl = this._storage.get(el);
+    let storeEl = this._s.get(el);
     if (keyVal.length > 1) {
       storeEl.set(keyVal[0], keyVal[1]);
       return this;
@@ -158,26 +160,26 @@ const dataStorage = {
     return this;
   },
   get(el, key) {
-    if (!this._storage.has(el)) {
+    if (!this._s.has(el)) {
       return false;
       // return new Map();
     }
     if (key) {
-      return this._storage.get(el).get(key);
+      return this._s.get(el).get(key);
     }
-    return this._storage.get(el);
+    return this._s.get(el);
   },
   has(el, key) {
-    return this._storage.has(el) && this._storage.get(el).has(key);
+    return this._s.has(el) && this._s.get(el).has(key);
   },
   // todo if no key given: remove all
   remove(el, key) {
-    if (!this._storage.has(el)) {
+    if (!this._s.has(el)) {
       return false;
     }
-    let ret = this._storage.get(el).delete(key);
-    if (this._storage.get(el).size === 0) {
-      this._storage.delete(el);
+    let ret = this._s.get(el).delete(key);
+    if (this._s.get(el).size === 0) {
+      this._s.delete(el);
     }
     return ret;
   },

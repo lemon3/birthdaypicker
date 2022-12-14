@@ -6,6 +6,7 @@ const prod = merge(common, {
   mode: 'production',
   optimization: {
     minimize: true,
+    // mangleExports: 'size',
   },
   performance: {
     hints: false,

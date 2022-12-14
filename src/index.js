@@ -12,7 +12,8 @@ import {
 } from '@/helper';
 
 const instances = [];
-const dataName = 'data-birthdaypicker';
+const pluginName = 'birthdaypicker';
+const dataName = 'data-' + pluginName;
 const monthFormats = ['short', 'long', 'numeric'];
 const allowedArrangement = ['ymd', 'ydm', 'myd', 'mdy', 'dmy', 'dym'];
 const allowedEvents = [
@@ -22,6 +23,7 @@ const allowedEvents = [
   'monthchange',
   'yearchange',
 ];
+const optionTagName = 'option';
 
 let today = new Date();
 let todayYear = today.getFullYear();
@@ -73,18 +75,11 @@ class BirthdayPicker {
     dataStorage.put(element, 'instance', this);
 
     // from data api
-    const data = getJSONData(
-      element,
-      'birthdaypicker',
-      BirthdayPicker.defaults
-    );
+    const data = getJSONData(element, pluginName, BirthdayPicker.defaults);
 
     this.options = options; // user options
     this.settings = Object.assign({}, BirthdayPicker.defaults, data, options);
     this.element = element;
-
-    // store all disabled elements in an array for quicker reenable
-    this.disabledReference = [];
 
     if (this.settings.autoinit) {
       this.init();
@@ -97,7 +92,7 @@ class BirthdayPicker {
    * @param  {String} value Value to find
    * @return {mixed}       The index value or undefined
    */
-  _getNodeIndexByValue(nodelist, value) {
+  _getIdx(nodelist, value) {
     if (!nodelist) {
       return [undefined, undefined];
     }
@@ -112,7 +107,7 @@ class BirthdayPicker {
 
   _setYear(year) {
     year = restrict(year, this._yearEnd, this._yearStart);
-    const [newYearIndex, newYearValue] = this._getNodeIndexByValue(
+    const [newYearIndex, newYearValue] = this._getIdx(
       this._year.el.childNodes,
       year
     );
@@ -126,7 +121,7 @@ class BirthdayPicker {
 
   _setMonth(month) {
     month = restrict(month, 1, 12);
-    const [newMonthIndex, newMonthValue] = this._getNodeIndexByValue(
+    const [newMonthIndex, newMonthValue] = this._getIdx(
       this._month.el.childNodes,
       month
     );
@@ -140,7 +135,7 @@ class BirthdayPicker {
 
   _setDay(day) {
     day = restrict(day, 1, 31);
-    const [newDayIndex, newDayValue] = this._getNodeIndexByValue(
+    const [newDayIndex, newDayValue] = this._getIdx(
       this._day.el.childNodes,
       day
     );
@@ -231,25 +226,25 @@ class BirthdayPicker {
    * Create the gui and set the default (start) values if available
    * @return {void}
    */
-  _createBirthdayPicker() {
+  _create() {
     // placeholder
     if (this.settings.placeholder) {
       this._date.forEach((item) => {
-        const option = createEl('option', { value: '' }, '', item.name);
+        const option = createEl(optionTagName, { value: '' }, '', item.name);
         item.df.appendChild(option);
       });
     }
 
     // add option data to year field
     for (let i = this._yearStart; i >= this._yearEnd; i--) {
-      const el = createEl('option', { value: i }, '', i);
+      const el = createEl(optionTagName, { value: i }, '', i);
       this._year.df.append(el);
     }
 
     // add to month
     this.monthFormat[this.settings.monthFormat].forEach((text, ind) => {
       const el = createEl(
-        'option',
+        optionTagName,
         { value: ind + 1 },
         '',
         this._getMonthText(text)
@@ -261,7 +256,7 @@ class BirthdayPicker {
     let number;
     for (let i = 1; i <= 31; i++) {
       number = this.settings.leadingZero ? (i < 10 ? '0' + i : i) : i;
-      const el = createEl('option', { value: i }, '', number);
+      const el = createEl(optionTagName, { value: i }, '', number);
       this._day.df.append(el);
     }
 
@@ -275,7 +270,7 @@ class BirthdayPicker {
    * @return {[type]}       [description]
    */
   _updateDays(month) {
-    const newDays = this._monthDayMapping[+month - 1];
+    const newDays = this._map[+month - 1];
     const currentDays =
       this._day.el.children.length - (this.settings.placeholder ? 1 : 0);
 
@@ -286,7 +281,7 @@ class BirthdayPicker {
     if (newDays - currentDays > 0) {
       // add days
       for (let i = currentDays; i < newDays; i++) {
-        let el = createEl('option', { value: i + 1 }, '', '' + (i + 1));
+        let el = createEl(optionTagName, { value: i + 1 }, '', '' + (i + 1));
         this._day.el.append(el);
       }
     } else {
@@ -325,11 +320,11 @@ class BirthdayPicker {
 
   _nofutureDate(year, month, day) {
     // set all to false (again)
-    if (this.disabledReference.length) {
-      this.disabledReference.forEach((el) => {
+    if (this._disabled.length) {
+      this._disabled.forEach((el) => {
         el.disabled = false;
       });
-      this.disabledReference = [];
+      this._disabled = [];
     }
 
     if (+this.currentYear > year) {
@@ -345,7 +340,7 @@ class BirthdayPicker {
       this._month.el.childNodes.forEach((el) => {
         if (el.value > month) {
           el.disabled = true;
-          this.disabledReference.push(el);
+          this._disabled.push(el);
         }
       });
 
@@ -359,7 +354,7 @@ class BirthdayPicker {
         this._day.el.childNodes.forEach((el) => {
           if (el.value > day) {
             el.disabled = true;
-            this.disabledReference.push(el);
+            this._disabled.push(el);
           }
         });
 
@@ -413,7 +408,7 @@ class BirthdayPicker {
   _yearChanged(year) {
     // console.log('_yearChanged:', year);
     this.currentYear = year;
-    this._monthDayMapping[1] = isLeapYear(year) ? 29 : 28;
+    this._map[1] = isLeapYear(year) ? 29 : 28;
 
     this._triggerEvent(allowedEvents[4]);
     // if (this._prevent) {
@@ -592,8 +587,11 @@ class BirthdayPicker {
     this.initialized = true;
     this.eventFired = {};
     this._registeredEventListeners = [];
-    this._monthDayMapping = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    this._map = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     this._date = [];
+
+    // store all disabled elements in an array for quicker reenable
+    this._disabled = [];
 
     const s = this.settings;
     s.placeholder = isTrue(s.placeholder);
@@ -649,7 +647,7 @@ class BirthdayPicker {
     BirthdayPicker.createLocale(s.locale);
     this.monthFormat = BirthdayPicker.i18n[s.locale].month;
 
-    this._createBirthdayPicker();
+    this._create();
     this._triggerEvent(allowedEvents[0]);
 
     // set default start value
@@ -681,7 +679,6 @@ BirthdayPicker.createLocale = (lang) => {
   }
 
   BirthdayPicker.i18n[lang] = obj;
-
   return obj;
 };
 
@@ -761,7 +758,7 @@ BirthdayPicker.init = () => {
     if (el.dataset.bdpinit) {
       return BirthdayPicker.getInstance(el);
     }
-    const data = getJSONData(el, 'birthdaypicker');
+    const data = getJSONData(el, pluginName);
     new BirthdayPicker(el, data);
   });
 
