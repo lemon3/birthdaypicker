@@ -230,7 +230,8 @@ class BirthdayPicker {
     // placeholder
     if (this.settings.placeholder) {
       this._date.forEach((item) => {
-        const option = createEl(optionTagName, { value: '' }, '', item.name);
+        let name = BirthdayPicker.i18n[this.settings.locale].text[item.name];
+        const option = createEl(optionTagName, { value: '' }, '', name);
         item.df.appendChild(option);
       });
     }
@@ -271,8 +272,8 @@ class BirthdayPicker {
    */
   _updateDays(month) {
     const newDays = this._map[+month - 1];
-    const currentDays =
-      this._day.el.children.length - (this.settings.placeholder ? 1 : 0);
+    const offset = this.settings.placeholder ? 1 : 0;
+    const currentDays = this._day.el.children.length - offset;
 
     if (newDays === currentDays) {
       return;
@@ -287,7 +288,7 @@ class BirthdayPicker {
     } else {
       // remove days
       for (let i = currentDays; i > newDays; i--) {
-        this._day.el.children[i].remove();
+        this._day.el.children[i + offset - 1].remove();
       }
     }
 
@@ -452,9 +453,9 @@ class BirthdayPicker {
 
   _updateMonthList() {
     const format = this.settings.monthFormat;
-    const filter = this.settings.placeholder ? 1 : 0;
-    this.monthFormat[format].forEach((text, ind) => {
-      this._month.el.childNodes[filter + ind].innerHTML =
+    const offset = this.settings.placeholder ? 1 : 0;
+    this.monthFormat[format].forEach((text, i) => {
+      this._month.el.childNodes[i + offset].innerHTML =
         this._getMonthText(text);
     });
   }
@@ -483,7 +484,16 @@ class BirthdayPicker {
     }
 
     BirthdayPicker.createLocale(lang);
-    this.monthFormat = BirthdayPicker.i18n[lang].month;
+    const langTexts = BirthdayPicker.i18n[lang];
+
+    // set the placeholder texts
+    if (this.settings.placeholder) {
+      this._date.forEach((item) => {
+        item.el.childNodes[0].innerHTML = langTexts.text[item.name];
+      });
+    }
+
+    this.monthFormat = langTexts.month;
     this.settings.locale = lang;
 
     // todo: is this correct for all languages?
@@ -607,7 +617,9 @@ class BirthdayPicker {
 
     s.arrange.split('').forEach((i) => {
       const item = lookup[i];
-      const query = s[item + 'El'] ? s[item + 'El'] : '[' + dataName + '-' + item + ']';
+      const query = s[item + 'El']
+        ? s[item + 'El']
+        : '[' + dataName + '-' + item + ']';
       let itemEl = this.element.querySelector(query);
       if (!itemEl || itemEl.dataset.init) {
         itemEl = createEl('select');
@@ -660,6 +672,12 @@ class BirthdayPicker {
 BirthdayPicker.i18n = {};
 BirthdayPicker.currentLocale = 'en';
 
+// BirthdayPickerLocale
+const locale = {
+  en: { text: { year: 'Year', month: 'Month', day: 'Day' } },
+  de: { text: { year: 'Jahr', month: 'Monat', day: 'Tag' } },
+};
+
 BirthdayPicker.createLocale = (lang) => {
   if (BirthdayPicker.i18n[lang]) {
     return;
@@ -675,7 +693,9 @@ BirthdayPicker.createLocale = (lang) => {
     });
   }
 
+  obj['text'] = locale[lang] ? locale[lang].text : locale.en.text;
   BirthdayPicker.i18n[lang] = obj;
+
   return obj;
 };
 

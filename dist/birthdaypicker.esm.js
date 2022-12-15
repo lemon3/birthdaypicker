@@ -496,9 +496,10 @@ var BirthdayPicker = /*#__PURE__*/function () {
       // placeholder
       if (this.settings.placeholder) {
         this._date.forEach(function (item) {
+          var name = BirthdayPicker.i18n[_this.settings.locale].text[item.name];
           var option = createEl(optionTagName, {
             value: ''
-          }, '', item.name);
+          }, '', name);
           item.df.appendChild(option);
         });
       }
@@ -544,7 +545,8 @@ var BirthdayPicker = /*#__PURE__*/function () {
     key: "_updateDays",
     value: function _updateDays(month) {
       var newDays = this._map[+month - 1];
-      var currentDays = this._day.el.children.length - (this.settings.placeholder ? 1 : 0);
+      var offset = this.settings.placeholder ? 1 : 0;
+      var currentDays = this._day.el.children.length - offset;
       if (newDays === currentDays) {
         return;
       }
@@ -559,7 +561,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       } else {
         // remove days
         for (var _i3 = currentDays; _i3 > newDays; _i3--) {
-          this._day.el.children[_i3].remove();
+          this._day.el.children[_i3 + offset - 1].remove();
         }
       }
 
@@ -731,9 +733,9 @@ var BirthdayPicker = /*#__PURE__*/function () {
     value: function _updateMonthList() {
       var _this3 = this;
       var format = this.settings.monthFormat;
-      var filter = this.settings.placeholder ? 1 : 0;
-      this.monthFormat[format].forEach(function (text, ind) {
-        _this3._month.el.childNodes[filter + ind].innerHTML = _this3._getMonthText(text);
+      var offset = this.settings.placeholder ? 1 : 0;
+      this.monthFormat[format].forEach(function (text, i) {
+        _this3._month.el.childNodes[i + offset].innerHTML = _this3._getMonthText(text);
       });
     }
 
@@ -760,7 +762,15 @@ var BirthdayPicker = /*#__PURE__*/function () {
         return false;
       }
       BirthdayPicker.createLocale(lang);
-      this.monthFormat = BirthdayPicker.i18n[lang].month;
+      var langTexts = BirthdayPicker.i18n[lang];
+
+      // set the placeholder texts
+      if (this.settings.placeholder) {
+        this._date.forEach(function (item) {
+          item.el.childNodes[0].innerHTML = langTexts.text[item.name];
+        });
+      }
+      this.monthFormat = langTexts.month;
       this.settings.locale = lang;
 
       // todo: is this correct for all languages?
@@ -936,6 +946,24 @@ var BirthdayPicker = /*#__PURE__*/function () {
 }();
 BirthdayPicker.i18n = {};
 BirthdayPicker.currentLocale = 'en';
+
+// BirthdayPickerLocale
+var locale = {
+  en: {
+    text: {
+      year: 'Year',
+      month: 'Month',
+      day: 'Day'
+    }
+  },
+  de: {
+    text: {
+      year: 'Jahr',
+      month: 'Monat',
+      day: 'Tag'
+    }
+  }
+};
 BirthdayPicker.createLocale = function (lang) {
   if (BirthdayPicker.i18n[lang]) {
     return;
@@ -953,6 +981,7 @@ BirthdayPicker.createLocale = function (lang) {
       }));
     });
   }
+  obj['text'] = locale[lang] ? locale[lang].text : locale.en.text;
   BirthdayPicker.i18n[lang] = obj;
   return obj;
 };
