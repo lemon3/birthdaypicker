@@ -993,7 +993,12 @@ BirthdayPicker.createLocale = function (lang) {
       }));
     });
   }
-  obj['text'] = locale[lang] ? locale[lang].text : locale.en.text;
+  var i18n = 'BirthdayPickerLocale';
+  var tmp = locale[lang] ? locale[lang] : locale.en;
+  if (window[i18n] && window[i18n][lang] && window[i18n][lang].text) {
+    tmp = Object.assign({}, tmp, window[i18n][lang]);
+  }
+  obj['text'] = tmp.text;
   BirthdayPicker.i18n[lang] = obj;
   return obj;
 };

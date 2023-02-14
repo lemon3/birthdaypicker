@@ -44,8 +44,8 @@
               return;
             }
             this.dateformat = this.availableDateformat[0].val;
-            this.locale = this.availableLocale[0].val;
-            this.date = this.birthdays[1].val;
+            this.locale = this.availableLocale[2].val;
+            this.date = null; //this.birthdays[1].val;
             this.el = $refs.bp;
             $watch('locale', () => {
               BirthdayPicker.setLanguage(this.locale);
@@ -76,6 +76,7 @@
         <div>
           <div
             data-birthdaypicker
+            :data-birthdaypicker-locale="locale"
             :data-birthdaypicker-default-date="date"
             :data-birthdaypicker-month-format="dateformat"
             x-ref="bp"
@@ -206,6 +207,7 @@
       </div>
     </div>
 
+    <script>BirthdayPickerLocale = { fr: { year: 'Année', month: 'mois', day: 'jour' } };</script>
     <script src="./birthdaypicker.min.js"></script>
   </body>
 </html>

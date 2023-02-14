@@ -422,8 +422,8 @@ describe('date setting tests', () => {
       const result = bp.getDate('yyyy-mm-dd');
       const today = new Date();
       const todayYear = today.getFullYear();
-      const todayMonth = today.getMonth() + 1;
-      const todayDay = today.getDate();
+      const todayMonth = ('0' + (today.getMonth() + 1)).slice(-2);
+      const todayDay = ('0' + today.getDate()).slice(-2);
       const todayString = `${todayYear}-${todayMonth}-${todayDay}`;
       expect(result).toEqual(todayString);
     });
