@@ -1,4 +1,8 @@
 # Changelog
+## v0.1.5
+### Added or Changed
+- readme update
+- added index.js in root for npm inport
 
 ## v0.1.4
 ### Added or Changed

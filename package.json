@@ -1,6 +1,6 @@
 {
   "name": "@lemon3/birthdaypicker",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "i18n birthday picker",
   "browser": "dist/birthdaypicker.esm.min.js",
   "author": "wolfgang jungmayer",
@@ -23,7 +23,8 @@
   "files": [
     "dist",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "!.DS_Store"
   ],
   "keywords": [
     "birthdaypicker, datepicker"

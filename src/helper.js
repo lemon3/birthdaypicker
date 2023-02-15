@@ -83,7 +83,7 @@ const getJSONData = (el, name, defaults = null) => {
   if ('object' !== typeof data) {
     data = el.dataset[name];
     const newData = {};
-    data = data.replace(/ /g,'');
+    data = data.replace(/ /g, '');
     const split = data.split(',');
     if (split.length > 1) {
       split.forEach((item) => {

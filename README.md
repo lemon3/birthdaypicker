@@ -47,6 +47,7 @@
 
 I needed a birthday input field that is easy to use and without JS dependencies. "Simple" in this context means: with as few clicks as possible to the result!
 
+### Features
 * Coded in vanilla JS.
 * internationalisation (i18n)
 * BirthdayPicker is dependency-free ;)
@@ -57,6 +58,34 @@ I needed a birthday input field that is easy to use and without JS dependencies.
 
 <!-- USAGE EXAMPLES -->
 ## Usage
+### First Steps
+#### classic js approach
+if you use the classic js approach by loading scripts in html code, just dowload and integrate the **birthdaypicker.min.js** script in your code:
+```html
+<div id="my-div"></div>
+<script src="path/to/birthdaypicker.min.js"></script>
+<script>
+  // BirthdayPicker is now defined
+  const bp = new BirthdayPicker('#my-div');
+</script>
+```
+#### module js approach
+use npm / yarn to install the package
+```sh
+npm install @lemon3/birthdaypicker
+# or
+yarn add @lemon3/birthdaypicker
+```
+and then us it with
+```html
+<div id="my-div"></div>
+<script type="module" defer>
+  import BirthdayPicker from './node_modules/@lemon3/birthdaypicker/index.js';
+  // BirthdayPicker is now defined
+  const bp = new BirthdayPicker('#my-div');
+</script>
+```
+
 
 ### Examples via data API
 #### html:
@@ -129,7 +158,8 @@ This scenario (select-boxes in DOM) works best with [tailwindcss](https://tailwi
 </div>
 ```
 ### Example via js
-#### html:
+
+#### html
 ```html
 <div id="bp1"></div>
 <div id="bp2"></div>
@@ -354,25 +384,20 @@ how to install
 3. Install NPM packages
     ```sh
     yarn install
-    ```
-    or:
-    ```sh
+    # or
     npm install
     ```
 4. start
-    (opens a dev server at port 8080, with root set to ./examples directory)
+    (opens a dev server at port 8080, with root set to **./examples** directory)
     ```sh
     yarn run start
-    ```
-    or:
-    ```sh
+    # or
     npm run start
     ```
-To see all available scripts, open the package.json file or run either
+To see all available scripts, open the **package.json** file or run either
 ```sh
 yarn run
-```
-```sh
+# or
 npm run
 ```
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
