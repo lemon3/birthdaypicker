@@ -1,4 +1,9 @@
 # Changelog
+
+## v0.1.6
+### Added or Changed
+- fixed a small npm issue
+
 ## v0.1.5
 ### Added or Changed
 - readme update
