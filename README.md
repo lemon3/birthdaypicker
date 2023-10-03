@@ -412,7 +412,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Wolfgang Jungmayer - wolfgang@lemon3.at
+Wolfgang Jungmayer - lemon3.at
 
 Project Link: [https://github.com/lemon3/birthdaypicker](https://github.com/lemon3/birthdaypicker)
 
