@@ -1,4 +1,7 @@
 # Changelog
+## v0.1.8
+### Added or Changed
+- package update
 
 ## v0.1.7
 ### Added or Changed
