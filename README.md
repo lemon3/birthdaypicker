@@ -72,15 +72,15 @@ if you use the classic js approach by loading scripts in html code, just dowload
 #### module js approach
 use npm / yarn to install the package
 ```sh
-npm install @lemon3/birthdaypicker
+npm install birthdaypicker
 # or
-yarn add @lemon3/birthdaypicker
+yarn add birthdaypicker
 ```
 and then us it with
 ```html
 <div id="my-div"></div>
 <script type="module" defer>
-  import BirthdayPicker from './node_modules/@lemon3/birthdaypicker/index.js';
+  import BirthdayPicker from './node_modules/birthdaypicker/index.js';
   // BirthdayPicker is now defined
   const bp = new BirthdayPicker('#my-div');
 </script>
