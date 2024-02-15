@@ -13,7 +13,7 @@
     "dev": "webpack --mode development --watch --config config/webpack.dev.js",
     "test": "jest",
     "coverage": "jest --coverage",
-    "updatedemo": "cp ./dist/birthdaypicker.min.js ./docs/js/vendor/",
+    "updatedemo": "cp ./dist/birthdaypicker.min.js ./docs/js/",
     "browserslistupdate": "npx update-browserslist-db@latest"
   },
   "private": false,
@@ -48,7 +48,7 @@
     "prettier": "^3.0.3",
     "webpack": "^5.75.0",
     "webpack-cli": "^5.0.1",
-    "webpack-dev-server": "^4.11.1",
+    "webpack-dev-server": "^5.0.1",
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {}
