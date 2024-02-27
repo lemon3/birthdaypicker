@@ -24,7 +24,7 @@ var __webpack_exports__ = {};
 
 // EXPORTS
 __webpack_require__.d(__webpack_exports__, {
-  c: function() { return /* binding */ src; }
+  A: function() { return /* binding */ src; }
 });
 
 ;// CONCATENATED MODULE: ./src/helper.js
@@ -1060,5 +1060,5 @@ BirthdayPicker.init = function () {
 };
 docReady(BirthdayPicker.init);
 /* harmony default export */ var src = (BirthdayPicker);
-var __webpack_exports__default = __webpack_exports__.c;
+var __webpack_exports__default = __webpack_exports__.A;
 export { __webpack_exports__default as default };
