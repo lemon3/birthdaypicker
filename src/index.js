@@ -727,15 +727,38 @@ BirthdayPicker.setLanguage = (lang) => {
 };
 
 BirthdayPicker.getInstance = (el) => dataStorage.get(el, 'instance');
-BirthdayPicker.kill = (el) => {
-  let instance = BirthdayPicker.getInstance(el);
+
+BirthdayPicker.killAll = () => {
+  if (!instances) {
+    return;
+  }
+
+  instances.forEach((instance) => {
+    BirthdayPicker.kill(instance);
+  });
+};
+
+BirthdayPicker.kill = (instance) => {
   if (!instance) {
     return;
   }
+
+  if (!instance.element) {
+    // if an html element
+    instance = BirthdayPicker.getInstance(instance);
+  }
+
+  if (!instance) {
+    return;
+  }
+
   // todo: reset all to default!
   instance.kill();
+
+  const el = instance.element;
   el.dataset.bdpinit = false;
   delete el.dataset.bdpinit;
+
   dataStorage.remove(el, 'instance');
 };
 

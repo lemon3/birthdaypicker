@@ -1022,13 +1022,29 @@ BirthdayPicker.setLanguage = function (lang) {
 BirthdayPicker.getInstance = function (el) {
   return dataStorage.get(el, 'instance');
 };
-BirthdayPicker.kill = function (el) {
-  var instance = BirthdayPicker.getInstance(el);
+BirthdayPicker.killAll = function () {
+  if (!instances) {
+    return;
+  }
+  instances.forEach(function (instance) {
+    BirthdayPicker.kill(instance);
+  });
+};
+BirthdayPicker.kill = function (instance) {
   if (!instance) {
     return;
   }
+  if (!instance.element) {
+    // if an html element
+    instance = BirthdayPicker.getInstance(instance);
+  }
+  if (!instance) {
+    return;
+  }
+
   // todo: reset all to default!
   instance.kill();
+  var el = instance.element;
   el.dataset.bdpinit = false;
   delete el.dataset.bdpinit;
   dataStorage.remove(el, 'instance');

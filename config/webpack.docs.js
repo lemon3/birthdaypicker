@@ -5,11 +5,20 @@ const common = require('./webpack.common');
 const paths = require('./paths');
 
 module.exports = merge(common, {
-  mode: 'development',
-  devtool: 'inline-source-map', // 'eval-cheap-source-map',
+  mode: 'production',
+  optimization: {
+    minimize: true,
+  },
+
+  performance: {
+    hints: false,
+    maxEntrypointSize: 512000,
+    maxAssetSize: 512000,
+  },
 
   output: {
-    filename: '[name].min.js',
+    path: paths.docs,
+    filename: 'js/[name].min.js',
     library: {
       name: 'BirthdayPicker',
       type: 'umd',
@@ -17,23 +26,14 @@ module.exports = merge(common, {
       export: 'default',
     },
     globalObject: 'this',
+    clean: true,
   },
 
   plugins: [
     new HtmlWebpackPlugin({
-      title: '- devmode -',
+      title: 'tailwindcss & alpine.js | Demo',
       template: paths.src + '/template.html', // template file
       minify: true,
-    })
+    }),
   ],
-
-  // dev server
-  devServer: {
-    historyApiFallback: true,
-    open: true,
-    compress: true,
-    hot: true,
-    port: 8888,
-    watchFiles: [paths.src],
-  },
 });

@@ -1,4 +1,11 @@
 # Changelog
+
+## v0.1.9
+### Added or Changed
+- package.json update
+- added static function killAll
+- update to the demo/docs
+
 ## v0.1.8
 ### Added or Changed
 - package update
