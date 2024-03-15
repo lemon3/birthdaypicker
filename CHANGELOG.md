@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.10
+### Added or Changed
+- logic updates
+- test updates
+- demo/docs updates
+
 ## v0.1.9
 ### Added or Changed
 - package.json update

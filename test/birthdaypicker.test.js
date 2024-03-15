@@ -462,9 +462,9 @@ describe('setDate tests', () => {
     //int date
     bp.setDate('2000-12-31');
 
-    yearChangedSpy = jest.spyOn(bp, '_yearChanged');
-    monthChangedSpy = jest.spyOn(bp, '_monthChanged');
-    dayChangedSpy = jest.spyOn(bp, '_dayChanged');
+    yearChangedSpy = jest.spyOn(bp, '_yearWasChanged');
+    monthChangedSpy = jest.spyOn(bp, '_monthWasChanged');
+    dayChangedSpy = jest.spyOn(bp, '_dayWasChanged');
     dateChangedSpy = jest.spyOn(bp, '_dateChanged');
   });
 
@@ -512,7 +512,7 @@ describe('setDate tests', () => {
   });
 
   describe('change from leap year to a normal year', () => {
-    test('should trigger day change', () => {
+    test('should not trigger day change', () => {
       // leap year
       bp.setDate('1996-2-14');
       // none leap year
@@ -520,7 +520,6 @@ describe('setDate tests', () => {
       expect(yearChangedSpy).toHaveBeenCalledTimes(2);
       expect(monthChangedSpy).toHaveBeenCalledTimes(1);
       expect(dayChangedSpy).toHaveBeenCalledTimes(2);
-      expect(dateChangedSpy).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -535,7 +534,6 @@ describe('setDate tests', () => {
       expect(yearChangedSpy).toHaveBeenCalledTimes(1);
       expect(monthChangedSpy).toHaveBeenCalledTimes(1);
       expect(dayChangedSpy).toHaveBeenCalledTimes(1);
-      expect(dateChangedSpy).toHaveBeenCalledTimes(1);
       expect(bp.getDate('yyyy-mm-dd')).toBe('2005-03-01');
     });
   });
@@ -546,7 +544,6 @@ describe('setDate tests', () => {
       expect(yearChangedSpy).toHaveBeenCalledTimes(0);
       expect(monthChangedSpy).toHaveBeenCalledTimes(0);
       expect(dayChangedSpy).toHaveBeenCalledTimes(1);
-      expect(dateChangedSpy).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -556,7 +553,6 @@ describe('setDate tests', () => {
       expect(yearChangedSpy).toHaveBeenCalledTimes(0);
       expect(monthChangedSpy).toHaveBeenCalledTimes(1);
       expect(dayChangedSpy).toHaveBeenCalledTimes(0);
-      expect(dateChangedSpy).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -566,7 +562,6 @@ describe('setDate tests', () => {
       expect(yearChangedSpy).toHaveBeenCalledTimes(1);
       expect(monthChangedSpy).toHaveBeenCalledTimes(0);
       expect(dayChangedSpy).toHaveBeenCalledTimes(0);
-      expect(dateChangedSpy).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -576,7 +571,6 @@ describe('setDate tests', () => {
       expect(yearChangedSpy).toHaveBeenCalledTimes(1);
       expect(monthChangedSpy).toHaveBeenCalledTimes(1);
       expect(dayChangedSpy).toHaveBeenCalledTimes(1);
-      expect(dateChangedSpy).toHaveBeenCalledTimes(1);
     });
   });
   describe('no values change', () => {
@@ -585,7 +579,6 @@ describe('setDate tests', () => {
       expect(yearChangedSpy).not.toHaveBeenCalled();
       expect(monthChangedSpy).not.toHaveBeenCalled();
       expect(dayChangedSpy).not.toHaveBeenCalled();
-      expect(dateChangedSpy).not.toHaveBeenCalled();
     });
   });
 });
@@ -732,9 +725,9 @@ describe('test the setLanguage function', () => {
     // init setup
     bp.setLanguage('fr');
     bp.setMonthFormat('short');
-    const _dateChangedSpy = jest.spyOn(bp, '_dateChanged');
+    const _triggerEventSpy = jest.spyOn(bp, '_triggerEvent');
     bp.setLanguage('ru');
-    expect(_dateChangedSpy).toHaveBeenCalledTimes(1);
+    expect(_triggerEventSpy).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -995,14 +988,14 @@ describe('_dateChanged methods tests', () => {
     defaultDate: '2010-02-20',
   });
 
-  test('test for _dateChanged triggering by setting date', () => {
+  test('_dateChanged should not be triggering by setDate', () => {
     const _dateChangedSpy = jest.spyOn(bp, '_dateChanged');
 
     bp.setDate('1234-5-6');
     bp.setDate('1982-2-6');
     bp.setDate('1912-10-26');
 
-    expect(_dateChangedSpy).toHaveBeenCalledTimes(3);
+    expect(_dateChangedSpy).toHaveBeenCalledTimes(0);
 
     _dateChangedSpy.mockRestore();
   });
@@ -1032,10 +1025,10 @@ describe('_dateChanged methods tests', () => {
     _dateChangedSpy.mockRestore();
   });
 
-  test('test the _dateChanged should be called if changed via setDate', () => {
+  test('test the _dateChanged should NOT be called if changed via setDate', () => {
     const _dateChangedSpy = jest.spyOn(bp, '_dateChanged');
     bp.setDate('1980-12-22');
-    expect(_dateChangedSpy).toHaveBeenCalled();
+    expect(_dateChangedSpy).toHaveBeenCalledTimes(0);
     _dateChangedSpy.mockRestore();
   });
 
@@ -1064,7 +1057,7 @@ describe('_updateDays methods tests', () => {
     // change days
     bp.setDate('2010-2-10');
     expect(_setDateSpy).toHaveBeenCalledWith({ year: 2010, month: 2, day: 10 });
-    expect(_setDaySpy).toHaveBeenCalledWith(10);
+    expect(_setDaySpy).toHaveBeenCalledWith(10, false);
     expect(_updateDaysSpy).toHaveBeenCalledTimes(0);
     expect(bp.getDate('yyyy-m-d')).toEqual('2010-2-10');
 
@@ -1101,7 +1094,7 @@ describe('_updateDays methods tests', () => {
     bp.setDate('1999-05-12');
 
     const _updateDaysSpy = jest.spyOn(bp, '_updateDays');
-    const _dayChangedSpy = jest.spyOn(bp, '_dayChanged');
+    const _dayChangedSpy = jest.spyOn(bp, '_dayWasChanged');
 
     // change only the days
     bp._day.el.selectedIndex = 1;
@@ -1171,8 +1164,9 @@ describe('_updateDays methods tests', () => {
     // init
     const initDate = '1999-02-14';
     bp.setDate(initDate);
+
     const _updateDaysSpy = jest.spyOn(bp, '_updateDays');
-    const _dayChangedSpy = jest.spyOn(bp, '_dayChanged');
+    const _dayChangedSpy = jest.spyOn(bp, '_dayWasChanged');
 
     // only day changed
     bp.setDate('1999-02-16');
@@ -1189,18 +1183,18 @@ describe('_updateDays methods tests', () => {
   test('_updateDays should add days if new month has more days', () => {
     const initDate = '1999-02-14';
     const _updateDaysSpy = jest.spyOn(bp, '_updateDays');
-
     const _setDaySpy = jest.spyOn(bp, '_setDay');
+
     bp.setDate(initDate);
 
     expect(_updateDaysSpy).toHaveBeenCalledTimes(0);
-    expect(_setDaySpy).toHaveBeenCalledWith(14);
+    expect(_setDaySpy).toHaveBeenCalledWith(14, false);
 
     // const numerChildNodesInDays = bp._day.el.childNodes.length - (placeholder ? 1 : 0);
     const numberOfDays = bp._map[1];
 
-    const _dayChangedSpy = jest.spyOn(bp, '_dayChanged');
-    const _monthChangedSpy = jest.spyOn(bp, '_monthChanged');
+    const _dayChangedSpy = jest.spyOn(bp, '_dayWasChanged');
+    const _monthChangedSpy = jest.spyOn(bp, '_monthWasChanged');
 
     // set to a month with more days
     bp.setDate('1999-06-14');

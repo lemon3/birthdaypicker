@@ -75,6 +75,10 @@
             { id:1, val: 'false', label:'NO' },
           ],
 
+          _year: '2004',
+          _month: '2',
+          _day: '29',
+
           init() {
             if (this.initialized) {
               return;
@@ -123,6 +127,15 @@
           },
           setdate(val) {
             this.getInstance().setDate(val);
+          },
+          setyear(val) {
+            this.getInstance()._setYear(val);
+          },
+          setmonth(val) {
+            this.getInstance()._setMonth(val);
+          },
+          setday(val) {
+            this.getInstance()._setDay(val);
           },
           // events
           outputFormatChange(evt) {
@@ -291,7 +304,7 @@
             >
               <div class="relative">
                 <select
-                  class="peer focus:outline-none pr-7 pl-2 py-2 appearance-none rounded-none cursor-pointer border-0 rounded-l-md"
+                  class="peer focus:outline-none pr-8 pl-2 py-2 appearance-none rounded-none cursor-pointer border-0 text-center rounded-l-md"
                   data-birthdaypicker-year
                 ></select>
                 <div
@@ -313,7 +326,7 @@
 
               <div class="relative">
                 <select
-                  class="peer focus:outline-none pr-7 pl-2 py-2 appearance-none rounded-none cursor-pointer border-0"
+                  class="peer focus:outline-none pr-8 pl-2 py-2 appearance-none rounded-none cursor-pointer border-0 text-center"
                   data-birthdaypicker-month
                 ></select>
                 <div
@@ -335,7 +348,7 @@
 
               <div class="relative">
                 <select
-                  class="peer focus:outline-none pr-7 pl-2 py-2 appearance-none rounded-none cursor-pointer border-0 rounded-r-md"
+                  class="peer focus:outline-none pr-8 pl-2 py-2 appearance-none rounded-none cursor-pointer border-0 text-center rounded-r-md"
                   data-birthdaypicker-day
                 ></select>
                 <div
@@ -380,14 +393,16 @@
               type="button"
               @click="clearLog"
               class="px-4 py-2 rounded-b-md inline-block w-full text-white mb-2 mr-2 outline-none bg-slate-800 hover:bg-slate-900"
-            >clear event log</button>
+            >
+              clear event log
+            </button>
           </div>
         </div>
 
         <div class="mt-8">
           <div>set date to the Birthday of:</div>
           <template x-for="bday in birthdays" :key="bday.id">
-              <button
+            <button
               type="button"
               @click="setdate(bday.val)"
               x-text="bday.label"
@@ -395,6 +410,74 @@
               :class="date==bday.val ? 'bg-pink-600 hover:bg-pink-700' : 'bg-slate-800 hover:bg-slate-900'"
             ></button>
           </template>
+        </div>
+
+        <div class="mt-8">
+          <div>set year, month, day:</div>
+          <div class="flex mb-4">
+            <input
+              type="text"
+              placeholder="set year"
+              class="px-4 py-2 h-[40px] w-32"
+              value=""
+              x-model="_year"
+              @keyup.enter="setyear(_year)"
+            /><button
+              type="button"
+              @click="setyear(_year)"
+              class="w-28 px-4 py-2 h-[40px] inline-block text-white mb-2 mr-2 outline-none bg-slate-800 hover:bg-slate-900"
+            >
+              set year
+            </button>
+          </div>
+          <div class="flex mb-4">
+            <input
+              type="text"
+              placeholder="set month"
+              class="px-4 py-2 h-[40px] w-32"
+              value=""
+              x-model="_month"
+              @keyup.enter="setyear(_month)"
+            /><button
+              type="button"
+              @click="setmonth(_month)"
+              class="w-28 px-4 py-2 h-[40px] inline-block text-white mb-2 mr-2 outline-none bg-slate-800 hover:bg-slate-900"
+            >
+              set month
+            </button>
+          </div>
+          <div class="flex mb-4">
+            <input
+              type="text"
+              placeholder="set day"
+              class="px-4 py-2 h-[40px] w-32"
+              value=""
+              x-model="_day"
+              @keyup.enter="setyear(_day)"
+            /><button
+              type="button"
+              @click="setday(_day)"
+              class="w-28 px-4 py-2 h-[40px] inline-block text-white mb-2 mr-2 outline-none bg-slate-800 hover:bg-slate-900"
+            >
+              set day
+            </button>
+          </div>
+          <div class="flex mb-4">
+            <input
+              type="text"
+              disabled
+              placeholder="set date"
+              class="px-4 py-2 h-[40px] w-32"
+              :value="`${_year}-${_month}-${_day}`"
+            />
+          <button
+              type="button"
+              @click="setdate(`${_year}-${_month}-${_day}`)"
+              class="w-28 px-4 py-2 h-[40px] inline-block text-white mb-2 mr-2 outline-none bg-slate-800 hover:bg-slate-900"
+            >
+              set Date
+            </button>
+          </div>
         </div>
 
         <div class="mt-8">
