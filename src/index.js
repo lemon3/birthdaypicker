@@ -22,6 +22,7 @@ const allowedEvents = [
   'daychange',
   'monthchange',
   'yearchange',
+  'kill',
 ];
 const optionTagName = 'option';
 
@@ -203,7 +204,7 @@ class BirthdayPicker {
    */
   _setDate({ year, month, day }) {
     // small helper for the event triggering system
-    this._monthWillBeChangedLater = month !== this.currentMonth;
+    this._monthChangeTiggeredLater = month !== this.currentMonth;
     let _yChanged = this._setYear(year, false);
     let _mChanged = this._setMonth(month, false);
     let _dChanged = this._setDay(day, false);
@@ -215,7 +216,7 @@ class BirthdayPicker {
       this._triggerEvent(allowedEvents[1]);
     }
 
-    this._monthWillBeChangedLater = false;
+    this._monthChangeTiggeredLater = false;
   }
 
   _parseDate(dateString) {
@@ -299,47 +300,59 @@ class BirthdayPicker {
    */
   _updateDays(month) {
     // console.log('_updateDays');
-    const newDays = this._map[+month - 1];
+    const newDaysPerMonth = this._daysPerMonth[+month - 1];
     const offset = this.settings.placeholder ? 1 : 0;
-    const currentDays = this._day.el.children.length - offset;
+    const currentDaysPerMonth = this._day.el.children.length - offset;
 
-    if (newDays === currentDays) {
+    console.log(this.currentDay, +this._day.el.value);
+    console.log(currentDaysPerMonth + ' --> ' + newDaysPerMonth);
+
+    if (newDaysPerMonth === currentDaysPerMonth) {
       return;
     }
 
-    if (newDays - currentDays > 0) {
+    if (newDaysPerMonth - currentDaysPerMonth > 0) {
       // add days
-      for (let i = currentDays; i < newDays; i++) {
+      for (let i = currentDaysPerMonth; i < newDaysPerMonth; i++) {
         let el = createEl(optionTagName, { value: i + 1 }, '', '' + (i + 1));
         this._day.el.append(el);
       }
     } else {
       // remove days
-      for (let i = currentDays; i > newDays; i--) {
+      for (let i = currentDaysPerMonth; i > newDaysPerMonth; i--) {
         this._day.el.children[i + offset - 1].remove();
+      }
+
+      // day changed after changing month
+      // todo: set currentDay to the next or the prev. correct date
+      // eg. 2010-12-31 -> change month to 11 -> 2010-11-31
+      // either: 2010-11-30, or 2010-12-01
+      if (this.currentDay > newDaysPerMonth) {
+        if (this.settings.roundDownDay) {
+          this._setDay(newDaysPerMonth, false);
+        } else {
+          this._dayWasChanged(undefined);
+        }
       }
     }
 
-    // day changed after changing month
-    // todo: set currentDay to the next or the prev. correct date
-    // eg. 2010-12-31 -> change month to 11 -> 2010-11-31
-    // either: 2010-11-30, or 2010-12-01
-    if (this.currentDay && +this._day.el.value !== this.currentDay) {
-      this._dayWasChanged(); // to undefined
-    }
+    // if (this.currentDay && +this._day.el.value !== this.currentDay) {
+    //   this._dayWasChanged(); // to undefined
+    // }
   }
 
-  _triggerEvent(eventName) {
-    let eventData = {
-      detail: {
-        instance: this,
-        year: this._year.el.value,
-        month: this._month.el.value,
-        day: this._day.el.value,
-        date: this.getDate(),
-      },
+  _triggerEvent(eventName, data) {
+    const detail = {
+      instance: this,
+      year: +this._year.el.value,
+      month: +this._month.el.value,
+      day: +this._day.el.value,
+      date: this.getDate(),
+      ...data,
     };
-    let ce = new CustomEvent(eventName, eventData);
+    console.log(eventName, detail);
+    const eventData = { detail };
+    const ce = new CustomEvent(eventName, eventData);
     this.element.dispatchEvent(ce);
     this.eventFired[eventName] = ce;
 
@@ -347,7 +360,7 @@ class BirthdayPicker {
     trigger(this.element, eventName, ce);
   }
 
-  // todo: only needed if set via
+  // only needed if set via
   // _setYear, _setMonth, _setDay ????
   _nofutureDate(year, month, day) {
     // console.log('_nofutureDate');
@@ -421,46 +434,53 @@ class BirthdayPicker {
     this._triggerEvent(allowedEvents[1]);
   }
 
+  /**
+   * called if the day was changed
+   * sets the currentDay value
+   * @param {number} day
+   * @returns
+   */
   _dayWasChanged(day) {
+    console.log('typeof', typeof day, day);
     // console.log('_dayWasChanged:', day);
+    // const from = this.currentDay;
     this.currentDay = day;
     this._triggerEvent(allowedEvents[2]);
   }
 
+  /**
+   * called if the month was changed
+   * sets the currentMonth value
+   * @param {number} month
+   * @returns
+   */
   _monthWasChanged(month) {
+    console.log('typeof', typeof month);
     // console.log('_monthWasChanged:', month);
+    // const from = this.currentMonth;
     this.currentMonth = month;
     this._triggerEvent(allowedEvents[3]);
-    // if (this._prevent) {
-    //   return false;
-    // }
     this._updateDays(month);
   }
 
   /**
    * called if the year was changed
-   * @param {*} year
+   * sets the currentYear value
+   * @param {number} year
    * @returns
    */
   _yearWasChanged(year) {
+    console.log('typeof', typeof year);
     // console.log('_yearWasChanged:', year);
+    // const from = this.currentYear;
     this.currentYear = year;
-    this._map[1] = isLeapYear(year) ? 29 : 28;
-
+    this._daysPerMonth[1] = isLeapYear(year) ? 29 : 28;
     this._triggerEvent(allowedEvents[4]);
 
-    // if month changed to early exit
-    if (this._monthWillBeChangedLater) {
-      return true;
-    }
-
-    // if feb and leap year
-    let month = this._month.el.value;
-    if (2 === +month) {
-      this._updateDays(month);
-      // if (this._day.el.value >= 29) {
-      //   this._dayWasChanged(this._day.el.value);
-      // }
+    if (!this._monthChangeTiggeredLater) {
+      if (+this._month.el.value === 2) {
+        this._updateDays(this._month.el.value);
+      }
     }
   }
 
@@ -527,6 +547,7 @@ class BirthdayPicker {
     }
 
     this.monthFormat = langTexts.month;
+    // const from = this.settings.locale;
     this.settings.locale = lang;
 
     // todo: is this correct for all languages?
@@ -540,7 +561,6 @@ class BirthdayPicker {
     });
 
     // trigger a datechange event, as the formating might change
-    // this._dateChanged();
     this._triggerEvent(allowedEvents[1]);
   }
 
@@ -584,6 +604,8 @@ class BirthdayPicker {
         this.removeEventListener(r.eventName, r.listener, r.option)
       );
     }
+
+    this._triggerEvent(allowedEvents[5]);
   }
 
   isLeapYear(year = this.currentYear) {
@@ -630,7 +652,7 @@ class BirthdayPicker {
     this.initialized = true;
     this.eventFired = {};
     this._registeredEventListeners = [];
-    this._map = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    this._daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     this._date = [];
 
     // store all disabled elements in an array for quicker reenable
@@ -813,6 +835,7 @@ BirthdayPicker.defaults = {
   yearEl: null,
   monthEl: null,
   dayEl: null,
+  roundDownDay: true,
 };
 
 BirthdayPicker.init = () => {

@@ -1191,7 +1191,7 @@ describe('_updateDays methods tests', () => {
     expect(_setDaySpy).toHaveBeenCalledWith(14, false);
 
     // const numerChildNodesInDays = bp._day.el.childNodes.length - (placeholder ? 1 : 0);
-    const numberOfDays = bp._map[1];
+    const numberOfDays = bp._daysPerMonth[1];
 
     const _dayChangedSpy = jest.spyOn(bp, '_dayWasChanged');
     const _monthChangedSpy = jest.spyOn(bp, '_monthWasChanged');
@@ -1199,7 +1199,7 @@ describe('_updateDays methods tests', () => {
     // set to a month with more days
     bp.setDate('1999-06-14');
 
-    const numberOfDaysNew = bp._map[11];
+    const numberOfDaysNew = bp._daysPerMonth[11];
     // check lenght of option nodelist
     const numerChildNodesInDaysNew =
       bp._day.el.childNodes.length - (placeholder ? 1 : 0);

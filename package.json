@@ -1,6 +1,6 @@
 {
   "name": "birthdaypicker",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "i18n birthday picker",
   "browser": "dist/birthdaypicker.esm.min.js",
   "author": "wolfgang jungmayer",
@@ -53,6 +53,5 @@
     "webpack-cli": "^5.0.1",
     "webpack-dev-server": "^5.0.1",
     "webpack-merge": "^5.8.0"
-  },
-  "dependencies": {}
+  }
 }

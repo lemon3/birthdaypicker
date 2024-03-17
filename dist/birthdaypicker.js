@@ -259,6 +259,9 @@ var restrict = function restrict(value, min, max) {
 
 ;// CONCATENATED MODULE: ./src/index.js
 function src_typeof(o) { "@babel/helpers - typeof"; return src_typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, src_typeof(o); }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function src_slicedToArray(arr, i) { return src_arrayWithHoles(arr) || src_iterableToArrayLimit(arr, i) || src_unsupportedIterableToArray(arr, i) || src_nonIterableRest(); }
 function src_nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function src_unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return src_arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return src_arrayLikeToArray(o, minLen); }
@@ -280,7 +283,7 @@ var pluginName = 'birthdaypicker';
 var dataName = 'data-' + pluginName;
 var monthFormats = ['short', 'long', 'numeric'];
 var allowedArrangement = ['ymd', 'ydm', 'myd', 'mdy', 'dmy', 'dym'];
-var allowedEvents = ['init', 'datechange', 'daychange', 'monthchange', 'yearchange'];
+var allowedEvents = ['init', 'datechange', 'daychange', 'monthchange', 'yearchange', 'kill'];
 var optionTagName = 'option';
 var today = new Date();
 var todayYear = today.getFullYear();
@@ -476,7 +479,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
         month = _ref2.month,
         day = _ref2.day;
       // small helper for the event triggering system
-      this._monthWillBeChangedLater = month !== this.currentMonth;
+      this._monthChangeTiggeredLater = month !== this.currentMonth;
       var _yChanged = this._setYear(year, false);
       var _mChanged = this._setMonth(month, false);
       var _dChanged = this._setDay(day, false);
@@ -486,7 +489,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
         }
         this._triggerEvent(allowedEvents[1]);
       }
-      this._monthWillBeChangedLater = false;
+      this._monthChangeTiggeredLater = false;
     }
   }, {
     key: "_parseDate",
@@ -583,15 +586,17 @@ var BirthdayPicker = /*#__PURE__*/function () {
     key: "_updateDays",
     value: function _updateDays(month) {
       // console.log('_updateDays');
-      var newDays = this._map[+month - 1];
+      var newDaysPerMonth = this._daysPerMonth[+month - 1];
       var offset = this.settings.placeholder ? 1 : 0;
-      var currentDays = this._day.el.children.length - offset;
-      if (newDays === currentDays) {
+      var currentDaysPerMonth = this._day.el.children.length - offset;
+      console.log(this.currentDay, +this._day.el.value);
+      console.log(currentDaysPerMonth + ' --> ' + newDaysPerMonth);
+      if (newDaysPerMonth === currentDaysPerMonth) {
         return;
       }
-      if (newDays - currentDays > 0) {
+      if (newDaysPerMonth - currentDaysPerMonth > 0) {
         // add days
-        for (var i = currentDays; i < newDays; i++) {
+        for (var i = currentDaysPerMonth; i < newDaysPerMonth; i++) {
           var el = createEl(optionTagName, {
             value: i + 1
           }, '', '' + (i + 1));
@@ -599,30 +604,40 @@ var BirthdayPicker = /*#__PURE__*/function () {
         }
       } else {
         // remove days
-        for (var _i2 = currentDays; _i2 > newDays; _i2--) {
+        for (var _i2 = currentDaysPerMonth; _i2 > newDaysPerMonth; _i2--) {
           this._day.el.children[_i2 + offset - 1].remove();
+        }
+
+        // day changed after changing month
+        // todo: set currentDay to the next or the prev. correct date
+        // eg. 2010-12-31 -> change month to 11 -> 2010-11-31
+        // either: 2010-11-30, or 2010-12-01
+        if (this.currentDay > newDaysPerMonth) {
+          if (this.settings.roundDownDay) {
+            this._setDay(newDaysPerMonth, false);
+          } else {
+            this._dayWasChanged(undefined);
+          }
         }
       }
 
-      // day changed after changing month
-      // todo: set currentDay to the next or the prev. correct date
-      // eg. 2010-12-31 -> change month to 11 -> 2010-11-31
-      // either: 2010-11-30, or 2010-12-01
-      if (this.currentDay && +this._day.el.value !== this.currentDay) {
-        this._dayWasChanged(); // to undefined
-      }
+      // if (this.currentDay && +this._day.el.value !== this.currentDay) {
+      //   this._dayWasChanged(); // to undefined
+      // }
     }
   }, {
     key: "_triggerEvent",
-    value: function _triggerEvent(eventName) {
+    value: function _triggerEvent(eventName, data) {
+      var detail = _objectSpread({
+        instance: this,
+        year: +this._year.el.value,
+        month: +this._month.el.value,
+        day: +this._day.el.value,
+        date: this.getDate()
+      }, data);
+      console.log(eventName, detail);
       var eventData = {
-        detail: {
-          instance: this,
-          year: this._year.el.value,
-          month: this._month.el.value,
-          day: this._day.el.value,
-          date: this.getDate()
-        }
+        detail: detail
       };
       var ce = new CustomEvent(eventName, eventData);
       this.element.dispatchEvent(ce);
@@ -632,7 +647,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       trigger(this.element, eventName, ce);
     }
 
-    // todo: only needed if set via
+    // only needed if set via
     // _setYear, _setMonth, _setDay ????
   }, {
     key: "_nofutureDate",
@@ -709,50 +724,59 @@ var BirthdayPicker = /*#__PURE__*/function () {
 
       this._triggerEvent(allowedEvents[1]);
     }
+
+    /**
+     * called if the day was changed
+     * sets the currentDay value
+     * @param {number} day
+     * @returns
+     */
   }, {
     key: "_dayWasChanged",
     value: function _dayWasChanged(day) {
+      console.log('typeof', src_typeof(day), day);
       // console.log('_dayWasChanged:', day);
+      // const from = this.currentDay;
       this.currentDay = day;
       this._triggerEvent(allowedEvents[2]);
     }
+
+    /**
+     * called if the month was changed
+     * sets the currentMonth value
+     * @param {number} month
+     * @returns
+     */
   }, {
     key: "_monthWasChanged",
     value: function _monthWasChanged(month) {
+      console.log('typeof', src_typeof(month));
       // console.log('_monthWasChanged:', month);
+      // const from = this.currentMonth;
       this.currentMonth = month;
       this._triggerEvent(allowedEvents[3]);
-      // if (this._prevent) {
-      //   return false;
-      // }
       this._updateDays(month);
     }
 
     /**
      * called if the year was changed
-     * @param {*} year
+     * sets the currentYear value
+     * @param {number} year
      * @returns
      */
   }, {
     key: "_yearWasChanged",
     value: function _yearWasChanged(year) {
+      console.log('typeof', src_typeof(year));
       // console.log('_yearWasChanged:', year);
+      // const from = this.currentYear;
       this.currentYear = year;
-      this._map[1] = helper_isLeapYear(year) ? 29 : 28;
+      this._daysPerMonth[1] = helper_isLeapYear(year) ? 29 : 28;
       this._triggerEvent(allowedEvents[4]);
-
-      // if month changed to early exit
-      if (this._monthWillBeChangedLater) {
-        return true;
-      }
-
-      // if feb and leap year
-      var month = this._month.el.value;
-      if (2 === +month) {
-        this._updateDays(month);
-        // if (this._day.el.value >= 29) {
-        //   this._dayWasChanged(this._day.el.value);
-        // }
+      if (!this._monthChangeTiggeredLater) {
+        if (+this._month.el.value === 2) {
+          this._updateDays(this._month.el.value);
+        }
       }
     }
   }, {
@@ -819,6 +843,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
         });
       }
       this.monthFormat = langTexts.month;
+      // const from = this.settings.locale;
       this.settings.locale = lang;
 
       // todo: is this correct for all languages?
@@ -831,7 +856,6 @@ var BirthdayPicker = /*#__PURE__*/function () {
       });
 
       // trigger a datechange event, as the formating might change
-      // this._dateChanged();
       this._triggerEvent(allowedEvents[1]);
     }
   }, {
@@ -881,6 +905,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
           return _this5.removeEventListener(r.eventName, r.listener, r.option);
         });
       }
+      this._triggerEvent(allowedEvents[5]);
     }
   }, {
     key: "isLeapYear",
@@ -928,7 +953,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       this.initialized = true;
       this.eventFired = {};
       this._registeredEventListeners = [];
-      this._map = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+      this._daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
       this._date = [];
 
       // store all disabled elements in an array for quicker reenable
@@ -1105,7 +1130,8 @@ BirthdayPicker.defaults = {
   arrange: 'ymd',
   yearEl: null,
   monthEl: null,
-  dayEl: null
+  dayEl: null,
+  roundDownDay: true
 };
 BirthdayPicker.init = function () {
   if (initialized) {
