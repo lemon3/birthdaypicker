@@ -491,6 +491,8 @@ var BirthdayPicker = /*#__PURE__*/function () {
       }
       this._monthChangeTiggeredLater = false;
     }
+
+    // e.g.: '2004/2/29'
   }, {
     key: "_parseDate",
     value: function _parseDate(dateString) {
@@ -589,8 +591,6 @@ var BirthdayPicker = /*#__PURE__*/function () {
       var newDaysPerMonth = this._daysPerMonth[+month - 1];
       var offset = this.settings.placeholder ? 1 : 0;
       var currentDaysPerMonth = this._day.el.children.length - offset;
-      console.log(this.currentDay, +this._day.el.value);
-      console.log(currentDaysPerMonth + ' --> ' + newDaysPerMonth);
       if (newDaysPerMonth === currentDaysPerMonth) {
         return;
       }
@@ -635,7 +635,6 @@ var BirthdayPicker = /*#__PURE__*/function () {
         day: +this._day.el.value,
         date: this.getDate()
       }, data);
-      console.log(eventName, detail);
       var eventData = {
         detail: detail
       };
@@ -734,7 +733,6 @@ var BirthdayPicker = /*#__PURE__*/function () {
   }, {
     key: "_dayWasChanged",
     value: function _dayWasChanged(day) {
-      console.log('typeof', src_typeof(day), day);
       // console.log('_dayWasChanged:', day);
       // const from = this.currentDay;
       this.currentDay = day;
@@ -750,7 +748,6 @@ var BirthdayPicker = /*#__PURE__*/function () {
   }, {
     key: "_monthWasChanged",
     value: function _monthWasChanged(month) {
-      console.log('typeof', src_typeof(month));
       // console.log('_monthWasChanged:', month);
       // const from = this.currentMonth;
       this.currentMonth = month;
@@ -767,7 +764,6 @@ var BirthdayPicker = /*#__PURE__*/function () {
   }, {
     key: "_yearWasChanged",
     value: function _yearWasChanged(year) {
-      console.log('typeof', src_typeof(year));
       // console.log('_yearWasChanged:', year);
       // const from = this.currentYear;
       this.currentYear = year;
@@ -858,6 +854,8 @@ var BirthdayPicker = /*#__PURE__*/function () {
       // trigger a datechange event, as the formating might change
       this._triggerEvent(allowedEvents[1]);
     }
+
+    // todo use formating option, eg.: yyyy-dd-mm
   }, {
     key: "setDate",
     value: function setDate(dateString) {

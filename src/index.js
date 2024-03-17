@@ -219,6 +219,7 @@ class BirthdayPicker {
     this._monthChangeTiggeredLater = false;
   }
 
+  // e.g.: '2004/2/29'
   _parseDate(dateString) {
     // unix timestamp
     const parse = Date.parse(dateString);
@@ -304,9 +305,6 @@ class BirthdayPicker {
     const offset = this.settings.placeholder ? 1 : 0;
     const currentDaysPerMonth = this._day.el.children.length - offset;
 
-    console.log(this.currentDay, +this._day.el.value);
-    console.log(currentDaysPerMonth + ' --> ' + newDaysPerMonth);
-
     if (newDaysPerMonth === currentDaysPerMonth) {
       return;
     }
@@ -350,7 +348,6 @@ class BirthdayPicker {
       date: this.getDate(),
       ...data,
     };
-    console.log(eventName, detail);
     const eventData = { detail };
     const ce = new CustomEvent(eventName, eventData);
     this.element.dispatchEvent(ce);
@@ -441,7 +438,6 @@ class BirthdayPicker {
    * @returns
    */
   _dayWasChanged(day) {
-    console.log('typeof', typeof day, day);
     // console.log('_dayWasChanged:', day);
     // const from = this.currentDay;
     this.currentDay = day;
@@ -455,7 +451,6 @@ class BirthdayPicker {
    * @returns
    */
   _monthWasChanged(month) {
-    console.log('typeof', typeof month);
     // console.log('_monthWasChanged:', month);
     // const from = this.currentMonth;
     this.currentMonth = month;
@@ -470,7 +465,6 @@ class BirthdayPicker {
    * @returns
    */
   _yearWasChanged(year) {
-    console.log('typeof', typeof year);
     // console.log('_yearWasChanged:', year);
     // const from = this.currentYear;
     this.currentYear = year;
@@ -564,6 +558,7 @@ class BirthdayPicker {
     this._triggerEvent(allowedEvents[1]);
   }
 
+  // todo use formating option, eg.: yyyy-dd-mm
   setDate(dateString) {
     let parsed = this._parseDate(dateString);
     if (parsed) {

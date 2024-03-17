@@ -127,6 +127,7 @@
             return this.instance;
           },
           setdate(val) {
+            window.ay = this.getInstance();
             this.getInstance().setDate(val);
           },
           setyear(val) {
@@ -473,7 +474,7 @@
             />
             <button
               type="button"
-              @click="setdate(`${_year}-${_month}-${_day}`)"
+              @click="setdate(`${_year}/${_month}/${_day}`)"
               class="w-28 px-4 py-2 h-[40px] inline-block text-white mb-2 mr-2 outline-none bg-slate-800 hover:bg-slate-900"
             >
               set Date
