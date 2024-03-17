@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.12
+### Added or Changed
+- added a safari fix for parsing the date
+
 ## v0.1.11
 ### Added or Changed
 - Added option “roundDownDay” (true | false), useful when the new month has fewer days than the previously selected month and the selected day is greater than the maximum number of days - for that month.

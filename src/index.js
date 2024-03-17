@@ -219,8 +219,11 @@ class BirthdayPicker {
     this._monthChangeTiggeredLater = false;
   }
 
-  // e.g.: '2004/2/29'
   _parseDate(dateString) {
+    if ('object' !== typeof dateString) {
+      // safari fix '2004-2-29' -> '2004/2/29'
+      dateString = dateString.replaceAll('-','/');
+    }
     // unix timestamp
     const parse = Date.parse(dateString);
     if (isNaN(parse)) {

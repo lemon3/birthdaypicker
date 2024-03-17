@@ -600,6 +600,18 @@ describe('test the _parseDate function', () => {
     expect(a).toStrictEqual({ year: 2011, month: 11, day: 11 });
   });
 
+  test('_parseDate (YYYY/MM/DD format)', () => {
+    let a;
+    a = bp._parseDate('2000/12/31');
+    expect(a).toStrictEqual({ year: 2000, month: 12, day: 31 });
+    a = bp._parseDate('1970/1/1');
+    expect(a).toStrictEqual({ year: 1970, month: 1, day: 1 });
+    a = bp._parseDate('2022/11/21');
+    expect(a).toStrictEqual({ year: 2022, month: 11, day: 21 });
+    a = bp._parseDate('2011/11/11');
+    expect(a).toStrictEqual({ year: 2011, month: 11, day: 11 });
+  });
+
   test('_parseDate (MM/DD/YYYY format)', () => {
     expect(bp._parseDate('11/20/2020')).toStrictEqual({
       year: 2020,
