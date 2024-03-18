@@ -82,7 +82,7 @@ class BirthdayPicker {
     this.settings = Object.assign({}, BirthdayPicker.defaults, data, options);
     this.element = element;
 
-    if (this.settings.autoinit) {
+    if (this.settings.autoInit) {
       this.init();
     }
   }
@@ -108,7 +108,7 @@ class BirthdayPicker {
 
   /**
    * set the year to a given value
-   * and change the corresponding selectbox too.
+   * and change the corresponding select-box too.
    * @param {String|Int} year the day value (eg, 1988, 2012, ...)
    * @returns
    */
@@ -132,7 +132,7 @@ class BirthdayPicker {
 
   /**
    * set the month to a given value
-   * and change the corresponding selectbox too.
+   * and change the corresponding select-box too.
    * @param {String|Int} month the month value (usually between 1 - 12)
    * @returns
    */
@@ -156,7 +156,7 @@ class BirthdayPicker {
 
   /**
    * set the day to a given value
-   * and change the corresponding selectbox too.
+   * and change the corresponding select-box too.
    * @param {String|Int} day the day value (usually between 1 - 31)
    * @returns
    */
@@ -204,19 +204,19 @@ class BirthdayPicker {
    */
   _setDate({ year, month, day }) {
     // small helper for the event triggering system
-    this._monthChangeTiggeredLater = month !== this.currentMonth;
+    this._monthChangeTriggeredLater = month !== this.currentMonth;
     let _yChanged = this._setYear(year, false);
     let _mChanged = this._setMonth(month, false);
     let _dChanged = this._setDay(day, false);
 
     if (_yChanged || _mChanged || _dChanged) {
       if (!this.settings.selectFuture) {
-        this._nofutureDate(todayYear, todayMonth, todayDay);
+        this._noFutureDate(todayYear, todayMonth, todayDay);
       }
       this._triggerEvent(allowedEvents[1]);
     }
 
-    this._monthChangeTiggeredLater = false;
+    this._monthChangeTriggeredLater = false;
   }
 
   _parseDate(dateString) {
@@ -362,8 +362,8 @@ class BirthdayPicker {
 
   // only needed if set via
   // _setYear, _setMonth, _setDay ????
-  _nofutureDate(year, month, day) {
-    // console.log('_nofutureDate');
+  _noFutureDate(year, month, day) {
+    // console.log('_noFutureDate');
     // set all to false (again)
     if (this._disabled.length) {
       this._disabled.forEach((el) => {
@@ -428,7 +428,7 @@ class BirthdayPicker {
     // }
 
     // if (!this.settings.selectFuture) {
-    //   this._nofutureDate(todayYear, todayMonth, todayDay);
+    //   this._noFutureDate(todayYear, todayMonth, todayDay);
     // }
 
     this._triggerEvent(allowedEvents[1]);
@@ -474,7 +474,7 @@ class BirthdayPicker {
     this._daysPerMonth[1] = isLeapYear(year) ? 29 : 28;
     this._triggerEvent(allowedEvents[4]);
 
-    if (!this._monthChangeTiggeredLater) {
+    if (!this._monthChangeTriggeredLater) {
       if (+this._month.el.value === 2) {
         this._updateDays(this._month.el.value);
       }
@@ -557,11 +557,11 @@ class BirthdayPicker {
       this._month.el.childNodes[filter + ind].innerHTML = el;
     });
 
-    // trigger a datechange event, as the formating might change
+    // trigger a datechange event, as the output format might change
     this._triggerEvent(allowedEvents[1]);
   }
 
-  // todo use formating option, eg.: yyyy-dd-mm
+  // todo: use a format option, eg.: yyyy-dd-mm
   setDate(dateString) {
     let parsed = this._parseDate(dateString);
     if (parsed) {
@@ -596,7 +596,7 @@ class BirthdayPicker {
   kill() {
     this.eventFired = {};
 
-    // remove all registerd EventListeners
+    // remove all registered EventListeners
     if (this._registeredEventListeners) {
       this._registeredEventListeners.forEach((r) =>
         this.removeEventListener(r.eventName, r.listener, r.option)
@@ -818,14 +818,14 @@ BirthdayPicker.kill = (instance) => {
 };
 
 BirthdayPicker.defaults = {
-  minYear: null, // overriddes the value set by maxAge
+  minYear: null, // overrides the value set by maxAge
   maxYear: 'now',
   minAge: 0,
   maxAge: 100,
   monthFormat: 'short',
   placeholder: true,
   defaultDate: null,
-  autoinit: true,
+  autoInit: true,
   leadingZero: true,
   locale: 'en',
   selectFuture: false,

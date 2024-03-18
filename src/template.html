@@ -58,11 +58,11 @@
           ],
           currentOutputFormat: null,
           outputFormat: [
-            { id:0, val:'', label:'default', desc: '(formating based on the selected language)' },
-            { id:1, val:'m/d/yyyy', label:'m/d/yyyy', desc: '(formating based on m/d/yyyy)' },
-            { id:2, val:'dd. mm. yyyy', label:'dd. mm. yyyy', desc: '(formating based on dd. mm. yyyy)' },
-            { id:3, val:'d.m.yyyy', label:'d.m.yyyy', desc: '(formating based on d.m.yyyy)' },
-            { id:4, val:'yyyy-mm-dd', label:'yyyy-mm-dd', desc: '(formating based on yyyy-mm-dd)' },
+            { id:0, val:'', label:'default', desc: '(formatting based on the selected language)' },
+            { id:1, val:'m/d/yyyy', label:'m/d/yyyy', desc: '(formatting based on m/d/yyyy)' },
+            { id:2, val:'dd. mm. yyyy', label:'dd. mm. yyyy', desc: '(formatting based on dd. mm. yyyy)' },
+            { id:3, val:'d.m.yyyy', label:'d.m.yyyy', desc: '(formatting based on d.m.yyyy)' },
+            { id:4, val:'yyyy-mm-dd', label:'yyyy-mm-dd', desc: '(formatting based on yyyy-mm-dd)' },
           ],
           availableLocale: [
             { id:0, val:'en', label:'EN' },
@@ -130,13 +130,13 @@
             window.ay = this.getInstance();
             this.getInstance().setDate(val);
           },
-          setyear(val) {
+          setYear(val) {
             this.getInstance()._setYear(val);
           },
-          setmonth(val) {
+          setMonth(val) {
             this.getInstance()._setMonth(val);
           },
-          setday(val) {
+          setDay(val) {
             this.getInstance()._setDay(val);
           },
           // events
@@ -423,10 +423,10 @@
               class="px-4 py-2 h-[40px] w-32"
               value=""
               x-model="_year"
-              @keyup.enter="setyear(_year)"
+              @keyup.enter="setYear(_year)"
             /><button
               type="button"
-              @click="setyear(_year)"
+              @click="setYear(_year)"
               class="w-28 px-4 py-2 h-[40px] inline-block text-white mb-2 mr-2 outline-none bg-slate-800 hover:bg-slate-900"
             >
               set year
@@ -439,10 +439,10 @@
               class="px-4 py-2 h-[40px] w-32"
               value=""
               x-model="_month"
-              @keyup.enter="setyear(_month)"
+              @keyup.enter="setMonth(_month)"
             /><button
               type="button"
-              @click="setmonth(_month)"
+              @click="setMonth(_month)"
               class="w-28 px-4 py-2 h-[40px] inline-block text-white mb-2 mr-2 outline-none bg-slate-800 hover:bg-slate-900"
             >
               set month
@@ -455,10 +455,10 @@
               class="px-4 py-2 h-[40px] w-32"
               value=""
               x-model="_day"
-              @keyup.enter="setyear(_day)"
+              @keyup.enter="setDay(_day)"
             /><button
               type="button"
-              @click="setday(_day)"
+              @click="setDay(_day)"
               class="w-28 px-4 py-2 h-[40px] inline-block text-white mb-2 mr-2 outline-none bg-slate-800 hover:bg-slate-900"
             >
               set day
