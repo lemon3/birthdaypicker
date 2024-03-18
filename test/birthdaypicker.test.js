@@ -74,13 +74,13 @@ describe('BirthdayPicker init stage', () => {
   test('element exists', () => {
     // is object
     expect(bp2).toBeTruthy();
-    // element set to inintialized
+    // element set to initialized
     let initValue = 'bdpinit';
     expect(Boolean(elementExists.dataset[initValue])).toBe(true);
   });
 
   const bp3 = new BirthdayPicker(elementExists);
-  test('element allready initialized', () => {
+  test('element already initialized', () => {
     expect(bp3).toBeTruthy();
     expect(bp3).toEqual(bp2);
     expect(bp3.currentYear).toBe(2012);
@@ -100,7 +100,7 @@ describe('BirthdayPicker init stage', () => {
   });
 });
 
-describe('dataapi test', () => {
+describe('data api test', () => {
   test('should be called', () => {
     // todo
     window.docReady = () => {};
@@ -131,7 +131,7 @@ describe('BirthdayPicker kill', () => {
 
   bp.addEventListener('datechange', cbDatechange);
 
-  describe('first test if eventlisteners are working', () => {
+  describe('first test if event listeners are working', () => {
     test('init callbacks should be called', () => {
       bp.addEventListener('init', cbInit);
       expect(cbInit).toHaveBeenCalled();
@@ -477,10 +477,10 @@ describe('setDate tests', () => {
   });
 
   describe('change month via setDate()', () => {
-    test('should tiggered a day change', () => {
+    test('should triggered a day change', () => {
       bp.setDate('2000-2-31');
 
-      // if set to an undefinded day, eg. 2000-2-31
+      // if set to an undefined day, eg. 2000-2-31
       // it should update to the next correct day -> feb 2000 has only 29 day
       // so there is no 31 -> 2 days forward results in -> 2. Mar. 2000
       expect(bp.getDate('yyyy-m-d')).toEqual('2000-3-2');
@@ -574,7 +574,7 @@ describe('setDate tests', () => {
     });
   });
   describe('no values change', () => {
-    test('nothing should be triggerd', () => {
+    test('nothing should be triggered', () => {
       bp.setDate('2000-12-31'); // no change!!
       expect(yearChangedSpy).not.toHaveBeenCalled();
       expect(monthChangedSpy).not.toHaveBeenCalled();
@@ -726,7 +726,7 @@ describe('test the setLanguage function', () => {
     expect(bp.setLanguage('eng')).toBe(false);
   });
 
-  test('lang code should not be null, undefinde', () => {
+  test('lang code should not be null / undefined', () => {
     expect(bp.setLanguage(null)).toBe(false);
     expect(bp.setLanguage(undefined)).toBe(false);
     expect(bp.setLanguage()).toBe(false);
@@ -765,7 +765,7 @@ describe('test the getDate function', () => {
     bp.setDate('2020-2-2');
     let date = bp.getDate();
     bp.setLanguage('en');
-    // 2/2/2020 is the default english formating (en)
+    // 2/2/2020 is the default english formatting (en)
     expect(date).toBeTruthy();
     expect(date).toBe('2/2/2020');
   });
@@ -1088,7 +1088,7 @@ describe('_updateDays methods tests', () => {
     expect(_updateDaysSpy).toHaveBeenCalledTimes(2);
 
     // just a year change ... check, we are on FEB
-    // todo: only check if coming from a leap-year to a non leap-year or vica-versa
+    // todo: only check if coming from a leap-year to a non leap-year or vice-versa
     bp.setDate('2013-02-10');
     expect(_updateDaysSpy).toHaveBeenCalledTimes(3);
 
@@ -1159,12 +1159,12 @@ describe('_updateDays methods tests', () => {
     bp.setDate('1999-02-12');
 
     const _updateDaysSpy = jest.spyOn(bp, '_updateDays');
-    const nonleapYear = 2001;
+    const noLeapYear = 2001;
 
-    expect(bp.isLeapYear(nonleapYear)).toBe(false);
+    expect(bp.isLeapYear(noLeapYear)).toBe(false);
 
     // change year
-    const [idx] = bp._getIdx(bp._year.el.childNodes, nonleapYear);
+    const [idx] = bp._getIdx(bp._year.el.childNodes, noLeapYear);
     bp._year.el.selectedIndex = idx;
     bp._year.el.dispatchEvent(new Event('change'));
 
@@ -1212,15 +1212,13 @@ describe('_updateDays methods tests', () => {
     bp.setDate('1999-06-14');
 
     const numberOfDaysNew = bp._daysPerMonth[11];
-    // check lenght of option nodelist
-    const numerChildNodesInDaysNew =
+    // check length of option nodelist
+    const numberChildNodesInDaysNew =
       bp._day.el.childNodes.length - (placeholder ? 1 : 0);
 
     const diff = Math.abs(numberOfDays - numberOfDaysNew);
 
-    // todo !!!!
-    // expect(numerChildNodesInDays).toBe(28);
-    expect(numerChildNodesInDaysNew).toBe(30);
+    expect(numberChildNodesInDaysNew).toBe(30);
 
     // update method was called
     expect(numberOfDays).toBe(28);
@@ -1251,7 +1249,7 @@ describe('static function tests', () => {
     BirthdayPicker.setMonthFormat('wrong');
     expect(bp1.settings.monthFormat).toBe(options.monthFormat);
 
-    // change all formates to 'long'
+    // change all formats to 'long'
     BirthdayPicker.setMonthFormat('long');
     expect(bp1.settings.monthFormat).toBe('long');
     expect(bp2.settings.monthFormat).toBe('long');
@@ -1271,7 +1269,7 @@ describe('static function tests', () => {
     BirthdayPicker.setLanguage('wrong');
     expect(bp1.settings.locale).toBe(options.locale);
 
-    // change all formates to 'long'
+    // change all formate to 'long'
     BirthdayPicker.setLanguage('en');
     expect(bp1.settings.locale).toBe('en');
     expect(bp2.settings.locale).toBe('en');
