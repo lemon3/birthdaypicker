@@ -50,6 +50,7 @@
             { id:1, val: '1980-06-06', label: 'Eva Green' },
             { id:2, val: '1967-02-20', label: 'Kurt Cobain' },
             { id:3, val: '1992-11-23', label: 'Miley Cyrus' },
+            { id:4, val: 'now', label: 'now' },
           ],
           availableDateformat: [
             { id:0, val:'short' },
@@ -85,6 +86,11 @@
             }
             this.leadingZero = this.leadingZeros[1].val,
             this.currentOutputFormat = this.outputFormat[0];
+
+            const a = this.birthdays.filter(b => 'now' === b.val)[0];
+            a.val = this.getNow();
+            console.log(this.birthdays);
+
             this.date = this.birthdays[0].val;
             $watch('locale', () => {
               window.BirthdayPicker.setLanguage(this.locale);
@@ -119,6 +125,13 @@
             // '<div>' this.eventLines + ': \'<b>' + name + '\'</b> called<div>';
             this.events.scrollTop = this.events.scrollHeight - this.events.offsetHeight;
           },
+          getNow() {
+            const date = new Date();
+            const y = date.getUTCFullYear();
+            const m = ('0' + (date.getUTCMonth()+1)).slice(-2);
+            const d = ('0' + date.getUTCDate()).slice(-2);
+            return `${y}-${m}-${d}`;
+          },
           getInstance() {
             if (this.instance) {
               return this.instance;
@@ -127,7 +140,9 @@
             return this.instance;
           },
           setdate(val) {
-            window.ay = this.getInstance();
+            if ('now' === val) {
+              val = this.getNow();
+            }
             this.getInstance().setDate(val);
           },
           setYear(val) {
