@@ -67,10 +67,10 @@ class BirthdayPicker {
     }
 
     // todo: use dataStorage.has(element) ?
-    if (element.dataset.bdpinit) {
+    if (element.dataset.bdpInit) {
       return BirthdayPicker.getInstance(element);
     }
-    element.dataset.bdpinit = true;
+    element.dataset.bdpInit = true;
 
     instances.push(this);
     dataStorage.put(element, 'instance', this);
@@ -93,12 +93,12 @@ class BirthdayPicker {
    * @param  {String} value Value to find
    * @return {mixed}       The index value or undefined
    */
-  _getIdx(nodelist, value) {
-    if (!nodelist) {
+  _getIdx(nodeList, value) {
+    if (!nodeList) {
       return [undefined, undefined];
     }
-    for (let i = 0; i < nodelist.length; i++) {
-      let el = nodelist[i];
+    for (let i = 0; i < nodeList.length; i++) {
+      let el = nodeList[i];
       if (+el.value === +value) {
         return [i, +el.value];
       }
@@ -811,8 +811,8 @@ BirthdayPicker.kill = (instance) => {
   instance.kill();
 
   const el = instance.element;
-  el.dataset.bdpinit = false;
-  delete el.dataset.bdpinit;
+  el.dataset.bdpInit = false;
+  delete el.dataset.bdpInit;
 
   dataStorage.remove(el, 'instance');
 };
@@ -848,7 +848,7 @@ BirthdayPicker.init = () => {
   }
 
   element.forEach((el) => {
-    if (el.dataset.bdpinit) {
+    if (el.dataset.bdpInit) {
       return BirthdayPicker.getInstance(el);
     }
     const data = getJSONData(el, pluginName);
