@@ -870,7 +870,7 @@ describe('private methods tests', () => {
   });
 });
 
-describe('_nofuturDate methods tests', () => {
+describe('_noFutureDate methods tests', () => {
   const bpEl = document.querySelector('#test');
   BirthdayPicker.kill(bpEl);
   let bp = new BirthdayPicker(bpEl, {
@@ -878,12 +878,12 @@ describe('_nofuturDate methods tests', () => {
     maxYear: 2030,
   });
 
-  // const orig = bp._nofuturDate;
+  // const orig = bp._noFutureDate;
   describe('try to set to a future day', () => {
     test('should result in the current date', () => {
-      const _nofutureDateSpy = jest.spyOn(bp, '_nofutureDate');
+      const _noFutureDateSpy = jest.spyOn(bp, '_noFutureDate');
       bp.setDate('2044-11-15');
-      expect(_nofutureDateSpy).toHaveBeenCalled();
+      expect(_noFutureDateSpy).toHaveBeenCalled();
       const today = new Date();
       const todayYear = today.getFullYear();
       const todayMonth = today.getMonth() + 1;
@@ -891,7 +891,7 @@ describe('_nofuturDate methods tests', () => {
       const todayString = `${todayYear}-${todayMonth}-${todayDay}`;
       expect(bp.getDate('yyyy-m-d')).toEqual(todayString);
 
-      _nofutureDateSpy.mockRestore();
+      _noFutureDateSpy.mockRestore();
     });
   });
 
@@ -900,7 +900,7 @@ describe('_nofuturDate methods tests', () => {
     let month;
     let day;
 
-    let _nofutureDateSpy;
+    let _noFutureDateSpy;
     let _setYearSpy;
     let _setMonthSpy;
     let _setDaySpy;
@@ -912,14 +912,14 @@ describe('_nofuturDate methods tests', () => {
 
       bp.setDate(year + '-' + month + '-' + day);
 
-      _nofutureDateSpy = jest.spyOn(bp, '_nofutureDate');
+      _noFutureDateSpy = jest.spyOn(bp, '_noFutureDate');
       _setYearSpy = jest.spyOn(bp, '_setYear');
       _setMonthSpy = jest.spyOn(bp, '_setMonth');
       _setDaySpy = jest.spyOn(bp, '_setDay');
     });
 
     afterEach(() => {
-      _nofutureDateSpy.mockRestore();
+      _noFutureDateSpy.mockRestore();
       _setYearSpy.mockRestore();
       _setMonthSpy.mockRestore();
       _setDaySpy.mockRestore();
@@ -929,8 +929,8 @@ describe('_nofuturDate methods tests', () => {
       test('only _setDay should be called', () => {
         expect(bp.getDate('yyyy-mm-dd')).toBe('2020-10-13');
         day = 12;
-        bp._nofutureDate(year, month, day);
-        expect(_nofutureDateSpy).lastCalledWith(year, month, day);
+        bp._noFutureDate(year, month, day);
+        expect(_noFutureDateSpy).lastCalledWith(year, month, day);
         expect(_setYearSpy).toHaveBeenCalledTimes(0);
         expect(_setMonthSpy).toHaveBeenCalledTimes(0);
         expect(_setDaySpy).toHaveBeenCalledTimes(1);
@@ -941,8 +941,8 @@ describe('_nofuturDate methods tests', () => {
     describe('change only the max month value down', () => {
       test('only _setMonth should be called', () => {
         month = 9;
-        bp._nofutureDate(year, month, day);
-        expect(_nofutureDateSpy).lastCalledWith(year, month, day);
+        bp._noFutureDate(year, month, day);
+        expect(_noFutureDateSpy).lastCalledWith(year, month, day);
         expect(_setYearSpy).toHaveBeenCalledTimes(0);
         expect(_setMonthSpy).toHaveBeenCalledTimes(1);
         expect(_setDaySpy).toHaveBeenCalledTimes(0);
@@ -953,8 +953,8 @@ describe('_nofuturDate methods tests', () => {
     describe('change only the year value', () => {
       test('only _setYear should be called', () => {
         year = 2019;
-        bp._nofutureDate(year, month, day);
-        expect(_nofutureDateSpy).lastCalledWith(year, month, day);
+        bp._noFutureDate(year, month, day);
+        expect(_noFutureDateSpy).lastCalledWith(year, month, day);
         expect(_setYearSpy).toHaveBeenCalledTimes(1);
         expect(_setMonthSpy).toHaveBeenCalledTimes(0);
         expect(_setDaySpy).toHaveBeenCalledTimes(0);
@@ -968,8 +968,8 @@ describe('_nofuturDate methods tests', () => {
         year = 2016;
         month = 8;
         day = 11;
-        bp._nofutureDate(year, month, day);
-        expect(_nofutureDateSpy).lastCalledWith(year, month, day);
+        bp._noFutureDate(year, month, day);
+        expect(_noFutureDateSpy).lastCalledWith(year, month, day);
         expect(_setYearSpy).toHaveBeenCalledTimes(1);
         expect(_setMonthSpy).toHaveBeenCalledTimes(1);
         expect(_setDaySpy).toHaveBeenCalledTimes(1);
@@ -982,8 +982,8 @@ describe('_nofuturDate methods tests', () => {
       test('_setMonth and _setDay should be called', () => {
         month = 7;
         day = 10;
-        bp._nofutureDate(year, month, day);
-        expect(_nofutureDateSpy).lastCalledWith(year, month, day);
+        bp._noFutureDate(year, month, day);
+        expect(_noFutureDateSpy).lastCalledWith(year, month, day);
         expect(_setYearSpy).toHaveBeenCalledTimes(0);
         expect(_setMonthSpy).toHaveBeenCalledTimes(1);
         expect(_setDaySpy).toHaveBeenCalledTimes(1);
