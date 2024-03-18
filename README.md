@@ -52,7 +52,7 @@ npm install birthdaypicker
 ```
 
 ```js
-import BirthdayPicker from './node_modules/birthdaypicker/index.js';
+import BirthdayPicker from 'birthdaypicker';
 const options {}; // options (see below)
 const bp = new BirthdayPicker('#my-div', options);
 ```
