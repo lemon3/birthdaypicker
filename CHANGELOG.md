@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.13
+### Added or Changed
+- bug fixing
+- performance improvements
+- **yearEl**, **monthEl**, **dayElement** can now be referenced via query-string (querySelector) or via DOM element reference
+
 ## v0.1.12
 ### Added or Changed
 - added a safari fix for parsing the date
@@ -8,7 +14,7 @@
 ### Added or Changed
 - Added option “roundDownDay” (true | false), useful when the new month has fewer days than the previously selected month and the selected day is greater than the maximum number of days - for that month.
   - true: the day will be set to the number of days for that month
-  - false: the day is set to undefind
+  - false: the day is set to undefined
 
 ## v0.1.10
 ### Added or Changed
@@ -37,7 +43,7 @@
 ## v0.1.5
 ### Added or Changed
 - readme update
-- added index.js in root for npm inport
+- added index.js in root for npm import
 
 ## v0.1.4
 ### Added or Changed

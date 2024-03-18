@@ -538,41 +538,82 @@ var BirthdayPicker = /*#__PURE__*/function () {
     key: "_create",
     value: function _create() {
       var _this = this;
+      var s = this.settings;
+
+      // bigEndian:    ymd
+      // littleEndian: dmy
+      // else:         mdy
+      if (allowedArrangement.indexOf(s.arrange) < 0) {
+        s.arrange = 'ymd';
+      }
+      var lookup = {
+        y: 'year',
+        m: 'month',
+        d: 'day'
+      };
+      s.arrange.split('').forEach(function (i) {
+        var item = lookup[i];
+        var itemEl;
+        var query = s[item + 'El'];
+        if (query && 'undefined' !== typeof query.nodeName) {
+          itemEl = query;
+        } else {
+          query = query ? query : '[' + dataName + '-' + item + ']';
+          itemEl = _this.element.querySelector(query);
+        }
+        if (!itemEl || itemEl.dataset.init) {
+          itemEl = createEl('select');
+          _this.element.append(itemEl);
+        }
+        _this['_' + item] = {
+          el: itemEl,
+          df: document.createDocumentFragment(),
+          name: item // placeholder name
+        };
+        _this._date.push(_this['_' + item]);
+        itemEl.dataset.init = true;
+        itemEl.addEventListener('change', function (evt) {
+          _this._dateChanged(evt);
+        }, false);
+      });
+      var optionEl = createEl(optionTagName, {
+        value: ''
+      });
+
       // placeholder
-      if (this.settings.placeholder) {
+      if (s.placeholder) {
         this._date.forEach(function (item) {
-          var name = BirthdayPicker.i18n[_this.settings.locale].text[item.name];
-          var option = createEl(optionTagName, {
-            value: ''
-          }, '', name);
+          var name = BirthdayPicker.i18n[s.locale].text[item.name];
+          var option = optionEl.cloneNode();
+          option.innerHTML = name;
           item.df.appendChild(option);
         });
       }
 
       // add option data to year field
       for (var i = this._yearStart; i >= this._yearEnd; i--) {
-        var el = createEl(optionTagName, {
-          value: i
-        }, '', i);
-        this._year.df.append(el);
+        var option = optionEl.cloneNode();
+        option.value = i;
+        option.innerHTML = i;
+        this._year.df.append(option);
       }
 
       // add to month
-      this.monthFormat[this.settings.monthFormat].forEach(function (text, ind) {
-        var el = createEl(optionTagName, {
-          value: ind + 1
-        }, '', _this._getMonthText(text));
-        _this._month.df.append(el);
+      this.monthFormat[s.monthFormat].forEach(function (text, ind) {
+        var option = optionEl.cloneNode();
+        option.value = ind + 1;
+        option.innerHTML = _this._getMonthText(text);
+        _this._month.df.append(option);
       });
 
       // add day
       var number;
       for (var _i = 1; _i <= 31; _i++) {
-        number = this.settings.leadingZero ? _i < 10 ? '0' + _i : _i : _i;
-        var _el = createEl(optionTagName, {
+        number = s.leadingZero ? _i < 10 ? '0' + _i : _i : _i;
+        var el = createEl(optionTagName, {
           value: _i
         }, '', number);
-        this._day.df.append(_el);
+        this._day.df.append(el);
       }
 
       // append fragments to elements
@@ -946,7 +987,6 @@ var BirthdayPicker = /*#__PURE__*/function () {
   }, {
     key: "init",
     value: function init() {
-      var _this6 = this;
       if (this.initialized) {
         return true;
       }
@@ -962,37 +1002,6 @@ var BirthdayPicker = /*#__PURE__*/function () {
       s.placeholder = isTrue(s.placeholder);
       s.leadingZero = isTrue(s.leadingZero);
       s.selectFuture = isTrue(s.selectFuture);
-
-      // bigEndian:    ymd
-      // littleEndian: dmy
-      // else:         mdy
-      var lookup = {
-        y: 'year',
-        m: 'month',
-        d: 'day'
-      };
-      if (allowedArrangement.indexOf(s.arrange) < 0) {
-        s.arrange = 'ymd';
-      }
-      s.arrange.split('').forEach(function (i) {
-        var item = lookup[i];
-        var query = s[item + 'El'] ? s[item + 'El'] : '[' + dataName + '-' + item + ']';
-        var itemEl = _this6.element.querySelector(query);
-        if (!itemEl || itemEl.dataset.init) {
-          itemEl = createEl('select');
-          _this6.element.append(itemEl);
-        }
-        _this6['_' + item] = {
-          el: itemEl,
-          df: document.createDocumentFragment(),
-          name: item // placeholder name
-        };
-        _this6._date.push(_this6['_' + item]);
-        itemEl.dataset.init = true;
-        itemEl.addEventListener('change', function (evt) {
-          _this6._dateChanged(evt);
-        }, false);
-      });
       if ('now' === s.maxYear) {
         this._yearStart = todayYear;
       } else {

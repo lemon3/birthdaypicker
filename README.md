@@ -282,6 +282,7 @@ options = {
   // specify a custom select-box for the year
   // must be inside the main element
   // all valid query-strings allowed
+  // available: null, valid query-strings (querySelector), or html reference
   // default: null
   // example: '#my-year-select'
   yearEl: null,
@@ -289,6 +290,7 @@ options = {
   // specify a custom select-box for the month
   // must be inside the main element
   // all valid query-strings allowed
+  // available: null, valid query-strings (querySelector), or html reference
   // default: null
   // example: '#my-month-select'
   monthEl: null,
@@ -296,6 +298,7 @@ options = {
   // specify a custom select-box for the day
   // must be inside the main element
   // all valid query-strings allowed
+  // available: null, valid query-strings (querySelector), or html reference
   // default: null
   // example: '#my-day-select'
   dayEl: null,
@@ -383,7 +386,6 @@ const available = [
 
 // e.g.:
 myPicker.addEventListener('datechange', (evt) => {
-
 });
 
 ```

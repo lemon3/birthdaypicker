@@ -222,7 +222,7 @@ class BirthdayPicker {
   _parseDate(dateString) {
     if ('object' !== typeof dateString) {
       // safari fix '2004-2-29' -> '2004/2/29'
-      dateString = dateString.replaceAll('-','/');
+      dateString = dateString.replaceAll('-', '/');
     }
     // unix timestamp
     const parse = Date.parse(dateString);
@@ -259,36 +259,79 @@ class BirthdayPicker {
    * @return {void}
    */
   _create() {
+    const s = this.settings;
+
+    // bigEndian:    ymd
+    // littleEndian: dmy
+    // else:         mdy
+    if (allowedArrangement.indexOf(s.arrange) < 0) {
+      s.arrange = 'ymd';
+    }
+
+    const lookup = { y: 'year', m: 'month', d: 'day' };
+    s.arrange.split('').forEach((i) => {
+      const item = lookup[i];
+      let itemEl;
+      let query = s[item + 'El'];
+      if (query && 'undefined' !== typeof query.nodeName) {
+        itemEl = query;
+      } else {
+        query = query ? query : '[' + dataName + '-' + item + ']';
+        itemEl = this.element.querySelector(query);
+      }
+      if (!itemEl || itemEl.dataset.init) {
+        itemEl = createEl('select');
+        this.element.append(itemEl);
+      }
+      this['_' + item] = {
+        el: itemEl,
+        df: document.createDocumentFragment(),
+        name: item, // placeholder name
+      };
+      this._date.push(this['_' + item]);
+
+      itemEl.dataset.init = true;
+      itemEl.addEventListener(
+        'change',
+        (evt) => {
+          this._dateChanged(evt);
+        },
+        false
+      );
+    });
+
+    const optionEl = createEl(optionTagName, { value: '' });
+
     // placeholder
-    if (this.settings.placeholder) {
+    if (s.placeholder) {
       this._date.forEach((item) => {
-        let name = BirthdayPicker.i18n[this.settings.locale].text[item.name];
-        const option = createEl(optionTagName, { value: '' }, '', name);
+        const name = BirthdayPicker.i18n[s.locale].text[item.name];
+        const option = optionEl.cloneNode();
+        option.innerHTML = name;
         item.df.appendChild(option);
       });
     }
 
     // add option data to year field
     for (let i = this._yearStart; i >= this._yearEnd; i--) {
-      const el = createEl(optionTagName, { value: i }, '', i);
-      this._year.df.append(el);
+      const option = optionEl.cloneNode();
+      option.value = i;
+      option.innerHTML = i;
+      this._year.df.append(option);
     }
 
     // add to month
-    this.monthFormat[this.settings.monthFormat].forEach((text, ind) => {
-      const el = createEl(
-        optionTagName,
-        { value: ind + 1 },
-        '',
-        this._getMonthText(text)
-      );
-      this._month.df.append(el);
+    this.monthFormat[s.monthFormat].forEach((text, ind) => {
+      const option = optionEl.cloneNode();
+      option.value = ind + 1;
+      option.innerHTML = this._getMonthText(text);
+      this._month.df.append(option);
     });
 
     // add day
     let number;
     for (let i = 1; i <= 31; i++) {
-      number = this.settings.leadingZero ? (i < 10 ? '0' + i : i) : i;
+      number = s.leadingZero ? (i < 10 ? '0' + i : i) : i;
       const el = createEl(optionTagName, { value: i }, '', number);
       this._day.df.append(el);
     }
@@ -661,41 +704,6 @@ class BirthdayPicker {
     s.leadingZero = isTrue(s.leadingZero);
     s.selectFuture = isTrue(s.selectFuture);
 
-    // bigEndian:    ymd
-    // littleEndian: dmy
-    // else:         mdy
-    const lookup = { y: 'year', m: 'month', d: 'day' };
-    if (allowedArrangement.indexOf(s.arrange) < 0) {
-      s.arrange = 'ymd';
-    }
-
-    s.arrange.split('').forEach((i) => {
-      const item = lookup[i];
-      const query = s[item + 'El']
-        ? s[item + 'El']
-        : '[' + dataName + '-' + item + ']';
-      let itemEl = this.element.querySelector(query);
-      if (!itemEl || itemEl.dataset.init) {
-        itemEl = createEl('select');
-        this.element.append(itemEl);
-      }
-      this['_' + item] = {
-        el: itemEl,
-        df: document.createDocumentFragment(),
-        name: item, // placeholder name
-      };
-      this._date.push(this['_' + item]);
-
-      itemEl.dataset.init = true;
-      itemEl.addEventListener(
-        'change',
-        (evt) => {
-          this._dateChanged(evt);
-        },
-        false
-      );
-    });
-
     if ('now' === s.maxYear) {
       this._yearStart = todayYear;
     } else {
@@ -713,6 +721,7 @@ class BirthdayPicker {
     this.monthFormat = BirthdayPicker.i18n[s.locale].month;
 
     this._create();
+
     this._triggerEvent(allowedEvents[0]);
 
     // set default start value
