@@ -42,6 +42,22 @@
   </ol>
 </details>
 
+## TL;DR
+```Bash
+npm install birthdaypicker
+```
+
+```html
+<div id="my-div"></div>
+```
+
+```js
+import BirthdayPicker from './node_modules/birthdaypicker/index.js';
+const options {}; // options (see below)
+const bp = new BirthdayPicker('#my-div', options);
+```
+
+
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
@@ -49,7 +65,7 @@ I needed a birthday input field that is easy to use and without JS dependencies.
 
 ### Features
 * Coded in vanilla JS.
-* internationalisation (i18n)
+* Internationalization (i18n)
 * BirthdayPicker is dependency-free ;)
 
 **[BirthdayPicker Demo >>](https://lemon3.github.io/birthdaypicker/)**
@@ -60,7 +76,7 @@ I needed a birthday input field that is easy to use and without JS dependencies.
 ## Usage
 ### First Steps
 #### classic js approach
-if you use the classic js approach by loading scripts in html code, just dowload and integrate the **birthdaypicker.min.js** script in your code:
+if you use the classic js approach by loading scripts in html code, just download and integrate the **birthdaypicker.min.js** script in your code:
 ```html
 <div id="my-div"></div>
 <script src="path/to/birthdaypicker.min.js"></script>
@@ -71,7 +87,7 @@ if you use the classic js approach by loading scripts in html code, just dowload
 ```
 #### module js approach
 use npm / yarn to install the package
-```sh
+```Bash
 npm install birthdaypicker
 # or
 yarn add birthdaypicker
@@ -144,7 +160,7 @@ This scenario (select-boxes in DOM) works best with [tailwindcss](https://tailwi
   <select data-birthdaypicker-day></select>
 </div>
 ```
-... or use with specified selctors (these selctors take precedence over the data attribute values like **data-birthdaypicker-year**)
+... or use with specified selectors (these selectors take precedence over the data attribute values like **data-birthdaypicker-year**)
 #### html:
 ```html
 <div data-birthdaypicker="{
@@ -180,7 +196,6 @@ This scenario (select-boxes in DOM) works best with [tailwindcss](https://tailwi
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## API
-note: the API may change ...
 ### initialize
 ```js
 // element: a dom reference to one element, or a querySelector string
@@ -190,7 +205,7 @@ const options = {};
 const myBirthdayPicker = new BirthdayPicker(element, options);
 ```
 
-### option API
+### API / option API
 ```js
 options = {
   // sets the minimal age for a person, animal,...
@@ -236,7 +251,7 @@ options = {
   // if set to false, you have to call myBp.init() afterwards.
   // available: true | false
   // default: true
-  autoinit: true,
+  autoInit: true,
 
   // if the month and day values in the select-box should have a leading
   // zero or not. If set to true, you will get: 01, 02, 03, ... 10, 11, ...
@@ -284,20 +299,29 @@ options = {
   // default: null
   // example: '#my-day-select'
   dayEl: null,
+
+  // sets days to highest possible value, if the month (or in special cases
+  // the year) is changed and the current selected day-value is higher than
+  // the possible value for the new month (year).
+  // true: rounds down
+  // false: returns undefined for the day (so nothing is selected)
+  // available: true | false
+  // default: true
+  roundDownDay: true
 };
 ```
-### methods
+### API / methods
 ```js
 const element = '#my-div';
 const options = {
-  autoinit: false
+  autoInit: false
 };
 const myBirthdayPicker = new BirthdayPicker(element, options);
 
 // init: initializes the picker
 myBirthdayPicker.init();
 
-// getDate returns the current selected date with the language default date-formating!
+// getDate returns the current selected date with the language default date-formatting!
 // you can change the format, by calling the method with a specific data-format value.
 // e.g.: 'yyyy-m-d'
 // if date is 2. Sep. 1994
@@ -318,7 +342,7 @@ myBirthdayPicker.isLeapYear(2020); // true
 const myEventListener = () => {};
 myBirthdayPicker.addEventListener('datechange', myEventListener, false);
 
-// remove the eventlistener
+// remove the event listener
 myBirthdayPicker.removeEventListener('datechange', myEventListener);
 
 // set the date to a given value
@@ -341,6 +365,29 @@ myBirthdayPicker.useLeadingZero(true); // true | false
 myBirthdayPicker.kill();
 ```
 
+### API / event-listeners
+```js
+const element = '#my-element';
+const options = {};
+const myPicker = new BirthdayPicker(element, options);
+
+// available event listeners
+const available = [
+  'init',        // triggered after init
+  'kill',        // triggered when the kill was called
+  'daychange',   // triggered when the day value was changed
+  'monthchange', // triggered when the month value was changed
+  'yearchange',  // triggered when the year value was changed
+  'datechange',  // triggered when day, month or year value was changed
+]
+
+// e.g.:
+myPicker.addEventListener('datechange', (evt) => {
+
+});
+
+```
+
 ### Demo
 A **small demo** of this tool can be view here: [BirthdayPicker Demo](https://lemon3.github.io/birthdaypicker/)
 
@@ -357,45 +404,45 @@ skip to installation if you already have this ;)
 1. Install node
     via brew (or [download here](https://nodejs.org/en/download/))
     this will install npm too.
-    ```sh
+    ```Bash
     brew install node
     ```
 
 2. Install yarn:
     via npm:
-    ```sh
+    ```Bash
     npm install --global yarn
     ```
     test version, to see if it works:
-    ```sh
+    ```Bash
     yarn --version
     ```
 ### Installation
 how to install
 
 1. Clone the repo
-   ```sh
+   ```Bash
    git clone https://github.com/lemon3/birthdaypicker.git
    ```
 2. cd into the cloned repo
-    ```sh
+    ```Bash
     cd birthdaypicker
     ```
 3. Install NPM packages
-    ```sh
+    ```Bash
     yarn install
     # or
     npm install
     ```
 4. start
     (opens a dev server at port 8080, with root set to **./examples** directory)
-    ```sh
+    ```Bash
     yarn run start
     # or
     npm run start
     ```
 To see all available scripts, open the **package.json** file or run either
-```sh
+```Bash
 yarn run
 # or
 npm run
