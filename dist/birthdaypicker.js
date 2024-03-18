@@ -325,10 +325,10 @@ var BirthdayPicker = /*#__PURE__*/function () {
     }
 
     // todo: use dataStorage.has(element) ?
-    if (element.dataset.bdpinit) {
+    if (element.dataset.bdpInit) {
       return BirthdayPicker.getInstance(element);
     }
-    element.dataset.bdpinit = true;
+    element.dataset.bdpInit = true;
     instances.push(this);
     dataStorage.put(element, 'instance', this);
 
@@ -350,12 +350,12 @@ var BirthdayPicker = /*#__PURE__*/function () {
    */
   _createClass(BirthdayPicker, [{
     key: "_getIdx",
-    value: function _getIdx(nodelist, value) {
-      if (!nodelist) {
+    value: function _getIdx(nodeList, value) {
+      if (!nodeList) {
         return [undefined, undefined];
       }
-      for (var i = 0; i < nodelist.length; i++) {
-        var el = nodelist[i];
+      for (var i = 0; i < nodeList.length; i++) {
+        var el = nodeList[i];
         if (+el.value === +value) {
           return [i, +el.value];
         }
@@ -1110,8 +1110,8 @@ BirthdayPicker.kill = function (instance) {
   // todo: reset all to default!
   instance.kill();
   var el = instance.element;
-  el.dataset.bdpinit = false;
-  delete el.dataset.bdpinit;
+  el.dataset.bdpInit = false;
+  delete el.dataset.bdpInit;
   dataStorage.remove(el, 'instance');
 };
 BirthdayPicker.defaults = {
@@ -1144,7 +1144,7 @@ BirthdayPicker.init = function () {
     return !1;
   }
   element.forEach(function (el) {
-    if (el.dataset.bdpinit) {
+    if (el.dataset.bdpInit) {
       return BirthdayPicker.getInstance(el);
     }
     var data = getJSONData(el, pluginName);
