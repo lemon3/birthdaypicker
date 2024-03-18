@@ -75,7 +75,7 @@ describe('BirthdayPicker init stage', () => {
     // is object
     expect(bp2).toBeTruthy();
     // element set to initialized
-    let initValue = 'bdpinit';
+    let initValue = 'bdpInit';
     expect(Boolean(elementExists.dataset[initValue])).toBe(true);
   });
 
@@ -774,7 +774,7 @@ describe('test the getDate function', () => {
     bp.setDate('2019-04-17');
     expect(bp.getDate('d. m. yyyy')).toBe('17. 4. 2019');
     expect(bp.getDate('mm / dd / yyyy')).toBe('04 / 17 / 2019');
-    expect(bp.getDate('dmyy')).toBe('17419');
+    expect(bp.getDate('d.m.yy')).toBe('17.4.19');
     expect(bp.getDate('d.m. yy')).toBe('17.4. 19');
   });
 });
@@ -832,10 +832,10 @@ describe('private methods tests', () => {
     leadingZero: false,
   });
 
-  test('_getIdx - nodelist not set', () => {
+  test('_getIdx - nodeList not set', () => {
     // value not found
     expect(bp._getIdx()).toEqual([undefined, undefined]);
-    expect(bp._getIdx('fakenodelist')).toEqual([
+    expect(bp._getIdx('fakeNodeList')).toEqual([
       undefined,
       undefined,
     ]);
@@ -843,7 +843,7 @@ describe('private methods tests', () => {
     expect(bp._getIdx(undefined)).toEqual([undefined, undefined]);
   });
 
-  test('_getIdx - nodelist set, no value', () => {
+  test('_getIdx - nodeList set, no value', () => {
     // value not found
     const monthNodeList = bp._month.el.childNodes;
     expect(bp._getIdx(monthNodeList)).toEqual([
@@ -852,7 +852,7 @@ describe('private methods tests', () => {
     ]);
   });
 
-  test('_getIdx - nodelist set, value not found', () => {
+  test('_getIdx - nodeList set, value not found', () => {
     // value not found
     const monthNodeList = bp._month.el.childNodes;
     expect(bp._getIdx(monthNodeList, 12)).toEqual([12, 12]);
@@ -1202,7 +1202,7 @@ describe('_updateDays methods tests', () => {
     expect(_updateDaysSpy).toHaveBeenCalledTimes(0);
     expect(_setDaySpy).toHaveBeenCalledWith(14, false);
 
-    // const numerChildNodesInDays = bp._day.el.childNodes.length - (placeholder ? 1 : 0);
+    // const numberChildNodesInDays = bp._day.el.childNodes.length - (placeholder ? 1 : 0);
     const numberOfDays = bp._daysPerMonth[1];
 
     const _dayChangedSpy = jest.spyOn(bp, '_dayWasChanged');
@@ -1212,7 +1212,7 @@ describe('_updateDays methods tests', () => {
     bp.setDate('1999-06-14');
 
     const numberOfDaysNew = bp._daysPerMonth[11];
-    // check length of option nodelist
+    // check length of option nodeList
     const numberChildNodesInDaysNew =
       bp._day.el.childNodes.length - (placeholder ? 1 : 0);
 
