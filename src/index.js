@@ -403,8 +403,6 @@ class BirthdayPicker {
     trigger(this.element, eventName, ce);
   }
 
-  // only needed if set via
-  // _setYear, _setMonth, _setDay ????
   _noFutureDate(year, month, day) {
     // console.log('_noFutureDate');
     // set all to false (again)
@@ -470,9 +468,9 @@ class BirthdayPicker {
     }
     // }
 
-    // if (!this.settings.selectFuture) {
-    //   this._noFutureDate(todayYear, todayMonth, todayDay);
-    // }
+    if (!this.settings.selectFuture) {
+      this._noFutureDate(todayYear, todayMonth, todayDay);
+    }
 
     this._triggerEvent(allowedEvents[1]);
   }

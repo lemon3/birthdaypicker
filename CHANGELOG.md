@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.14
+### Added or Changed
+- small bug fixed (enable/disable select-box options)
+
 ## v0.1.13
 ### Added or Changed
 - bug fixing

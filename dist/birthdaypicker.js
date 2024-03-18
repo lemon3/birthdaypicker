@@ -688,9 +688,6 @@ var BirthdayPicker = /*#__PURE__*/function () {
       // for inline events
       trigger(this.element, eventName, ce);
     }
-
-    // only needed if set via
-    // _setYear, _setMonth, _setDay ????
   }, {
     key: "_noFutureDate",
     value: function _noFutureDate(year, month, day) {
@@ -760,10 +757,9 @@ var BirthdayPicker = /*#__PURE__*/function () {
       }
       // }
 
-      // if (!this.settings.selectFuture) {
-      //   this._noFutureDate(todayYear, todayMonth, todayDay);
-      // }
-
+      if (!this.settings.selectFuture) {
+        this._noFutureDate(todayYear, todayMonth, todayDay);
+      }
       this._triggerEvent(allowedEvents[1]);
     }
 

@@ -1,6 +1,6 @@
 {
   "name": "birthdaypicker",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "i18n birthday picker",
   "browser": "dist/birthdaypicker.esm.min.js",
   "author": "wolfgang jungmayer",
