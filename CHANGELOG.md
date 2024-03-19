@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.15
+### Added or Changed
+- added getDateString() method
+- update getDate() method: it now returns a Date object (new Date());
+- test updates
+
 ## v0.1.14
 ### Added or Changed
 - small bug fixed (enable/disable select-box options)

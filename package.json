@@ -1,12 +1,13 @@
 {
   "name": "birthdaypicker",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "i18n birthday picker",
   "browser": "dist/birthdaypicker.esm.min.js",
   "author": "wolfgang jungmayer",
   "license": "MIT",
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack serve --config config/webpack.dev.js",
+    "prebuild": "rimraf dist",
     "build": "cross-env NODE_ENV=production webpack --config config/webpack.prod.js",
     "lint": "eslint 'src/**/*.js' || true",
     "prettify": "prettier --write 'src/**/*.js'",
@@ -53,5 +54,8 @@
     "webpack-cli": "^5.0.1",
     "webpack-dev-server": "^5.0.1",
     "webpack-merge": "^5.8.0"
+  },
+  "dependencies": {
+    "rimraf": "^5.0.5"
   }
 }

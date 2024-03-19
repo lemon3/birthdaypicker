@@ -407,19 +407,19 @@ describe('date setting tests', () => {
   describe('set date via setDate()', () => {
     test('should work correctly', () => {
       bp.setDate(newDate);
-      date1 = bp.getDate('yyyy-mm-dd');
+      date1 = bp.getDateString('yyyy-mm-dd');
       expect(date1).toEqual(newDate);
     });
 
     test('new date out of date range should return ""', () => {
       bp.setDate('1823-10-12');
-      const result = bp.getDate('yyyy-mm-dd');
+      const result = bp.getDateString('yyyy-mm-dd');
       expect(result).toEqual('');
     });
 
     test('new date out of date range should return ""', () => {
       bp.setDate('2075-05-06');
-      const result = bp.getDate('yyyy-mm-dd');
+      const result = bp.getDateString('yyyy-mm-dd');
       const today = new Date();
       const todayYear = today.getFullYear();
       const todayMonth = ('0' + (today.getMonth() + 1)).slice(-2);
@@ -441,7 +441,7 @@ describe('date setting tests', () => {
         el.selectedIndex = idx;
         el.dispatchEvent(new Event('change'));
       });
-      date2 = bp.getDate('yyyy-mm-dd');
+      date2 = bp.getDateString('yyyy-mm-dd');
 
       expect(date1).toEqual(date2);
     });
@@ -483,7 +483,7 @@ describe('setDate tests', () => {
       // if set to an undefined day, eg. 2000-2-31
       // it should update to the next correct day -> feb 2000 has only 29 day
       // so there is no 31 -> 2 days forward results in -> 2. Mar. 2000
-      expect(bp.getDate('yyyy-m-d')).toEqual('2000-3-2');
+      expect(bp.getDateString('yyyy-m-d')).toEqual('2000-3-2');
       expect(bp.currentYear).toBe(2000);
       expect(bp.currentMonth).toBe(3);
       expect(bp.currentDay).toBe(2);
@@ -534,7 +534,7 @@ describe('setDate tests', () => {
       expect(yearChangedSpy).toHaveBeenCalledTimes(1);
       expect(monthChangedSpy).toHaveBeenCalledTimes(1);
       expect(dayChangedSpy).toHaveBeenCalledTimes(1);
-      expect(bp.getDate('yyyy-mm-dd')).toBe('2005-03-01');
+      expect(bp.getDateString('yyyy-mm-dd')).toBe('2005-03-01');
     });
   });
 
@@ -743,6 +743,41 @@ describe('test the setLanguage function', () => {
   });
 });
 
+
+describe('test the getDateString function', () => {
+  const bpEl = document.createElement('div');
+  let bp = new BirthdayPicker(bpEl, {
+    monthFormat: 'numeric',
+    locale: 'en',
+    leadingZero: false,
+  });
+
+  test('getDateString() with value, current-date not set yet!', () => {
+    let date = bp.getDateString('YYYY.MM.DD');
+    expect(date).toBe('');
+  });
+
+  test('getDateString() with value, date is set!', () => {
+    bp.setDate('2019-04-17');
+    expect(bp.getDateString('d. m. yyyy')).toBe('17. 4. 2019');
+    expect(bp.getDateString('mm / dd / yyyy')).toBe('04 / 17 / 2019');
+    expect(bp.getDateString('d.m.yy')).toBe('17.4.19');
+    expect(bp.getDateString('d.m. yy')).toBe('17.4. 19');
+  });
+
+  test('getDateString() test formatting string', () => {
+    bp.setDate('1994-11-02');
+    expect(bp.getDateString()).toBe('11/2/1994');
+    expect(bp.getDateString('')).toBe('11/2/1994');
+    expect(bp.getDateString('yyyy')).toBe('1994');
+    expect(bp.getDateString('yy')).toBe('94');
+    expect(bp.getDateString('mm')).toBe('11');
+    expect(bp.getDateString('m')).toBe('11');
+    expect(bp.getDateString('dd')).toBe('02');
+    expect(bp.getDateString('d')).toBe('2');
+  });
+});
+
 describe('test the getDate function', () => {
   const bpEl = document.createElement('div');
   let bp = new BirthdayPicker(bpEl, {
@@ -756,26 +791,15 @@ describe('test the getDate function', () => {
     expect(date).toBe('');
   });
 
-  test('getDate() with value, current-date not set yet!', () => {
-    let date = bp.getDate('YYYY.MM.DD');
-    expect(date).toBe('');
-  });
-
   test('getDate() without value, date is set!', () => {
     bp.setDate('2020-2-2');
-    let date = bp.getDate();
-    bp.setLanguage('en');
+    const date = bp.getDate();
+    const locale = 'en';
+    const dateString1 = date.toLocaleDateString(locale);
+    const dateString2 = bp.getDateString();
     // 2/2/2020 is the default english formatting (en)
-    expect(date).toBeTruthy();
-    expect(date).toBe('2/2/2020');
-  });
-
-  test('getDate() with value, date is set!', () => {
-    bp.setDate('2019-04-17');
-    expect(bp.getDate('d. m. yyyy')).toBe('17. 4. 2019');
-    expect(bp.getDate('mm / dd / yyyy')).toBe('04 / 17 / 2019');
-    expect(bp.getDate('d.m.yy')).toBe('17.4.19');
-    expect(bp.getDate('d.m. yy')).toBe('17.4. 19');
+    expect(dateString1).toBe('2/2/2020');
+    expect(dateString2).toBe('2/2/2020');
   });
 });
 
@@ -889,7 +913,7 @@ describe('_noFutureDate methods tests', () => {
       const todayMonth = today.getMonth() + 1;
       const todayDay = today.getDate();
       const todayString = `${todayYear}-${todayMonth}-${todayDay}`;
-      expect(bp.getDate('yyyy-m-d')).toEqual(todayString);
+      expect(bp.getDateString('yyyy-m-d')).toEqual(todayString);
 
       _noFutureDateSpy.mockRestore();
     });
@@ -927,14 +951,14 @@ describe('_noFutureDate methods tests', () => {
 
     describe('change only the max day value down', () => {
       test('only _setDay should be called', () => {
-        expect(bp.getDate('yyyy-mm-dd')).toBe('2020-10-13');
+        expect(bp.getDateString('yyyy-mm-dd')).toBe('2020-10-13');
         day = 12;
         bp._noFutureDate(year, month, day);
         expect(_noFutureDateSpy).lastCalledWith(year, month, day);
         expect(_setYearSpy).toHaveBeenCalledTimes(0);
         expect(_setMonthSpy).toHaveBeenCalledTimes(0);
         expect(_setDaySpy).toHaveBeenCalledTimes(1);
-        expect(bp.getDate('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
+        expect(bp.getDateString('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
       });
     });
 
@@ -946,7 +970,7 @@ describe('_noFutureDate methods tests', () => {
         expect(_setYearSpy).toHaveBeenCalledTimes(0);
         expect(_setMonthSpy).toHaveBeenCalledTimes(1);
         expect(_setDaySpy).toHaveBeenCalledTimes(0);
-        expect(bp.getDate('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
+        expect(bp.getDateString('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
       });
     });
 
@@ -958,7 +982,7 @@ describe('_noFutureDate methods tests', () => {
         expect(_setYearSpy).toHaveBeenCalledTimes(1);
         expect(_setMonthSpy).toHaveBeenCalledTimes(0);
         expect(_setDaySpy).toHaveBeenCalledTimes(0);
-        expect(bp.getDate('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
+        expect(bp.getDateString('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
       });
     });
 
@@ -973,7 +997,7 @@ describe('_noFutureDate methods tests', () => {
         expect(_setYearSpy).toHaveBeenCalledTimes(1);
         expect(_setMonthSpy).toHaveBeenCalledTimes(1);
         expect(_setDaySpy).toHaveBeenCalledTimes(1);
-        expect(bp.getDate('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
+        expect(bp.getDateString('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
       });
     });
 
@@ -987,7 +1011,7 @@ describe('_noFutureDate methods tests', () => {
         expect(_setYearSpy).toHaveBeenCalledTimes(0);
         expect(_setMonthSpy).toHaveBeenCalledTimes(1);
         expect(_setDaySpy).toHaveBeenCalledTimes(1);
-        expect(bp.getDate('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
+        expect(bp.getDateString('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
       });
     });
   });
@@ -1071,7 +1095,7 @@ describe('_updateDays methods tests', () => {
     expect(_setDateSpy).toHaveBeenCalledWith({ year: 2010, month: 2, day: 10 });
     expect(_setDaySpy).toHaveBeenCalledWith(10, false);
     expect(_updateDaysSpy).toHaveBeenCalledTimes(0);
-    expect(bp.getDate('yyyy-m-d')).toEqual('2010-2-10');
+    expect(bp.getDateString('yyyy-m-d')).toEqual('2010-2-10');
 
     // change month
     bp.setDate('2010-12-10');
@@ -1182,7 +1206,7 @@ describe('_updateDays methods tests', () => {
 
     // only day changed
     bp.setDate('1999-02-16');
-    expect(bp.getDate('yyyy-mm')).toBe('1999-02');
+    expect(bp.getDateString('yyyy-mm')).toBe('1999-02');
     expect(_dayChangedSpy).toHaveBeenCalledTimes(1);
 
     // no need to update days

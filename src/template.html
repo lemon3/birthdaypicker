@@ -89,7 +89,6 @@
 
             const a = this.birthdays.filter(b => 'now' === b.val)[0];
             a.val = this.getNow();
-            console.log(this.birthdays);
 
             this.date = this.birthdays[0].val;
             $watch('locale', () => {
@@ -162,8 +161,8 @@
           datechange(evt) {
             const i = evt.detail.instance;
             // let tmp = [i.currentYear,('00'+i.currentMonth).slice(-2),('00'+i.currentDay).slice(-2)].join('-');
-            this.date = i.getDate('yyyy-mm-dd');
-            this.result = i.getDate(this.currentOutputFormat.val);
+            this.date = i.getDateString('yyyy-mm-dd');
+            this.result = i.getDateString(this.currentOutputFormat.val);
           },
         }"
         :class="initialized ? 'display-block' : 'hidden'"

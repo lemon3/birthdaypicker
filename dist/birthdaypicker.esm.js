@@ -27,6 +27,26 @@ __webpack_require__.d(__webpack_exports__, {
   A: function() { return /* binding */ src; }
 });
 
+;// CONCATENATED MODULE: ./src/defaults.js
+var defaults = {
+  minYear: null,
+  // overrides the value set by maxAge
+  maxYear: 'now',
+  minAge: 0,
+  maxAge: 100,
+  monthFormat: 'short',
+  placeholder: true,
+  defaultDate: null,
+  autoInit: true,
+  leadingZero: true,
+  locale: 'en',
+  selectFuture: false,
+  arrange: 'ymd',
+  yearEl: null,
+  monthEl: null,
+  dayEl: null,
+  roundDownDay: true
+};
 ;// CONCATENATED MODULE: ./src/helper.js
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -38,7 +58,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
 /**
  * add properties and style attributes to a given HTML object
  * @param  {object} el - The HTML object to add properties and styles too.
- * @param  {object} properties - An object with vaild HTML properties
+ * @param  {object} properties - An object with valid HTML properties
  * @param  {object} style - An object with valid CSS styles
  * @return {object} HTML object with the applied properties and styles
  */
@@ -91,7 +111,7 @@ var docReady = function docReady(cb) {
 };
 
 /**
- * Helper funtion to get all dataset values for a given name
+ * Helper function to get all dataset values for a given name
  *
  * @param  {Object} el The dom element, e.g. a selected div-element
  * @param  {String} name The name to look for
@@ -166,7 +186,7 @@ var isLeapYear2 = function isLeapYear2(year) {
 };
 
 /**
- * Genereate the Month numbers 1 to 12
+ * Generate the Month numbers 1 to 12
  *
  * @param {Boolean} useLeadingZero If the output should contain a leading '0' for numbers less than 10 or not
  * @return {Array} The array containing the numbers as a String
@@ -266,6 +286,7 @@ function _toPrimitive(t, r) { if ("object" != src_typeof(t) || !t) return t; var
  * www.lemon3.at
  */
 
+
 var instances = [];
 var pluginName = 'birthdaypicker';
 var dataName = 'data-' + pluginName;
@@ -273,10 +294,30 @@ var monthFormats = ['short', 'long', 'numeric'];
 var allowedArrangement = ['ymd', 'ydm', 'myd', 'mdy', 'dmy', 'dym'];
 var allowedEvents = ['init', 'datechange', 'daychange', 'monthchange', 'yearchange', 'kill'];
 var optionTagName = 'option';
-var today = new Date();
-var todayYear = today.getFullYear();
-var todayMonth = today.getMonth() + 1;
-var todayDay = today.getDate();
+
+// BirthdayPickerLocale
+var locale = {
+  en: {
+    text: {
+      year: 'Year',
+      month: 'Month',
+      day: 'Day'
+    }
+  },
+  de: {
+    text: {
+      year: 'Jahr',
+      month: 'Monat',
+      day: 'Tag'
+    }
+  }
+};
+var currentDate = new Date();
+var now = {
+  y: currentDate.getFullYear(),
+  m: currentDate.getMonth() + 1,
+  d: currentDate.getDate()
+};
 var initialized = false;
 function trigger(elem, name, data) {
   var funData = elem.getAttribute('on' + name);
@@ -438,15 +479,15 @@ var BirthdayPicker = /*#__PURE__*/function () {
       if (year < this._yearEnd) {
         year = month = day = undefined;
       } else if (year > this._yearStart) {
-        year = todayYear;
-        month = todayMonth;
-        day = todayDay;
+        year = now.y;
+        month = now.m;
+        day = now.d;
       } else if (year === this._yearStart) {
-        if (month > todayMonth) {
-          month = todayMonth;
-          day = todayDay;
-        } else if (month === todayMonth && day > todayDay) {
-          day = todayDay;
+        if (month > now.m) {
+          month = now.m;
+          day = now.d;
+        } else if (month === now.m && day > now.d) {
+          day = now.d;
         }
       }
       return {
@@ -473,7 +514,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       var _dChanged = this._setDay(day, false);
       if (_yChanged || _mChanged || _dChanged) {
         if (!this.settings.selectFuture) {
-          this._noFutureDate(todayYear, todayMonth, todayDay);
+          this._noFutureDate(now.y, now.m, now.d);
         }
         this._triggerEvent(allowedEvents[1]);
       }
@@ -746,7 +787,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       // }
 
       if (!this.settings.selectFuture) {
-        this._noFutureDate(todayYear, todayMonth, todayDay);
+        this._noFutureDate(now.y, now.m, now.d);
       }
       this._triggerEvent(allowedEvents[1]);
     }
@@ -939,15 +980,14 @@ var BirthdayPicker = /*#__PURE__*/function () {
       return undefined === year ? undefined : helper_isLeapYear(year);
     }
   }, {
-    key: "getDate",
-    value: function getDate(format) {
+    key: "getDateString",
+    value: function getDateString(format) {
+      if (!format) {
+        var string = this.getDate();
+        return !string ? string : string.toLocaleDateString(this.settings.locale);
+      }
       if (!this.currentYear || !this.currentMonth || !this.currentDay) {
         return '';
-      }
-      // use the language default
-      if (!format) {
-        var tmp = new Date(Date.UTC(this.currentYear, +this.currentMonth - 1, this.currentDay));
-        return tmp.toLocaleDateString(this.settings.locale);
       }
 
       // eg. 'YYYY-MM-DD'
@@ -959,6 +999,15 @@ var BirthdayPicker = /*#__PURE__*/function () {
       result = result.replace(/dd/g, ('0' + this.currentDay).slice(-2));
       result = result.replace(/d/g, this.currentDay);
       return result;
+    }
+  }, {
+    key: "getDate",
+    value: function getDate() {
+      if (!this.currentYear || !this.currentMonth || !this.currentDay) {
+        return '';
+      }
+      var tmp = new Date(Date.UTC(this.currentYear, +this.currentMonth - 1, this.currentDay));
+      return tmp;
     }
 
     /**
@@ -987,7 +1036,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       s.leadingZero = isTrue(s.leadingZero);
       s.selectFuture = isTrue(s.selectFuture);
       if ('now' === s.maxYear) {
-        this._yearStart = todayYear;
+        this._yearStart = now.y;
       } else {
         this._yearStart = s.maxYear;
       }
@@ -1012,23 +1061,8 @@ var BirthdayPicker = /*#__PURE__*/function () {
 }();
 BirthdayPicker.i18n = {};
 BirthdayPicker.currentLocale = 'en';
-
-// BirthdayPickerLocale
-var locale = {
-  en: {
-    text: {
-      year: 'Year',
-      month: 'Month',
-      day: 'Day'
-    }
-  },
-  de: {
-    text: {
-      year: 'Jahr',
-      month: 'Monat',
-      day: 'Tag'
-    }
-  }
+BirthdayPicker.getInstance = function (el) {
+  return dataStorage.get(el, 'instance');
 };
 BirthdayPicker.createLocale = function (lang) {
   if (BirthdayPicker.i18n[lang]) {
@@ -1077,27 +1111,41 @@ BirthdayPicker.setLanguage = function (lang) {
     bp.setLanguage(lang);
   });
 };
-BirthdayPicker.getInstance = function (el) {
-  return dataStorage.get(el, 'instance');
-};
+
+/**
+ * Kill all events on all registered instances
+ * @returns {Boolean} false if no instance was found, or true if events where removed
+ */
 BirthdayPicker.killAll = function () {
   if (!instances) {
-    return;
+    return false;
   }
   instances.forEach(function (instance) {
     BirthdayPicker.kill(instance);
   });
+  return true;
 };
+
+/**
+ * Kill all events on all registered instances
+ * @returns {Boolean} false if no instance was found, or true if events where removed
+ */
+
+/**
+ *
+ * @param {*} instance either an registered html object or an instance of the BirthdayPicker class
+ * @returns {Boolean} false or true
+ */
 BirthdayPicker.kill = function (instance) {
   if (!instance) {
-    return;
+    return false;
   }
   if (!instance.element) {
     // if an html element
     instance = BirthdayPicker.getInstance(instance);
   }
   if (!instance) {
-    return;
+    return false;
   }
 
   // todo: reset all to default!
@@ -1106,26 +1154,9 @@ BirthdayPicker.kill = function (instance) {
   el.dataset.bdpInit = false;
   delete el.dataset.bdpInit;
   dataStorage.remove(el, 'instance');
+  return true;
 };
-BirthdayPicker.defaults = {
-  minYear: null,
-  // overrides the value set by maxAge
-  maxYear: 'now',
-  minAge: 0,
-  maxAge: 100,
-  monthFormat: 'short',
-  placeholder: true,
-  defaultDate: null,
-  autoInit: true,
-  leadingZero: true,
-  locale: 'en',
-  selectFuture: false,
-  arrange: 'ymd',
-  yearEl: null,
-  monthEl: null,
-  dayEl: null,
-  roundDownDay: true
-};
+BirthdayPicker.defaults = defaults;
 BirthdayPicker.init = function () {
   if (initialized) {
     return false;

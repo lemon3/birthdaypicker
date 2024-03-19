@@ -1,7 +1,7 @@
 /**
  * add properties and style attributes to a given HTML object
  * @param  {object} el - The HTML object to add properties and styles too.
- * @param  {object} properties - An object with vaild HTML properties
+ * @param  {object} properties - An object with valid HTML properties
  * @param  {object} style - An object with valid CSS styles
  * @return {object} HTML object with the applied properties and styles
  */
@@ -56,7 +56,7 @@ const docReady = (cb) => {
 };
 
 /**
- * Helper funtion to get all dataset values for a given name
+ * Helper function to get all dataset values for a given name
  *
  * @param  {Object} el The dom element, e.g. a selected div-element
  * @param  {String} name The name to look for
@@ -128,7 +128,7 @@ const isLeapYear = (year) =>
 const isLeapYear2 = (year) => 29 === new Date(+year, 1, 29).getDate();
 
 /**
- * Genereate the Month numbers 1 to 12
+ * Generate the Month numbers 1 to 12
  *
  * @param {Boolean} useLeadingZero If the output should contain a leading '0' for numbers less than 10 or not
  * @return {Array} The array containing the numbers as a String

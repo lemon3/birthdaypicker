@@ -2,6 +2,7 @@
  * (c) wolfgang jungmayer
  * www.lemon3.at
  */
+import { defaults } from '@/defaults';
 import {
   docReady,
   createEl,
@@ -26,10 +27,18 @@ const allowedEvents = [
 ];
 const optionTagName = 'option';
 
-let today = new Date();
-let todayYear = today.getFullYear();
-let todayMonth = today.getMonth() + 1;
-let todayDay = today.getDate();
+// BirthdayPickerLocale
+const locale = {
+  en: { text: { year: 'Year', month: 'Month', day: 'Day' } },
+  de: { text: { year: 'Jahr', month: 'Monat', day: 'Tag' } },
+};
+
+const currentDate = new Date();
+const now = {
+  y: currentDate.getFullYear(),
+  m: currentDate.getMonth() + 1,
+  d: currentDate.getDate(),
+};
 
 let initialized = false;
 
@@ -183,15 +192,15 @@ class BirthdayPicker {
     if (year < this._yearEnd) {
       year = month = day = undefined;
     } else if (year > this._yearStart) {
-      year = todayYear;
-      month = todayMonth;
-      day = todayDay;
+      year = now.y;
+      month = now.m;
+      day = now.d;
     } else if (year === this._yearStart) {
-      if (month > todayMonth) {
-        month = todayMonth;
-        day = todayDay;
-      } else if (month === todayMonth && day > todayDay) {
-        day = todayDay;
+      if (month > now.m) {
+        month = now.m;
+        day = now.d;
+      } else if (month === now.m && day > now.d) {
+        day = now.d;
       }
     }
 
@@ -211,7 +220,7 @@ class BirthdayPicker {
 
     if (_yChanged || _mChanged || _dChanged) {
       if (!this.settings.selectFuture) {
-        this._noFutureDate(todayYear, todayMonth, todayDay);
+        this._noFutureDate(now.y, now.m, now.d);
       }
       this._triggerEvent(allowedEvents[1]);
     }
@@ -469,7 +478,7 @@ class BirthdayPicker {
     // }
 
     if (!this.settings.selectFuture) {
-      this._noFutureDate(todayYear, todayMonth, todayDay);
+      this._noFutureDate(now.y, now.m, now.d);
     }
 
     this._triggerEvent(allowedEvents[1]);
@@ -651,16 +660,14 @@ class BirthdayPicker {
     return undefined === year ? undefined : isLeapYear(year);
   }
 
-  getDate(format) {
+  getDateString(format) {
+    if (!format) {
+      const string = this.getDate();
+      return !string ? string : string.toLocaleDateString(this.settings.locale);
+    }
+
     if (!this.currentYear || !this.currentMonth || !this.currentDay) {
       return '';
-    }
-    // use the language default
-    if (!format) {
-      let tmp = new Date(
-        Date.UTC(this.currentYear, +this.currentMonth - 1, this.currentDay)
-      );
-      return tmp.toLocaleDateString(this.settings.locale);
     }
 
     // eg. 'YYYY-MM-DD'
@@ -675,6 +682,16 @@ class BirthdayPicker {
     result = result.replace(/d/g, this.currentDay);
 
     return result;
+  }
+
+  getDate() {
+    if (!this.currentYear || !this.currentMonth || !this.currentDay) {
+      return '';
+    }
+    var tmp = new Date(
+      Date.UTC(this.currentYear, +this.currentMonth - 1, this.currentDay)
+    );
+    return tmp;
   }
 
   /**
@@ -703,7 +720,7 @@ class BirthdayPicker {
     s.selectFuture = isTrue(s.selectFuture);
 
     if ('now' === s.maxYear) {
-      this._yearStart = todayYear;
+      this._yearStart = now.y;
     } else {
       this._yearStart = s.maxYear;
     }
@@ -734,11 +751,7 @@ class BirthdayPicker {
 BirthdayPicker.i18n = {};
 BirthdayPicker.currentLocale = 'en';
 
-// BirthdayPickerLocale
-const locale = {
-  en: { text: { year: 'Year', month: 'Month', day: 'Day' } },
-  de: { text: { year: 'Jahr', month: 'Monat', day: 'Tag' } },
-};
+BirthdayPicker.getInstance = (el) => dataStorage.get(el, 'instance');
 
 BirthdayPicker.createLocale = (lang) => {
   if (BirthdayPicker.i18n[lang]) {
@@ -788,21 +801,34 @@ BirthdayPicker.setLanguage = (lang) => {
   });
 };
 
-BirthdayPicker.getInstance = (el) => dataStorage.get(el, 'instance');
-
+/**
+ * Kill all events on all registered instances
+ * @returns {Boolean} false if no instance was found, or true if events where removed
+ */
 BirthdayPicker.killAll = () => {
   if (!instances) {
-    return;
+    return false;
   }
 
   instances.forEach((instance) => {
     BirthdayPicker.kill(instance);
   });
+  return true;
 };
 
+/**
+ * Kill all events on all registered instances
+ * @returns {Boolean} false if no instance was found, or true if events where removed
+ */
+
+/**
+ *
+ * @param {*} instance either an registered html object or an instance of the BirthdayPicker class
+ * @returns {Boolean} false or true
+ */
 BirthdayPicker.kill = (instance) => {
   if (!instance) {
-    return;
+    return false;
   }
 
   if (!instance.element) {
@@ -811,7 +837,7 @@ BirthdayPicker.kill = (instance) => {
   }
 
   if (!instance) {
-    return;
+    return false;
   }
 
   // todo: reset all to default!
@@ -822,26 +848,11 @@ BirthdayPicker.kill = (instance) => {
   delete el.dataset.bdpInit;
 
   dataStorage.remove(el, 'instance');
+
+  return true;
 };
 
-BirthdayPicker.defaults = {
-  minYear: null, // overrides the value set by maxAge
-  maxYear: 'now',
-  minAge: 0,
-  maxAge: 100,
-  monthFormat: 'short',
-  placeholder: true,
-  defaultDate: null,
-  autoInit: true,
-  leadingZero: true,
-  locale: 'en',
-  selectFuture: false,
-  arrange: 'ymd',
-  yearEl: null,
-  monthEl: null,
-  dayEl: null,
-  roundDownDay: true,
-};
+BirthdayPicker.defaults = defaults;
 
 BirthdayPicker.init = () => {
   if (initialized) {

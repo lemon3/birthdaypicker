@@ -335,7 +335,11 @@ myBirthdayPicker.init();
 // 'm'    -> 9
 // 'dd'   -> 02
 // 'd'    -> 2
-myBirthdayPicker.getDate('yyyy-m-d');
+myBirthdayPicker.getDateString('yyyy-m-d');
+
+// returns a Date object (like new Date())
+// for the current year, month, day values
+myBirthdayPicker.getDate();
 
 // just a small helper function, returns true or false
 myBirthdayPicker.isLeapYear(2020); // true
