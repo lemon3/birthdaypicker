@@ -65,16 +65,12 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
 var addProps = function addProps(el, properties, style, innerHTML) {
   if (properties) {
     for (var prop in properties) {
-      if (Object.prototype.hasOwnProperty.call(properties, prop)) {
-        el.setAttribute(prop, properties[prop]);
-      }
+      el.setAttribute(prop, properties[prop]);
     }
   }
   if (style) {
     for (var s in style) {
-      if (Object.prototype.hasOwnProperty.call(style, s)) {
-        el.style[s] = style[s];
-      }
+      el.style[s] = style[s];
     }
   }
   if (innerHTML) {
@@ -215,10 +211,11 @@ var dataStorage = {
     }
     if ('object' === _typeof(keyVal[0])) {
       for (var k in keyVal[0]) {
-        if ({}.hasOwnProperty.call(keyVal[0], k)) {
-          storeEl.set(k, keyVal[0][k]);
-        }
+        storeEl.set(k, keyVal[0][k]);
       }
+    } else {
+      // just a key
+      storeEl.set(keyVal[0]);
     }
     return this;
   },
@@ -279,7 +276,7 @@ function src_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == src_typeof(i) ? i : String(i); }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == src_typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != src_typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != src_typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 /*!
  * (c) wolfgang jungmayer
@@ -316,7 +313,8 @@ var currentDate = new Date();
 var now = {
   y: currentDate.getFullYear(),
   m: currentDate.getMonth() + 1,
-  d: currentDate.getDate()
+  d: currentDate.getDate(),
+  t: currentDate.getTime()
 };
 var initialized = false;
 function trigger(elem, name, data) {
@@ -377,7 +375,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
    * @param  {String} value Value to find
    * @return {mixed}       The index value or undefined
    */
-  _createClass(BirthdayPicker, [{
+  return _createClass(BirthdayPicker, [{
     key: "_getIdx",
     value: function _getIdx(nodeList, value) {
       if (!nodeList) {
@@ -412,7 +410,12 @@ var BirthdayPicker = /*#__PURE__*/function () {
       }
       this._year.el.selectedIndex = newYearIndex;
       this._yearWasChanged(newYearValue);
+
+      // todo: TRY (see _setMonth)
       if (triggerDateChange) {
+        if (!this.settings.selectFuture) {
+          this._noFutureDate(now.y, now.m, now.d);
+        }
         this._triggerEvent(allowedEvents[1]);
       }
       return true;
@@ -439,6 +442,9 @@ var BirthdayPicker = /*#__PURE__*/function () {
       this._month.el.selectedIndex = newMonthIndex;
       this._monthWasChanged(newMonthValue);
       if (triggerDateChange) {
+        if (!this.settings.selectFuture) {
+          this._noFutureDate(now.y, now.m, now.d);
+        }
         this._triggerEvent(allowedEvents[1]);
       }
       return true;
@@ -454,7 +460,8 @@ var BirthdayPicker = /*#__PURE__*/function () {
     key: "_setDay",
     value: function _setDay(day) {
       var triggerDateChange = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-      day = restrict(day, 1, 31);
+      var currentMaxDays = this._daysPerMonth[this.currentMonth - 1];
+      day = restrict(day, 1, currentMaxDays);
       var _this$_getIdx5 = this._getIdx(this._day.el.childNodes, day),
         _this$_getIdx6 = src_slicedToArray(_this$_getIdx5, 2),
         newDayIndex = _this$_getIdx6[0],
@@ -465,37 +472,35 @@ var BirthdayPicker = /*#__PURE__*/function () {
       this._day.el.selectedIndex = newDayIndex;
       this._dayWasChanged(newDayValue);
       if (triggerDateChange) {
+        if (!this.settings.selectFuture) {
+          this._noFutureDate(now.y, now.m, now.d);
+        }
         this._triggerEvent(allowedEvents[1]);
       }
       return true;
     }
+
+    // _getDateValuesInRange({ year, month, day }) {
+    //   // todo: define a min & max date
+    //   if (year < this._yearEnd) {
+    //     year = month = day = undefined;
+    //   } else if (year > this._yearStart) {
+    //     year = now.y;
+    //     month = now.m;
+    //     day = now.d;
+    //   } else if (year === this._yearStart) {
+    //     if (month > now.m) {
+    //       month = now.m;
+    //       day = now.d;
+    //     } else if (month === now.m && day > now.d) {
+    //       day = now.d;
+    //     }
+    //   }
+    //   return { year, month, day };
+    // }
   }, {
-    key: "_getDateValuesInRange",
-    value: function _getDateValuesInRange(_ref) {
-      var year = _ref.year,
-        month = _ref.month,
-        day = _ref.day;
-      // todo: define a min & max date
-      if (year < this._yearEnd) {
-        year = month = day = undefined;
-      } else if (year > this._yearStart) {
-        year = now.y;
-        month = now.m;
-        day = now.d;
-      } else if (year === this._yearStart) {
-        if (month > now.m) {
-          month = now.m;
-          day = now.d;
-        } else if (month === now.m && day > now.d) {
-          day = now.d;
-        }
-      }
-      return {
-        year: year,
-        month: month,
-        day: day
-      };
-    }
+    key: "_testForMaxDay",
+    value: function _testForMaxDay() {}
 
     /**
      * Set the date
@@ -503,10 +508,10 @@ var BirthdayPicker = /*#__PURE__*/function () {
      */
   }, {
     key: "_setDate",
-    value: function _setDate(_ref2) {
-      var year = _ref2.year,
-        month = _ref2.month,
-        day = _ref2.day;
+    value: function _setDate(_ref) {
+      var year = _ref.year,
+        month = _ref.month,
+        day = _ref.day;
       // small helper for the event triggering system
       this._monthChangeTriggeredLater = month !== this.currentMonth;
       var _yChanged = this._setYear(year, false);
@@ -573,7 +578,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       // littleEndian: dmy
       // else:         mdy
       if (allowedArrangement.indexOf(s.arrange) < 0) {
-        s.arrange = 'ymd';
+        s.arrange = 'ymd'; // bigEndian
       }
       var lookup = {
         y: 'year',
@@ -722,50 +727,48 @@ var BirthdayPicker = /*#__PURE__*/function () {
     value: function _noFutureDate(year, month, day) {
       var _this2 = this;
       // console.log('_noFutureDate');
-      // set all to false (again)
+
+      // set all previously disabled option elements to false
+      // (reenable them)
       if (this._disabled.length) {
         this._disabled.forEach(function (el) {
           el.disabled = false;
         });
         this._disabled = [];
       }
-      if (+this.currentYear > year) {
-        this._setYear(year, false);
-        if (+this.currentMonth !== month) {
-          this._setMonth(month, false);
-        }
-        if (+this.currentDay !== day) {
-          this._setDay(day, false);
-        }
-      } else if (+this.currentYear === year) {
-        // Disable months greater than the current month
-        this._month.el.childNodes.forEach(function (el) {
-          if (el.value > month) {
-            el.disabled = true;
-            _this2._disabled.push(el);
-          }
-        });
 
-        // set month back
-        if (+this.currentMonth > month) {
-          this._setMonth(month, false);
-        }
-
-        // disable all days greater than the current day
-        if (+this.currentMonth === month) {
-          this._day.el.childNodes.forEach(function (el) {
-            if (el.value > day) {
-              el.disabled = true;
-              _this2._disabled.push(el);
-            }
-          });
-
-          // set days back
-          if (+this.currentDay > day) {
-            this._setDay(day, false);
-          }
-        }
+      // early exit
+      if (this.currentYear < year) {
+        return false;
       }
+      var yearToHigh = +this.currentYear > year;
+      if (yearToHigh) {
+        this._setYear(year, false);
+      }
+
+      // Disable months greater than the current month
+      this._month.el.childNodes.forEach(function (el) {
+        if (el.value > month) {
+          el.disabled = true;
+          _this2._disabled.push(el);
+        }
+      });
+      var monthToHigh = yearToHigh || +this.currentMonth > month;
+      if (monthToHigh) {
+        this._setMonth(month, false);
+      }
+
+      // disable all days greater than the current day
+      this._day.el.childNodes.forEach(function (el) {
+        if (el.value > day) {
+          el.disabled = true;
+          _this2._disabled.push(el);
+        }
+      });
+      if (monthToHigh || +this.currentDay > day) {
+        this._setDay(day, false);
+      }
+      return true;
     }
 
     /**
@@ -837,10 +840,8 @@ var BirthdayPicker = /*#__PURE__*/function () {
       this.currentYear = year;
       this._daysPerMonth[1] = helper_isLeapYear(year) ? 29 : 28;
       this._triggerEvent(allowedEvents[4]);
-      if (!this._monthChangeTriggeredLater) {
-        if (+this._month.el.value === 2) {
-          this._updateDays(this._month.el.value);
-        }
+      if (!this._monthChangeTriggeredLater && +this._month.el.value === 2) {
+        this._updateDays(this._month.el.value);
       }
     }
   }, {
@@ -929,7 +930,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
     value: function setDate(dateString) {
       var parsed = this._parseDate(dateString);
       if (parsed) {
-        parsed = this._getDateValuesInRange(parsed);
+        // parsed = this._getDateValuesInRange(parsed);
         this._setDate(parsed);
       }
       return parsed;
@@ -1053,11 +1054,13 @@ var BirthdayPicker = /*#__PURE__*/function () {
 
       // set default start value
       if (s.defaultDate) {
-        this.setDate(s.defaultDate === 'now' ? new Date().toString() : s.defaultDate);
+        var parsed = this.setDate(s.defaultDate === 'now' ? new Date().toString() : s.defaultDate);
+        this.currentDayYear = parsed.year;
+        this.currentMonth = parsed.month;
+        this.currentDay = parsed.day;
       }
     }
   }]);
-  return BirthdayPicker;
 }();
 BirthdayPicker.i18n = {};
 BirthdayPicker.currentLocale = 'en';
