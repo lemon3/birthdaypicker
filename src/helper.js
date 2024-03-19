@@ -7,17 +7,13 @@
  */
 const addProps = (el, properties, style, innerHTML) => {
   if (properties) {
-    for (let prop in properties) {
-      if (Object.prototype.hasOwnProperty.call(properties, prop)) {
-        el.setAttribute(prop, properties[prop]);
-      }
+    for (const prop in properties) {
+      el.setAttribute(prop, properties[prop]);
     }
   }
   if (style) {
-    for (let s in style) {
-      if (Object.prototype.hasOwnProperty.call(style, s)) {
-        el.style[s] = style[s];
-      }
+    for (const s in style) {
+      el.style[s] = style[s];
     }
   }
   if (innerHTML) {
@@ -152,11 +148,12 @@ const dataStorage = {
       return this;
     }
     if ('object' === typeof keyVal[0]) {
-      for (var k in keyVal[0]) {
-        if ({}.hasOwnProperty.call(keyVal[0], k)) {
-          storeEl.set(k, keyVal[0][k]);
-        }
+      for (const k in keyVal[0]) {
+        storeEl.set(k, keyVal[0][k]);
       }
+    } else {
+      // just a key
+      storeEl.set(keyVal[0]);
     }
     return this;
   },

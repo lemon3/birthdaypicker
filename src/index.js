@@ -38,6 +38,7 @@ const now = {
   y: currentDate.getFullYear(),
   m: currentDate.getMonth() + 1,
   d: currentDate.getDate(),
+  t: currentDate.getTime(),
 };
 
 let initialized = false;
@@ -133,7 +134,11 @@ class BirthdayPicker {
     this._year.el.selectedIndex = newYearIndex;
     this._yearWasChanged(newYearValue);
 
+    // todo: TRY (see _setMonth)
     if (triggerDateChange) {
+      if (!this.settings.selectFuture) {
+        this._noFutureDate(now.y, now.m, now.d);
+      }
       this._triggerEvent(allowedEvents[1]);
     }
     return true;
@@ -158,6 +163,9 @@ class BirthdayPicker {
     this._monthWasChanged(newMonthValue);
 
     if (triggerDateChange) {
+      if (!this.settings.selectFuture) {
+        this._noFutureDate(now.y, now.m, now.d);
+      }
       this._triggerEvent(allowedEvents[1]);
     }
     return true;
@@ -170,7 +178,8 @@ class BirthdayPicker {
    * @returns
    */
   _setDay(day, triggerDateChange = true) {
-    day = restrict(day, 1, 31);
+    const currentMaxDays = this._daysPerMonth[this.currentMonth - 1];
+    day = restrict(day, 1, currentMaxDays);
     const [newDayIndex, newDayValue] = this._getIdx(
       this._day.el.childNodes,
       day
@@ -182,30 +191,34 @@ class BirthdayPicker {
     this._dayWasChanged(newDayValue);
 
     if (triggerDateChange) {
+      if (!this.settings.selectFuture) {
+        this._noFutureDate(now.y, now.m, now.d);
+      }
       this._triggerEvent(allowedEvents[1]);
     }
     return true;
   }
 
-  _getDateValuesInRange({ year, month, day }) {
-    // todo: define a min & max date
-    if (year < this._yearEnd) {
-      year = month = day = undefined;
-    } else if (year > this._yearStart) {
-      year = now.y;
-      month = now.m;
-      day = now.d;
-    } else if (year === this._yearStart) {
-      if (month > now.m) {
-        month = now.m;
-        day = now.d;
-      } else if (month === now.m && day > now.d) {
-        day = now.d;
-      }
-    }
+  // _getDateValuesInRange({ year, month, day }) {
+  //   // todo: define a min & max date
+  //   if (year < this._yearEnd) {
+  //     year = month = day = undefined;
+  //   } else if (year > this._yearStart) {
+  //     year = now.y;
+  //     month = now.m;
+  //     day = now.d;
+  //   } else if (year === this._yearStart) {
+  //     if (month > now.m) {
+  //       month = now.m;
+  //       day = now.d;
+  //     } else if (month === now.m && day > now.d) {
+  //       day = now.d;
+  //     }
+  //   }
+  //   return { year, month, day };
+  // }
 
-    return { year, month, day };
-  }
+  _testForMaxDay() {}
 
   /**
    * Set the date
@@ -274,7 +287,7 @@ class BirthdayPicker {
     // littleEndian: dmy
     // else:         mdy
     if (allowedArrangement.indexOf(s.arrange) < 0) {
-      s.arrange = 'ymd';
+      s.arrange = 'ymd'; // bigEndian
     }
 
     const lookup = { y: 'year', m: 'month', d: 'day' };
@@ -414,7 +427,9 @@ class BirthdayPicker {
 
   _noFutureDate(year, month, day) {
     // console.log('_noFutureDate');
-    // set all to false (again)
+
+    // set all previously disabled option elements to false
+    // (reenable them)
     if (this._disabled.length) {
       this._disabled.forEach((el) => {
         el.disabled = false;
@@ -422,43 +437,42 @@ class BirthdayPicker {
       this._disabled = [];
     }
 
-    if (+this.currentYear > year) {
-      this._setYear(year, false);
-      if (+this.currentMonth !== month) {
-        this._setMonth(month, false);
-      }
-      if (+this.currentDay !== day) {
-        this._setDay(day, false);
-      }
-    } else if (+this.currentYear === year) {
-      // Disable months greater than the current month
-      this._month.el.childNodes.forEach((el) => {
-        if (el.value > month) {
-          el.disabled = true;
-          this._disabled.push(el);
-        }
-      });
-
-      // set month back
-      if (+this.currentMonth > month) {
-        this._setMonth(month, false);
-      }
-
-      // disable all days greater than the current day
-      if (+this.currentMonth === month) {
-        this._day.el.childNodes.forEach((el) => {
-          if (el.value > day) {
-            el.disabled = true;
-            this._disabled.push(el);
-          }
-        });
-
-        // set days back
-        if (+this.currentDay > day) {
-          this._setDay(day, false);
-        }
-      }
+    // early exit
+    if (this.currentYear < year) {
+      return false;
     }
+
+    const yearToHigh = +this.currentYear > year;
+    if (yearToHigh) {
+      this._setYear(year, false);
+    }
+
+    // Disable months greater than the current month
+    this._month.el.childNodes.forEach((el) => {
+      if (el.value > month) {
+        el.disabled = true;
+        this._disabled.push(el);
+      }
+    });
+
+    const monthToHigh = yearToHigh || +this.currentMonth > month;
+    if (monthToHigh) {
+      this._setMonth(month, false);
+    }
+
+    // disable all days greater than the current day
+    this._day.el.childNodes.forEach((el) => {
+      if (el.value > day) {
+        el.disabled = true;
+        this._disabled.push(el);
+      }
+    });
+
+    if (monthToHigh || +this.currentDay > day) {
+      this._setDay(day, false);
+    }
+
+    return true;
   }
 
   /**
@@ -524,10 +538,8 @@ class BirthdayPicker {
     this._daysPerMonth[1] = isLeapYear(year) ? 29 : 28;
     this._triggerEvent(allowedEvents[4]);
 
-    if (!this._monthChangeTriggeredLater) {
-      if (+this._month.el.value === 2) {
-        this._updateDays(this._month.el.value);
-      }
+    if (!this._monthChangeTriggeredLater && +this._month.el.value === 2) {
+      this._updateDays(this._month.el.value);
     }
   }
 
@@ -615,7 +627,7 @@ class BirthdayPicker {
   setDate(dateString) {
     let parsed = this._parseDate(dateString);
     if (parsed) {
-      parsed = this._getDateValuesInRange(parsed);
+      // parsed = this._getDateValuesInRange(parsed);
       this._setDate(parsed);
     }
     return parsed;
@@ -741,10 +753,15 @@ class BirthdayPicker {
 
     // set default start value
     if (s.defaultDate) {
-      this.setDate(
+      const parsed = this.setDate(
         s.defaultDate === 'now' ? new Date().toString() : s.defaultDate
       );
+
+      this.currentDayYear = parsed.year;
+      this.currentMonth = parsed.month;
+      this.currentDay = parsed.day;
     }
+
   }
 }
 

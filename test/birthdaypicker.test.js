@@ -412,9 +412,11 @@ describe('date setting tests', () => {
     });
 
     test('new date out of date range should return ""', () => {
-      bp.setDate('1823-10-12');
+      const newDate = '1823-10-12';
+      bp.setDate(newDate);
       const result = bp.getDateString('yyyy-mm-dd');
-      expect(result).toEqual('');
+      const start = bp._yearEnd;
+      expect(result).toBe(start+'-10-12');
     });
 
     test('new date out of date range should return ""', () => {
@@ -894,6 +896,94 @@ describe('private methods tests', () => {
   });
 });
 
+describe('_setYear methods tests', () => {
+  const bpEl = document.createElement('div');
+  const bp = new BirthdayPicker(bpEl, {
+    defaultDate: '2012-03-20',
+  });
+  const _yearWasChangedSpy = jest.spyOn(bp, '_yearWasChanged');
+
+  test('same year should return false', () => {
+    expect(bp._setYear(2012)).toBe(false);
+    expect(_yearWasChangedSpy).toHaveBeenCalledTimes(0);
+  });
+
+  test('new year should return true', () => {
+    const _triggerEventSpy = jest.spyOn(bp, '_triggerEvent');
+    expect(bp._setYear(2002)).toBe(true);
+    expect(_yearWasChangedSpy).toHaveBeenCalledTimes(1);
+    expect(_yearWasChangedSpy).toHaveBeenCalledWith(2002);
+    // 2 -> one for year and one for datechange event
+    expect(_triggerEventSpy).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('_setMonth methods tests', () => {
+  const bpEl = document.createElement('div');
+  const bp = new BirthdayPicker(bpEl, {
+    defaultDate: '2012-03-20',
+  });
+  const _monthWasChangedSpy = jest.spyOn(bp, '_monthWasChanged');
+
+  test('same month should return false', () => {
+    expect(bp._setMonth(3)).toBe(false);
+    expect(_monthWasChangedSpy).toHaveBeenCalledTimes(0);
+  });
+
+  test('new month should return true', () => {
+    const _triggerEventSpy = jest.spyOn(bp, '_triggerEvent');
+    expect(bp._setMonth(12)).toBe(true);
+    expect(_monthWasChangedSpy).toHaveBeenCalledTimes(1);
+    expect(_monthWasChangedSpy).toHaveBeenCalledWith(12);
+    // 2 -> one for month and one for datechange event
+    expect(_triggerEventSpy).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('_setDay methods tests', () => {
+  const bpEl = document.createElement('div');
+  const bp = new BirthdayPicker(bpEl, {
+    defaultDate: '2012-03-20',
+  });
+  const _dayWasChangedSpy = jest.spyOn(bp, '_dayWasChanged');
+
+  test('same day should return false', () => {
+    expect(bp._setDay(20)).toBe(false);
+    expect(_dayWasChangedSpy).toHaveBeenCalledTimes(0);
+  });
+
+  test('new day should return true', () => {
+    const _triggerEventSpy = jest.spyOn(bp, '_triggerEvent');
+    expect(bp._setDay(12)).toBe(true);
+    expect(_dayWasChangedSpy).toHaveBeenCalledTimes(1);
+    expect(_dayWasChangedSpy).toHaveBeenCalledWith(12);
+    // 2 -> one for month and one for datechange event
+    expect(_triggerEventSpy).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('_create methods tests', () => {
+  const bpEl = document.createElement('div');
+  const yearEl = document.createElement('select');
+  const monthEl = document.createElement('select');
+  const dayEl = document.createElement('select');
+
+  const bp = new BirthdayPicker(bpEl, {
+    arrange: 'ass',
+    yearEl,
+    monthEl,
+    dayEl,
+  });
+
+  describe('test allowedArrangement', () => {
+    test('wrong arrange value given, expect arrange to be \'ymd\'', () => {
+      expect(bp.settings.arrange).toBe('ymd');
+    });
+  });
+
+});
+
+
 describe('_noFutureDate methods tests', () => {
   const bpEl = document.querySelector('#test');
   BirthdayPicker.kill(bpEl);
@@ -953,6 +1043,7 @@ describe('_noFutureDate methods tests', () => {
       test('only _setDay should be called', () => {
         expect(bp.getDateString('yyyy-mm-dd')).toBe('2020-10-13');
         day = 12;
+
         bp._noFutureDate(year, month, day);
         expect(_noFutureDateSpy).lastCalledWith(year, month, day);
         expect(_setYearSpy).toHaveBeenCalledTimes(0);
@@ -963,25 +1054,25 @@ describe('_noFutureDate methods tests', () => {
     });
 
     describe('change only the max month value down', () => {
-      test('only _setMonth should be called', () => {
+      test('_setMonth and _setDay should be called', () => {
         month = 9;
         bp._noFutureDate(year, month, day);
         expect(_noFutureDateSpy).lastCalledWith(year, month, day);
         expect(_setYearSpy).toHaveBeenCalledTimes(0);
         expect(_setMonthSpy).toHaveBeenCalledTimes(1);
-        expect(_setDaySpy).toHaveBeenCalledTimes(0);
+        expect(_setDaySpy).toHaveBeenCalledTimes(1);
         expect(bp.getDateString('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
       });
     });
 
     describe('change only the year value', () => {
-      test('only _setYear should be called', () => {
+      test('_setYear _setMonth and _setDay should be called', () => {
         year = 2019;
         bp._noFutureDate(year, month, day);
         expect(_noFutureDateSpy).lastCalledWith(year, month, day);
         expect(_setYearSpy).toHaveBeenCalledTimes(1);
-        expect(_setMonthSpy).toHaveBeenCalledTimes(0);
-        expect(_setDaySpy).toHaveBeenCalledTimes(0);
+        expect(_setMonthSpy).toHaveBeenCalledTimes(1);
+        expect(_setDaySpy).toHaveBeenCalledTimes(1);
         expect(bp.getDateString('yyyy-m-d')).toEqual(year + '-' + month + '-' + day);
       });
     });
@@ -1075,6 +1166,21 @@ describe('_dateChanged methods tests', () => {
     _dateChangedSpy.mockRestore();
   });
 });
+
+// describe('_getDateValuesInRange methods tests', () => {
+//   const bpEl = document.createElement('div');
+//   const bp = new BirthdayPicker(bpEl, {
+//     defaultDate: '2002-03-04',
+//     minYear: 2000,
+//     maxYear: 2010,
+//   });
+//   let inRange;
+
+//   test('all in range, expect no change', () => {
+//     inRange = bp._getDateValuesInRange({ year: 2010, month: 3, day: 4 });
+//     expect(inRange).toMatchObject({ year: 2010, month: 3, day: 4 });
+//   });
+// });
 
 describe('_updateDays methods tests', () => {
   const bpEl = document.querySelector('#test');

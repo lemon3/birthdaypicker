@@ -64,6 +64,7 @@ describe('test addProps function', () => {
     addProps(a, { display: 'flex', test: null });
     expect(a.style.display).not.toBe('flex');
     expect(a.getAttribute('test')).toBe('null');
+    expect(a.getAttribute('display')).toBe('flex');
   });
 });
 
@@ -265,8 +266,25 @@ describe('test dataStorage', () => {
 
     expect(dataStorageSpy).toHaveBeenCalled();
   });
+  test('test put with an object', () => {
+    // empty remove
+    const id = 123456789;
+    const obj = { name: 'eva', id, age: 35 };
+    dataStorage.put(dataStorageEl, obj);
+    expect(dataStorage.get(dataStorageEl, 'id')).toBe(id);
 
-  test('test put with object', () => {
+    const tmp = dataStorage.get(dataStorageEl);
+    expect(tmp.get('id')).toBe(id);
+  });
+
+  test('test put with key-only, no value given', () => {
+    // empty remove
+    const key = 'myKey';
+    dataStorage.put(dataStorageEl, key);
+    expect(dataStorage.get(dataStorageEl, 'key')).toBe(undefined);
+  });
+
+  test('test method calls with object-put', () => {
     const div = document.createElement('div');
     const toStore = { bat: 'girl', super: 'man' };
 
