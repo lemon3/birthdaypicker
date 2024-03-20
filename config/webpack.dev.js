@@ -24,6 +24,7 @@ module.exports = merge(common, {
       title: '- devmode -',
       template: paths.src + '/template.html', // template file
       minify: true,
+      inject: 'body',
     })
   ],
 

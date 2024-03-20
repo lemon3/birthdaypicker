@@ -422,13 +422,8 @@ var BirthdayPicker = /*#__PURE__*/function () {
       }
       this._year.el.selectedIndex = newYearIndex;
       this._yearWasChanged(newYearValue);
-
-      // todo: TRY (see _setMonth)
       if (triggerDateChange) {
-        if (!this.settings.selectFuture) {
-          this._noFutureDate(now.y, now.m, now.d);
-        }
-        this._triggerEvent(allowedEvents[1]);
+        this._dateChanged();
       }
       return true;
     }
@@ -454,10 +449,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       this._month.el.selectedIndex = newMonthIndex;
       this._monthWasChanged(newMonthValue);
       if (triggerDateChange) {
-        if (!this.settings.selectFuture) {
-          this._noFutureDate(now.y, now.m, now.d);
-        }
-        this._triggerEvent(allowedEvents[1]);
+        this._dateChanged();
       }
       return true;
     }
@@ -484,10 +476,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       this._day.el.selectedIndex = newDayIndex;
       this._dayWasChanged(newDayValue);
       if (triggerDateChange) {
-        if (!this.settings.selectFuture) {
-          this._noFutureDate(now.y, now.m, now.d);
-        }
-        this._triggerEvent(allowedEvents[1]);
+        this._dateChanged();
       }
       return true;
     }
@@ -585,7 +574,6 @@ var BirthdayPicker = /*#__PURE__*/function () {
     value: function _create() {
       var _this = this;
       var s = this.settings;
-
       // bigEndian:    ymd
       // littleEndian: dmy
       // else:         mdy
@@ -619,7 +607,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
         _this._date.push(_this['_' + item]);
         itemEl.dataset.init = true;
         itemEl.addEventListener('change', function (evt) {
-          _this._dateChanged(evt);
+          _this._onSelect(evt);
         }, false);
       });
       var optionEl = createEl(optionTagName, {
@@ -782,6 +770,14 @@ var BirthdayPicker = /*#__PURE__*/function () {
       }
       return true;
     }
+  }, {
+    key: "_dateChanged",
+    value: function _dateChanged() {
+      if (!this.settings.selectFuture) {
+        this._noFutureDate(now.y, now.m, now.d);
+      }
+      this._triggerEvent(allowedEvents[1]);
+    }
 
     /**
      * date change event handler, called if one of the fields is updated
@@ -789,9 +785,8 @@ var BirthdayPicker = /*#__PURE__*/function () {
      * @return {void}
      */
   }, {
-    key: "_dateChanged",
-    value: function _dateChanged(evt) {
-      // if (evt) {
+    key: "_onSelect",
+    value: function _onSelect(evt) {
       if (evt.target === this._year.el) {
         this._yearWasChanged(+evt.target.value);
       } else if (evt.target === this._month.el) {
@@ -799,12 +794,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       } else if (evt.target === this._day.el) {
         this._dayWasChanged(+evt.target.value);
       }
-      // }
-
-      if (!this.settings.selectFuture) {
-        this._noFutureDate(now.y, now.m, now.d);
-      }
-      this._triggerEvent(allowedEvents[1]);
+      this._dateChanged();
     }
 
     /**
@@ -896,11 +886,14 @@ var BirthdayPicker = /*#__PURE__*/function () {
   }, {
     key: "setMonthFormat",
     value: function setMonthFormat(format) {
-      if (!this.monthFormat[format] || format === this.settings.monthFormat) {
+      if (!this.monthFormat[format]) {
         return false;
       }
-      this.settings.monthFormat = format;
-      this._updateMonthList();
+      if (format !== this.settings.monthFormat) {
+        this.settings.monthFormat = format;
+        this._updateMonthList();
+      }
+      return true;
     }
   }, {
     key: "setLanguage",
@@ -946,6 +939,17 @@ var BirthdayPicker = /*#__PURE__*/function () {
         this._setDate(parsed);
       }
       return parsed;
+    }
+  }, {
+    key: "resetDate",
+    value: function resetDate() {
+      var preserveStartDate = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      var resetTo = this.startDate && preserveStartDate ? this.startDate : {
+        year: undefined,
+        month: undefined,
+        day: undefined
+      };
+      this._setDate(resetTo);
     }
   }, {
     key: "addEventListener",
@@ -1070,6 +1074,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
         this.currentDayYear = parsed.year;
         this.currentMonth = parsed.month;
         this.currentDay = parsed.day;
+        this.startDate = parsed;
       }
     }
   }]);
@@ -1132,12 +1137,13 @@ BirthdayPicker.setLanguage = function (lang) {
  * @returns {Boolean} false if no instance was found, or true if events where removed
  */
 BirthdayPicker.killAll = function () {
-  if (!instances) {
+  if (!instances.length) {
     return false;
   }
   instances.forEach(function (instance) {
     BirthdayPicker.kill(instance);
   });
+  instances = [];
   return true;
 };
 
@@ -1169,6 +1175,7 @@ BirthdayPicker.kill = function (instance) {
   el.dataset.bdpInit = false;
   delete el.dataset.bdpInit;
   dataStorage.remove(el, 'instance');
+  initialized = false;
   return true;
 };
 BirthdayPicker.defaults = defaults;
@@ -1183,11 +1190,11 @@ BirthdayPicker.init = function () {
     return !1;
   }
   element.forEach(function (el) {
-    if (el.dataset.bdpInit) {
-      return BirthdayPicker.getInstance(el);
-    }
-    var data = getJSONData(el, pluginName);
-    new BirthdayPicker(el, data);
+    // if (el.dataset.bdpInit) {
+    // return BirthdayPicker.getInstance(el);
+    // }
+    // const data = getJSONData(el, pluginName);
+    new BirthdayPicker(el);
   });
   return instances;
 };

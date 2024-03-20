@@ -12,7 +12,7 @@ import {
   dataStorage,
 } from '@/helper';
 
-const instances = [];
+let instances = [];
 const pluginName = 'birthdaypicker';
 const dataName = 'data-' + pluginName;
 const monthFormats = ['short', 'long', 'numeric'];
@@ -133,13 +133,8 @@ class BirthdayPicker {
     }
     this._year.el.selectedIndex = newYearIndex;
     this._yearWasChanged(newYearValue);
-
-    // todo: TRY (see _setMonth)
     if (triggerDateChange) {
-      if (!this.settings.selectFuture) {
-        this._noFutureDate(now.y, now.m, now.d);
-      }
-      this._triggerEvent(allowedEvents[1]);
+      this._dateChanged();
     }
     return true;
   }
@@ -161,12 +156,8 @@ class BirthdayPicker {
     }
     this._month.el.selectedIndex = newMonthIndex;
     this._monthWasChanged(newMonthValue);
-
     if (triggerDateChange) {
-      if (!this.settings.selectFuture) {
-        this._noFutureDate(now.y, now.m, now.d);
-      }
-      this._triggerEvent(allowedEvents[1]);
+      this._dateChanged();
     }
     return true;
   }
@@ -189,12 +180,8 @@ class BirthdayPicker {
     }
     this._day.el.selectedIndex = newDayIndex;
     this._dayWasChanged(newDayValue);
-
     if (triggerDateChange) {
-      if (!this.settings.selectFuture) {
-        this._noFutureDate(now.y, now.m, now.d);
-      }
-      this._triggerEvent(allowedEvents[1]);
+      this._dateChanged();
     }
     return true;
   }
@@ -282,7 +269,6 @@ class BirthdayPicker {
    */
   _create() {
     const s = this.settings;
-
     // bigEndian:    ymd
     // littleEndian: dmy
     // else:         mdy
@@ -316,7 +302,7 @@ class BirthdayPicker {
       itemEl.addEventListener(
         'change',
         (evt) => {
-          this._dateChanged(evt);
+          this._onSelect(evt);
         },
         false
       );
@@ -475,13 +461,19 @@ class BirthdayPicker {
     return true;
   }
 
+  _dateChanged() {
+    if (!this.settings.selectFuture) {
+      this._noFutureDate(now.y, now.m, now.d);
+    }
+    this._triggerEvent(allowedEvents[1]);
+  }
+
   /**
    * date change event handler, called if one of the fields is updated
    * @param  {Event} e The event
    * @return {void}
    */
-  _dateChanged(evt) {
-    // if (evt) {
+  _onSelect(evt) {
     if (evt.target === this._year.el) {
       this._yearWasChanged(+evt.target.value);
     } else if (evt.target === this._month.el) {
@@ -489,13 +481,7 @@ class BirthdayPicker {
     } else if (evt.target === this._day.el) {
       this._dayWasChanged(+evt.target.value);
     }
-    // }
-
-    if (!this.settings.selectFuture) {
-      this._noFutureDate(now.y, now.m, now.d);
-    }
-
-    this._triggerEvent(allowedEvents[1]);
+    this._dateChanged();
   }
 
   /**
@@ -578,11 +564,14 @@ class BirthdayPicker {
    * @return {[type]}        [description]
    */
   setMonthFormat(format) {
-    if (!this.monthFormat[format] || format === this.settings.monthFormat) {
+    if (!this.monthFormat[format]) {
       return false;
     }
-    this.settings.monthFormat = format;
-    this._updateMonthList();
+    if (format !== this.settings.monthFormat) {
+      this.settings.monthFormat = format;
+      this._updateMonthList();
+    }
+    return true;
   }
 
   setLanguage(lang) {
@@ -631,6 +620,14 @@ class BirthdayPicker {
       this._setDate(parsed);
     }
     return parsed;
+  }
+
+  resetDate(preserveStartDate = false) {
+    let resetTo =
+      this.startDate && preserveStartDate
+        ? this.startDate
+        : { year: undefined, month: undefined, day: undefined };
+    this._setDate(resetTo);
   }
 
   addEventListener(eventName, listener, option) {
@@ -760,8 +757,9 @@ class BirthdayPicker {
       this.currentDayYear = parsed.year;
       this.currentMonth = parsed.month;
       this.currentDay = parsed.day;
-    }
 
+      this.startDate = parsed;
+    }
   }
 }
 
@@ -823,13 +821,15 @@ BirthdayPicker.setLanguage = (lang) => {
  * @returns {Boolean} false if no instance was found, or true if events where removed
  */
 BirthdayPicker.killAll = () => {
-  if (!instances) {
+  if (!instances.length) {
     return false;
   }
 
   instances.forEach((instance) => {
     BirthdayPicker.kill(instance);
   });
+
+  instances = [];
   return true;
 };
 
@@ -865,7 +865,7 @@ BirthdayPicker.kill = (instance) => {
   delete el.dataset.bdpInit;
 
   dataStorage.remove(el, 'instance');
-
+  initialized = false;
   return true;
 };
 
@@ -883,11 +883,11 @@ BirthdayPicker.init = () => {
   }
 
   element.forEach((el) => {
-    if (el.dataset.bdpInit) {
-      return BirthdayPicker.getInstance(el);
-    }
-    const data = getJSONData(el, pluginName);
-    new BirthdayPicker(el, data);
+    // if (el.dataset.bdpInit) {
+    // return BirthdayPicker.getInstance(el);
+    // }
+    // const data = getJSONData(el, pluginName);
+    new BirthdayPicker(el);
   });
 
   return instances;

@@ -357,6 +357,11 @@ myBirthdayPicker.removeEventListener('datechange', myEventListener);
 // or to the current date with new Date()
 myBirthdayPicker.setDate(new Date());
 
+// resets the date
+// true: resets to the defaultDate (start date);
+// false: all select boxes will be reset to default value
+myBirthdayPicker.resetDate(true);
+
 // sets the language for the current instance
 // e.g.: 'en', 'de', 'fr', ...
 myBirthdayPicker.setLanguage('en');
@@ -374,7 +379,7 @@ myBirthdayPicker.kill();
 
 ### API / event-listeners
 ```js
-const element = '#my-element';
+const element = document.querySelector('#my-element');
 const options = {};
 const myPicker = new BirthdayPicker(element, options);
 
@@ -388,9 +393,16 @@ const available = [
   'datechange',  // triggered when day, month or year value was changed
 ]
 
-// e.g.:
+// use the instance as event listener
 myPicker.addEventListener('datechange', (evt) => {
+  // todo something ...
 });
+
+// or the element itself
+element.addEventListener('datechange', (evt) => {
+  // todo something ...
+});
+
 
 ```
 

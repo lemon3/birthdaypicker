@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.1.16
+### Added or Changed
+- added resetDate() method
+- test updates
+
 ## v0.1.15
 ### Added or Changed
 - added getDateString() method
