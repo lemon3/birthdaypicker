@@ -205,8 +205,6 @@ class BirthdayPicker {
   //   return { year, month, day };
   // }
 
-  _testForMaxDay() {}
-
   /**
    * Set the date
    * @param {Object} obj with year, month, day as String or Integer
@@ -219,10 +217,7 @@ class BirthdayPicker {
     let _dChanged = this._setDay(day, false);
 
     if (_yChanged || _mChanged || _dChanged) {
-      if (!this.settings.selectFuture) {
-        this._noFutureDate(now.y, now.m, now.d);
-      }
-      this._triggerEvent(allowedEvents[1]);
+      this._dateChanged();
     }
 
     this._monthChangeTriggeredLater = false;
@@ -428,10 +423,12 @@ class BirthdayPicker {
       return false;
     }
 
-    const yearToHigh = +this.currentYear > year;
-    if (yearToHigh) {
+    if (this.currentYear > year) {
       this._setYear(year, false);
     }
+
+    // console.log(this.currentYear, this.currentMonth, this.currentDay);
+    // console.log(year, month, day);
 
     // Disable months greater than the current month
     this._month.el.childNodes.forEach((el) => {
@@ -441,21 +438,22 @@ class BirthdayPicker {
       }
     });
 
-    const monthToHigh = yearToHigh || +this.currentMonth > month;
-    if (monthToHigh) {
+    if (this.currentMonth > month) {
       this._setMonth(month, false);
     }
 
-    // disable all days greater than the current day
-    this._day.el.childNodes.forEach((el) => {
-      if (el.value > day) {
-        el.disabled = true;
-        this._disabled.push(el);
-      }
-    });
+    if (month === this.currentMonth) {
+      // disable all days greater than the current day
+      this._day.el.childNodes.forEach((el) => {
+        if (el.value > day) {
+          el.disabled = true;
+          this._disabled.push(el);
+        }
+      });
 
-    if (monthToHigh || +this.currentDay > day) {
-      this._setDay(day, false);
+      if (this.currentDay > day) {
+        this._setDay(day, false);
+      }
     }
 
     return true;
@@ -754,7 +752,7 @@ class BirthdayPicker {
         s.defaultDate === 'now' ? new Date().toString() : s.defaultDate
       );
 
-      this.currentDayYear = parsed.year;
+      this.currentYear = parsed.year;
       this.currentMonth = parsed.month;
       this.currentDay = parsed.day;
 

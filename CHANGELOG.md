@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.17
+### Added or Changed
+- bug fixing
+
 ## v0.1.16
 ### Added or Changed
 - added resetDate() method

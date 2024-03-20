@@ -499,9 +499,6 @@ var BirthdayPicker = /*#__PURE__*/function () {
     //   }
     //   return { year, month, day };
     // }
-  }, {
-    key: "_testForMaxDay",
-    value: function _testForMaxDay() {}
 
     /**
      * Set the date
@@ -519,10 +516,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       var _mChanged = this._setMonth(month, false);
       var _dChanged = this._setDay(day, false);
       if (_yChanged || _mChanged || _dChanged) {
-        if (!this.settings.selectFuture) {
-          this._noFutureDate(now.y, now.m, now.d);
-        }
-        this._triggerEvent(allowedEvents[1]);
+        this._dateChanged();
       }
       this._monthChangeTriggeredLater = false;
     }
@@ -741,10 +735,12 @@ var BirthdayPicker = /*#__PURE__*/function () {
       if (this.currentYear < year) {
         return false;
       }
-      var yearToHigh = +this.currentYear > year;
-      if (yearToHigh) {
+      if (this.currentYear > year) {
         this._setYear(year, false);
       }
+
+      // console.log(this.currentYear, this.currentMonth, this.currentDay);
+      // console.log(year, month, day);
 
       // Disable months greater than the current month
       this._month.el.childNodes.forEach(function (el) {
@@ -753,20 +749,20 @@ var BirthdayPicker = /*#__PURE__*/function () {
           _this2._disabled.push(el);
         }
       });
-      var monthToHigh = yearToHigh || +this.currentMonth > month;
-      if (monthToHigh) {
+      if (this.currentMonth > month) {
         this._setMonth(month, false);
       }
-
-      // disable all days greater than the current day
-      this._day.el.childNodes.forEach(function (el) {
-        if (el.value > day) {
-          el.disabled = true;
-          _this2._disabled.push(el);
+      if (month === this.currentMonth) {
+        // disable all days greater than the current day
+        this._day.el.childNodes.forEach(function (el) {
+          if (el.value > day) {
+            el.disabled = true;
+            _this2._disabled.push(el);
+          }
+        });
+        if (this.currentDay > day) {
+          this._setDay(day, false);
         }
-      });
-      if (monthToHigh || +this.currentDay > day) {
-        this._setDay(day, false);
       }
       return true;
     }
@@ -1071,7 +1067,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       // set default start value
       if (s.defaultDate) {
         var parsed = this.setDate(s.defaultDate === 'now' ? new Date().toString() : s.defaultDate);
-        this.currentDayYear = parsed.year;
+        this.currentYear = parsed.year;
         this.currentMonth = parsed.month;
         this.currentDay = parsed.day;
         this.startDate = parsed;
