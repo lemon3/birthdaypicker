@@ -34,6 +34,7 @@ module.exports = merge(common, {
       title: 'tailwindcss & alpine.js | Demo',
       template: paths.src + '/template.html', // template file
       minify: true,
-    }),
+      inject: 'body',
+    })
   ],
 });
