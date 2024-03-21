@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.1.18
+### Added or Changed
+- optimizations
+- test update
+
 ## v0.1.17
 ### Added or Changed
 - bug fixing

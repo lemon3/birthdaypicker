@@ -185,6 +185,10 @@ const dataStorage = {
 
 const restrict = (value, min, max) => {
   value = parseFloat(value, 10);
+  if (isNaN(value)) {
+    return NaN;
+  }
+
   min = parseFloat(min, 10);
   max = parseFloat(max, 10);
 

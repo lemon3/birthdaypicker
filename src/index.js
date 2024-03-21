@@ -101,38 +101,55 @@ class BirthdayPicker {
    * Function to return the index of a chosen value for a given NodeList
    * @param  {NodeList} nodes Option List
    * @param  {String} value Value to find
-   * @return {mixed}       The index value or undefined
+   * @return {*}       The index value or undefined
    */
   _getIdx(nodeList, value) {
-    if (!nodeList) {
-      return [undefined, undefined];
+    if (!nodeList || isNaN(value || 'undefined' === typeof value)) {
+      return undefined;
     }
-    for (let i = 0; i < nodeList.length; i++) {
-      let el = nodeList[i];
+    for (let index = 0, el; index < nodeList.length; index++) {
+      el = nodeList[index];
       if (+el.value === +value) {
-        return [i, +el.value];
+        return index;
       }
     }
-    return [undefined, undefined];
+    return undefined;
+  }
+
+  /**
+   * Updates one selectBox
+   * @param {String} box name of the box ('_year', '_month', '_day')
+   * @param {number} value the new value to which the box should be set
+   */
+  _updateSelectBox(box, value) {
+    const selectBox = this[box].el;
+    selectBox.selectedIndex = this._getIdx(selectBox.childNodes, value);
+  }
+
+  /**
+   * called if one value was changed
+   */
+  _dateChanged() {
+    if (!this.settings.selectFuture) {
+      this._noFutureDate(now.y, now.m, now.d);
+    }
+    this._triggerEvent(allowedEvents[1]);
   }
 
   /**
    * set the year to a given value
    * and change the corresponding select-box too.
    * @param {String|Int} year the day value (eg, 1988, 2012, ...)
+   * @param {Boolean} triggerDateChange true if a dateChange event should be triggered
    * @returns
    */
   _setYear(year, triggerDateChange = true) {
     year = restrict(year, this._yearEnd, this._yearStart);
-    const [newYearIndex, newYearValue] = this._getIdx(
-      this._year.el.childNodes,
-      year
-    );
-    if (this.currentYear === newYearValue) {
+    if (this.currentYear === year) {
       return false;
     }
-    this._year.el.selectedIndex = newYearIndex;
-    this._yearWasChanged(newYearValue);
+    this._updateSelectBox('_year', year);
+    this._yearWasChanged(year);
     if (triggerDateChange) {
       this._dateChanged();
     }
@@ -143,19 +160,16 @@ class BirthdayPicker {
    * set the month to a given value
    * and change the corresponding select-box too.
    * @param {String|Int} month the month value (usually between 1 - 12)
+   * @param {Boolean} triggerDateChange true if a dateChange event should be triggered
    * @returns
    */
   _setMonth(month, triggerDateChange = true) {
     month = restrict(month, 1, 12);
-    const [newMonthIndex, newMonthValue] = this._getIdx(
-      this._month.el.childNodes,
-      month
-    );
-    if (this.currentMonth === newMonthValue) {
+    if (this.currentMonth === month) {
       return false;
     }
-    this._month.el.selectedIndex = newMonthIndex;
-    this._monthWasChanged(newMonthValue);
+    this._updateSelectBox('_month', month);
+    this._monthWasChanged(month);
     if (triggerDateChange) {
       this._dateChanged();
     }
@@ -166,20 +180,17 @@ class BirthdayPicker {
    * set the day to a given value
    * and change the corresponding select-box too.
    * @param {String|Int} day the day value (usually between 1 - 31)
+   * @param {Boolean} triggerDateChange true if a dateChange event should be triggered
    * @returns
    */
   _setDay(day, triggerDateChange = true) {
     const currentMaxDays = this._daysPerMonth[this.currentMonth - 1];
     day = restrict(day, 1, currentMaxDays);
-    const [newDayIndex, newDayValue] = this._getIdx(
-      this._day.el.childNodes,
-      day
-    );
-    if (this.currentDay === newDayValue) {
+    if (this.currentDay === day) {
       return false;
     }
-    this._day.el.selectedIndex = newDayIndex;
-    this._dayWasChanged(newDayValue);
+    this._updateSelectBox('_day', day);
+    this._dayWasChanged(day);
     if (triggerDateChange) {
       this._dateChanged();
     }
@@ -294,6 +305,7 @@ class BirthdayPicker {
       this._date.push(this['_' + item]);
 
       itemEl.dataset.init = true;
+      // todo: event delegation
       itemEl.addEventListener(
         'change',
         (evt) => {
@@ -350,12 +362,16 @@ class BirthdayPicker {
    */
   _updateDays(month) {
     // console.log('_updateDays');
-    const newDaysPerMonth = this._daysPerMonth[+month - 1];
+    let newDaysPerMonth = this._daysPerMonth[+month - 1];
     const offset = this.settings.placeholder ? 1 : 0;
     const currentDaysPerMonth = this._day.el.children.length - offset;
 
     if (newDaysPerMonth === currentDaysPerMonth) {
       return;
+    }
+
+    if ('undefined' === typeof newDaysPerMonth) {
+      newDaysPerMonth = 31; // reset it;
     }
 
     if (newDaysPerMonth - currentDaysPerMonth > 0) {
@@ -409,8 +425,7 @@ class BirthdayPicker {
   _noFutureDate(year, month, day) {
     // console.log('_noFutureDate');
 
-    // set all previously disabled option elements to false
-    // (reenable them)
+    // set all previously disabled option elements to false (reenable them)
     if (this._disabled.length) {
       this._disabled.forEach((el) => {
         el.disabled = false;
@@ -419,7 +434,11 @@ class BirthdayPicker {
     }
 
     // early exit
-    if (this.currentYear < year) {
+    if (
+      this.currentYear < year ||
+      !this.currentYear ||
+      (!this.currentYear && !this.currentMonth && !this.currentDay)
+    ) {
       return false;
     }
 
@@ -429,6 +448,7 @@ class BirthdayPicker {
 
     // console.log(this.currentYear, this.currentMonth, this.currentDay);
     // console.log(year, month, day);
+    // console.log('--->', this.currentYear, this.currentMonth, this.currentDay);
 
     // Disable months greater than the current month
     this._month.el.childNodes.forEach((el) => {
@@ -438,7 +458,8 @@ class BirthdayPicker {
       }
     });
 
-    if (this.currentMonth > month) {
+    const setMonthBack = this.currentMonth > month;
+    if (setMonthBack) {
       this._setMonth(month, false);
     }
 
@@ -451,19 +472,11 @@ class BirthdayPicker {
         }
       });
 
-      if (this.currentDay > day) {
+      if (setMonthBack || this.currentDay > day) {
         this._setDay(day, false);
       }
     }
-
     return true;
-  }
-
-  _dateChanged() {
-    if (!this.settings.selectFuture) {
-      this._noFutureDate(now.y, now.m, now.d);
-    }
-    this._triggerEvent(allowedEvents[1]);
   }
 
   /**
@@ -484,8 +497,8 @@ class BirthdayPicker {
 
   /**
    * called if the day was changed
-   * sets the currentDay value
-   * @param {number} day
+   * sets the currentDay value and triggers the corresponding event
+   * @param {number} day the new day value
    * @returns
    */
   _dayWasChanged(day) {
@@ -497,8 +510,8 @@ class BirthdayPicker {
 
   /**
    * called if the month was changed
-   * sets the currentMonth value
-   * @param {number} month
+   * sets the currentMonth value and triggers the corresponding event
+   * @param {number} month the new month value
    * @returns
    */
   _monthWasChanged(month) {
@@ -511,8 +524,8 @@ class BirthdayPicker {
 
   /**
    * called if the year was changed
-   * sets the currentYear value
-   * @param {number} year
+   * sets the currentYear value and triggers the corresponding event
+   * @param {number} year the new year value
    * @returns
    */
   _yearWasChanged(year) {
@@ -522,7 +535,7 @@ class BirthdayPicker {
     this._daysPerMonth[1] = isLeapYear(year) ? 29 : 28;
     this._triggerEvent(allowedEvents[4]);
 
-    if (!this._monthChangeTriggeredLater && +this._month.el.value === 2) {
+    if (!this._monthChangeTriggeredLater && this.currentMonth === 2) {
       this._updateDays(this._month.el.value);
     }
   }

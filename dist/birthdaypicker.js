@@ -258,6 +258,9 @@ var dataStorage = {
 };
 var restrict = function restrict(value, min, max) {
   value = parseFloat(value, 10);
+  if (isNaN(value)) {
+    return NaN;
+  }
   min = parseFloat(min, 10);
   max = parseFloat(max, 10);
   if (max < min) {
@@ -279,12 +282,6 @@ function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbol
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function src_typeof(o) { "@babel/helpers - typeof"; return src_typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, src_typeof(o); }
-function src_slicedToArray(arr, i) { return src_arrayWithHoles(arr) || src_iterableToArrayLimit(arr, i) || src_unsupportedIterableToArray(arr, i) || src_nonIterableRest(); }
-function src_nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function src_unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return src_arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return src_arrayLikeToArray(o, minLen); }
-function src_arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
-function src_iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t.return && (u = t.return(), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
-function src_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
@@ -385,27 +382,52 @@ var BirthdayPicker = /*#__PURE__*/function () {
    * Function to return the index of a chosen value for a given NodeList
    * @param  {NodeList} nodes Option List
    * @param  {String} value Value to find
-   * @return {mixed}       The index value or undefined
+   * @return {*}       The index value or undefined
    */
   return _createClass(BirthdayPicker, [{
     key: "_getIdx",
     value: function _getIdx(nodeList, value) {
-      if (!nodeList) {
-        return [undefined, undefined];
+      if (!nodeList || isNaN(value || 'undefined' === typeof value)) {
+        return undefined;
       }
-      for (var i = 0; i < nodeList.length; i++) {
-        var el = nodeList[i];
+      for (var index = 0, el; index < nodeList.length; index++) {
+        el = nodeList[index];
         if (+el.value === +value) {
-          return [i, +el.value];
+          return index;
         }
       }
-      return [undefined, undefined];
+      return undefined;
+    }
+
+    /**
+     * Updates one selectBox
+     * @param {String} box name of the box ('_year', '_month', '_day')
+     * @param {number} value the new value to which the box should be set
+     */
+  }, {
+    key: "_updateSelectBox",
+    value: function _updateSelectBox(box, value) {
+      var selectBox = this[box].el;
+      selectBox.selectedIndex = this._getIdx(selectBox.childNodes, value);
+    }
+
+    /**
+     * called if one value was changed
+     */
+  }, {
+    key: "_dateChanged",
+    value: function _dateChanged() {
+      if (!this.settings.selectFuture) {
+        this._noFutureDate(now.y, now.m, now.d);
+      }
+      this._triggerEvent(allowedEvents[1]);
     }
 
     /**
      * set the year to a given value
      * and change the corresponding select-box too.
      * @param {String|Int} year the day value (eg, 1988, 2012, ...)
+     * @param {Boolean} triggerDateChange true if a dateChange event should be triggered
      * @returns
      */
   }, {
@@ -413,15 +435,11 @@ var BirthdayPicker = /*#__PURE__*/function () {
     value: function _setYear(year) {
       var triggerDateChange = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
       year = restrict(year, this._yearEnd, this._yearStart);
-      var _this$_getIdx = this._getIdx(this._year.el.childNodes, year),
-        _this$_getIdx2 = src_slicedToArray(_this$_getIdx, 2),
-        newYearIndex = _this$_getIdx2[0],
-        newYearValue = _this$_getIdx2[1];
-      if (this.currentYear === newYearValue) {
+      if (this.currentYear === year) {
         return false;
       }
-      this._year.el.selectedIndex = newYearIndex;
-      this._yearWasChanged(newYearValue);
+      this._updateSelectBox('_year', year);
+      this._yearWasChanged(year);
       if (triggerDateChange) {
         this._dateChanged();
       }
@@ -432,6 +450,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
      * set the month to a given value
      * and change the corresponding select-box too.
      * @param {String|Int} month the month value (usually between 1 - 12)
+     * @param {Boolean} triggerDateChange true if a dateChange event should be triggered
      * @returns
      */
   }, {
@@ -439,15 +458,11 @@ var BirthdayPicker = /*#__PURE__*/function () {
     value: function _setMonth(month) {
       var triggerDateChange = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
       month = restrict(month, 1, 12);
-      var _this$_getIdx3 = this._getIdx(this._month.el.childNodes, month),
-        _this$_getIdx4 = src_slicedToArray(_this$_getIdx3, 2),
-        newMonthIndex = _this$_getIdx4[0],
-        newMonthValue = _this$_getIdx4[1];
-      if (this.currentMonth === newMonthValue) {
+      if (this.currentMonth === month) {
         return false;
       }
-      this._month.el.selectedIndex = newMonthIndex;
-      this._monthWasChanged(newMonthValue);
+      this._updateSelectBox('_month', month);
+      this._monthWasChanged(month);
       if (triggerDateChange) {
         this._dateChanged();
       }
@@ -458,6 +473,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
      * set the day to a given value
      * and change the corresponding select-box too.
      * @param {String|Int} day the day value (usually between 1 - 31)
+     * @param {Boolean} triggerDateChange true if a dateChange event should be triggered
      * @returns
      */
   }, {
@@ -466,15 +482,11 @@ var BirthdayPicker = /*#__PURE__*/function () {
       var triggerDateChange = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
       var currentMaxDays = this._daysPerMonth[this.currentMonth - 1];
       day = restrict(day, 1, currentMaxDays);
-      var _this$_getIdx5 = this._getIdx(this._day.el.childNodes, day),
-        _this$_getIdx6 = src_slicedToArray(_this$_getIdx5, 2),
-        newDayIndex = _this$_getIdx6[0],
-        newDayValue = _this$_getIdx6[1];
-      if (this.currentDay === newDayValue) {
+      if (this.currentDay === day) {
         return false;
       }
-      this._day.el.selectedIndex = newDayIndex;
-      this._dayWasChanged(newDayValue);
+      this._updateSelectBox('_day', day);
+      this._dayWasChanged(day);
       if (triggerDateChange) {
         this._dateChanged();
       }
@@ -600,6 +612,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
         };
         _this._date.push(_this['_' + item]);
         itemEl.dataset.init = true;
+        // todo: event delegation
         itemEl.addEventListener('change', function (evt) {
           _this._onSelect(evt);
         }, false);
@@ -665,6 +678,9 @@ var BirthdayPicker = /*#__PURE__*/function () {
       if (newDaysPerMonth === currentDaysPerMonth) {
         return;
       }
+      if ('undefined' === typeof newDaysPerMonth) {
+        newDaysPerMonth = 31; // reset it;
+      }
       if (newDaysPerMonth - currentDaysPerMonth > 0) {
         // add days
         for (var i = currentDaysPerMonth; i < newDaysPerMonth; i++) {
@@ -722,8 +738,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       var _this2 = this;
       // console.log('_noFutureDate');
 
-      // set all previously disabled option elements to false
-      // (reenable them)
+      // set all previously disabled option elements to false (reenable them)
       if (this._disabled.length) {
         this._disabled.forEach(function (el) {
           el.disabled = false;
@@ -732,7 +747,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       }
 
       // early exit
-      if (this.currentYear < year) {
+      if (this.currentYear < year || !this.currentYear || !this.currentYear && !this.currentMonth && !this.currentDay) {
         return false;
       }
       if (this.currentYear > year) {
@@ -741,6 +756,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
 
       // console.log(this.currentYear, this.currentMonth, this.currentDay);
       // console.log(year, month, day);
+      // console.log('--->', this.currentYear, this.currentMonth, this.currentDay);
 
       // Disable months greater than the current month
       this._month.el.childNodes.forEach(function (el) {
@@ -749,7 +765,8 @@ var BirthdayPicker = /*#__PURE__*/function () {
           _this2._disabled.push(el);
         }
       });
-      if (this.currentMonth > month) {
+      var setMonthBack = this.currentMonth > month;
+      if (setMonthBack) {
         this._setMonth(month, false);
       }
       if (month === this.currentMonth) {
@@ -760,19 +777,11 @@ var BirthdayPicker = /*#__PURE__*/function () {
             _this2._disabled.push(el);
           }
         });
-        if (this.currentDay > day) {
+        if (setMonthBack || this.currentDay > day) {
           this._setDay(day, false);
         }
       }
       return true;
-    }
-  }, {
-    key: "_dateChanged",
-    value: function _dateChanged() {
-      if (!this.settings.selectFuture) {
-        this._noFutureDate(now.y, now.m, now.d);
-      }
-      this._triggerEvent(allowedEvents[1]);
     }
 
     /**
@@ -795,8 +804,8 @@ var BirthdayPicker = /*#__PURE__*/function () {
 
     /**
      * called if the day was changed
-     * sets the currentDay value
-     * @param {number} day
+     * sets the currentDay value and triggers the corresponding event
+     * @param {number} day the new day value
      * @returns
      */
   }, {
@@ -810,8 +819,8 @@ var BirthdayPicker = /*#__PURE__*/function () {
 
     /**
      * called if the month was changed
-     * sets the currentMonth value
-     * @param {number} month
+     * sets the currentMonth value and triggers the corresponding event
+     * @param {number} month the new month value
      * @returns
      */
   }, {
@@ -826,8 +835,8 @@ var BirthdayPicker = /*#__PURE__*/function () {
 
     /**
      * called if the year was changed
-     * sets the currentYear value
-     * @param {number} year
+     * sets the currentYear value and triggers the corresponding event
+     * @param {number} year the new year value
      * @returns
      */
   }, {
@@ -838,7 +847,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       this.currentYear = year;
       this._daysPerMonth[1] = helper_isLeapYear(year) ? 29 : 28;
       this._triggerEvent(allowedEvents[4]);
-      if (!this._monthChangeTriggeredLater && +this._month.el.value === 2) {
+      if (!this._monthChangeTriggeredLater && this.currentMonth === 2) {
         this._updateDays(this._month.el.value);
       }
     }
