@@ -1095,8 +1095,11 @@ BirthdayPicker.getInstance = function (el) {
   return dataStorage.get(el, 'instance');
 };
 BirthdayPicker.createLocale = function (lang) {
+  if (!lang || lang.length !== 2) {
+    lang = 'en';
+  }
   if (BirthdayPicker.i18n[lang]) {
-    return;
+    return BirthdayPicker.i18n[lang];
   }
   var dd = new Date('2000-01-15');
   var obj = {
