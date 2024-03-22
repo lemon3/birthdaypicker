@@ -43,7 +43,7 @@
   </ol>
 </details>
 
-## TL;DR
+## tl;dr
 ```Bash
 npm install birthdaypicker
 ```
@@ -245,6 +245,13 @@ options = {
   // available: true | false
   // default: true
   placeholder: true,
+
+  // if set, name will be added to each select box
+  // and [name]-year [name]-month [name]-day (will be added too)
+  // where name is the className chosen.
+  // e.g.: 'my-class' results in:
+  // <select class="my-class my-class-year"></select>
+  className: null,
 
   // sets the selected start date
   // available: 'now' | new Date() | '2020-10-12' (YYYY-MM-DD)
@@ -509,6 +516,14 @@ pnpm run
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Roadmap
+
+add options
+- upperLimit: new Date()
+- lowerLimit: new Date()
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

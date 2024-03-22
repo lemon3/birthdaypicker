@@ -36,6 +36,7 @@ var defaults = {
   maxAge: 100,
   monthFormat: 'short',
   placeholder: true,
+  className: 'null',
   defaultDate: null,
   autoInit: true,
   leadingZero: true,
@@ -47,6 +48,24 @@ var defaults = {
   dayEl: null,
   roundDownDay: true
 };
+;// CONCATENATED MODULE: ./src/locale.js
+// BirthdayPickerLocale
+var locale = {
+  en: {
+    text: {
+      year: 'Year',
+      month: 'Month',
+      day: 'Day'
+    }
+  },
+  de: {
+    text: {
+      year: 'Jahr',
+      month: 'Monat',
+      day: 'Tag'
+    }
+  }
+};
 ;// CONCATENATED MODULE: ./src/helper.js
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -55,6 +74,25 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t.return && (u = t.return(), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+/**
+ * helper to trigger inline events
+ * e.g.:
+ * <div ondatechange="foo()">bar</bla>
+ * @param {Object} elem the html element
+ * @param {String} name the event name
+ * @param {Object} data event data
+ */
+var trigger = function trigger(elem, name, data) {
+  var funData = elem.getAttribute('on' + name);
+  var func = new Function('e',
+  // 'with(document) {' +
+  // 'with(this)' +
+  '{' + funData + '}'
+  // + '}'
+  );
+  func.call(elem, data);
+};
+
 /**
  * add properties and style attributes to a given HTML object
  * @param  {object} el - The HTML object to add properties and styles too.
@@ -268,17 +306,18 @@ var restrict = function restrict(value, min, max) {
 ;// CONCATENATED MODULE: ./src/index.js
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function src_typeof(o) { "@babel/helpers - typeof"; return src_typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, src_typeof(o); }
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == src_typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != src_typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != src_typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 /*!
  * (c) wolfgang jungmayer
  * www.lemon3.at
  */
+
 
 
 var instances = [];
@@ -288,24 +327,6 @@ var monthFormats = ['short', 'long', 'numeric'];
 var allowedArrangement = ['ymd', 'ydm', 'myd', 'mdy', 'dmy', 'dym'];
 var allowedEvents = ['init', 'datechange', 'daychange', 'monthchange', 'yearchange', 'kill'];
 var optionTagName = 'option';
-
-// BirthdayPickerLocale
-var locale = {
-  en: {
-    text: {
-      year: 'Year',
-      month: 'Month',
-      day: 'Day'
-    }
-  },
-  de: {
-    text: {
-      year: 'Jahr',
-      month: 'Monat',
-      day: 'Tag'
-    }
-  }
-};
 var currentDate = new Date();
 var now = {
   y: currentDate.getFullYear(),
@@ -314,16 +335,6 @@ var now = {
   t: currentDate.getTime()
 };
 var initialized = false;
-function trigger(elem, name, data) {
-  var funData = elem.getAttribute('on' + name);
-  var func = new Function('e',
-  // 'with(document) {' +
-  // 'with(this)' +
-  '{' + funData + '}'
-  // + '}'
-  );
-  func.call(elem, data);
-}
 var isTrue = function isTrue(value) {
   return value === true || value === 'true' || value === 1 || value === '1';
 };
@@ -335,7 +346,23 @@ var isTrue = function isTrue(value) {
  */
 var BirthdayPicker = /*#__PURE__*/function () {
   function BirthdayPicker(element, options) {
+    var _this = this;
     _classCallCheck(this, BirthdayPicker);
+    /**
+     * date change event handler, called if one of the fields is updated
+     * @param  {Event} e The event
+     * @return {void}
+     */
+    _defineProperty(this, "_onSelect", function (evt) {
+      if (evt.target === _this._year.el) {
+        _this._yearWasChanged(+evt.target.value);
+      } else if (evt.target === _this._month.el) {
+        _this._monthWasChanged(+evt.target.value);
+      } else if (evt.target === _this._day.el) {
+        _this._dayWasChanged(+evt.target.value);
+      }
+      _this._dateChanged();
+    });
     if (!element) {
       return {
         error: true
@@ -565,7 +592,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
   }, {
     key: "_create",
     value: function _create() {
-      var _this = this;
+      var _this2 = this;
       var s = this.settings;
       // bigEndian:    ymd
       // littleEndian: dmy
@@ -586,23 +613,36 @@ var BirthdayPicker = /*#__PURE__*/function () {
           itemEl = query;
         } else {
           query = query ? query : '[' + dataName + '-' + item + ']';
-          itemEl = _this.element.querySelector(query);
+          itemEl = _this2.element.querySelector(query);
         }
         if (!itemEl || itemEl.dataset.init) {
           itemEl = createEl('select');
-          _this.element.append(itemEl);
+          _this2.element.append(itemEl);
         }
-        _this['_' + item] = {
+
+        // set aria values
+        itemEl.setAttribute('aria-label', "select ".concat(item));
+        if (s.className) {
+          itemEl.classList.add(s.className);
+          itemEl.classList.add("".concat(s.className, "-").concat(item));
+        }
+        itemEl.dataset.init = true;
+        var eventName = 'change';
+        var listener = _this2._onSelect;
+        var option = false;
+        itemEl.addEventListener(eventName, listener, option);
+        _this2._registeredEventListeners.push({
+          element: itemEl,
+          eventName: eventName,
+          listener: listener,
+          option: option
+        });
+        _this2['_' + item] = {
           el: itemEl,
           df: document.createDocumentFragment(),
           name: item // placeholder name
         };
-        _this._date.push(_this['_' + item]);
-        itemEl.dataset.init = true;
-        // todo: event delegation
-        itemEl.addEventListener('change', function (evt) {
-          _this._onSelect(evt);
-        }, false);
+        _this2._date.push(_this2['_' + item]);
       });
       var optionEl = createEl(optionTagName, {
         value: ''
@@ -630,8 +670,8 @@ var BirthdayPicker = /*#__PURE__*/function () {
       this.monthFormat[s.monthFormat].forEach(function (text, ind) {
         var option = optionEl.cloneNode();
         option.value = ind + 1;
-        option.innerHTML = _this._getMonthText(text);
-        _this._month.df.append(option);
+        option.innerHTML = _this2._getMonthText(text);
+        _this2._month.df.append(option);
       });
 
       // add day
@@ -722,7 +762,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
   }, {
     key: "_noFutureDate",
     value: function _noFutureDate(year, month, day) {
-      var _this2 = this;
+      var _this3 = this;
       // console.log('_noFutureDate');
 
       // set all previously disabled option elements to false (reenable them)
@@ -749,7 +789,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       this._month.el.childNodes.forEach(function (el) {
         if (el.value > month) {
           el.disabled = true;
-          _this2._disabled.push(el);
+          _this3._disabled.push(el);
         }
       });
       var setMonthBack = this.currentMonth > month;
@@ -761,7 +801,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
         this._day.el.childNodes.forEach(function (el) {
           if (el.value > day) {
             el.disabled = true;
-            _this2._disabled.push(el);
+            _this3._disabled.push(el);
           }
         });
         if (setMonthBack || this.currentDay > day) {
@@ -770,34 +810,16 @@ var BirthdayPicker = /*#__PURE__*/function () {
       }
       return true;
     }
-
-    /**
-     * date change event handler, called if one of the fields is updated
-     * @param  {Event} e The event
-     * @return {void}
-     */
   }, {
-    key: "_onSelect",
-    value: function _onSelect(evt) {
-      if (evt.target === this._year.el) {
-        this._yearWasChanged(+evt.target.value);
-      } else if (evt.target === this._month.el) {
-        this._monthWasChanged(+evt.target.value);
-      } else if (evt.target === this._day.el) {
-        this._dayWasChanged(+evt.target.value);
-      }
-      this._dateChanged();
-    }
-
+    key: "_dayWasChanged",
+    value:
     /**
      * called if the day was changed
      * sets the currentDay value and triggers the corresponding event
      * @param {number} day the new day value
      * @returns
      */
-  }, {
-    key: "_dayWasChanged",
-    value: function _dayWasChanged(day) {
+    function _dayWasChanged(day) {
       // console.log('_dayWasChanged:', day);
       // const from = this.currentDay;
       this.currentDay = day;
@@ -862,11 +884,11 @@ var BirthdayPicker = /*#__PURE__*/function () {
   }, {
     key: "_updateMonthList",
     value: function _updateMonthList() {
-      var _this3 = this;
+      var _this4 = this;
       var format = this.settings.monthFormat;
       var offset = this.settings.placeholder ? 1 : 0;
       this.monthFormat[format].forEach(function (text, i) {
-        _this3._month.el.childNodes[i + offset].innerHTML = _this3._getMonthText(text);
+        _this4._month.el.childNodes[i + offset].innerHTML = _this4._getMonthText(text);
       });
     }
   }, {
@@ -896,7 +918,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
   }, {
     key: "setLanguage",
     value: function setLanguage(lang) {
-      var _this4 = this;
+      var _this5 = this;
       if (lang === this.settings.locale || ('' + lang).length < 2 || ('' + lang).length > 2) {
         // console.log('nothing to change');
         return false;
@@ -920,7 +942,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       }
       var filter = this.settings.placeholder ? 1 : 0;
       this.monthFormat[this.settings.monthFormat].forEach(function (el, ind) {
-        _this4._month.el.childNodes[filter + ind].innerHTML = el;
+        _this5._month.el.childNodes[filter + ind].innerHTML = el;
       });
 
       // trigger a datechange event, as the output format might change
@@ -957,6 +979,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       }
       this.element.addEventListener(eventName, listener, option);
       this._registeredEventListeners.push({
+        element: this.element,
         eventName: eventName,
         listener: listener,
         option: option
@@ -977,13 +1000,25 @@ var BirthdayPicker = /*#__PURE__*/function () {
   }, {
     key: "kill",
     value: function kill() {
-      var _this5 = this;
+      var _this6 = this;
       this.eventFired = {};
 
       // remove all registered EventListeners
       if (this._registeredEventListeners) {
         this._registeredEventListeners.forEach(function (r) {
-          return _this5.removeEventListener(r.eventName, r.listener, r.option);
+          return r.element.removeEventListener(r.eventName, r.listener, r.option);
+        });
+      }
+      // remove classes
+      if (this.settings.className) {
+        var cn = this.settings.className;
+        ['year', 'month', 'day'].forEach(function (item) {
+          var queryName = cn + '-' + item;
+          var el = _this6.element.querySelector('.' + queryName);
+          if (el) {
+            el.classList.remove(cn);
+            el.classList.remove(queryName);
+          }
         });
       }
       this._triggerEvent(allowedEvents[5]);

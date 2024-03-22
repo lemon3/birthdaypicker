@@ -408,7 +408,6 @@ describe('date setting tests', () => {
       const todayMonth = ('0' + (today.getMonth() + 1)).slice(-2);
       const todayDay = ('0' + today.getDate()).slice(-2);
       const todayString = `${todayYear}-${todayMonth}-${todayDay}`;
-      console.log(todayString);
       expect(result).toEqual(todayString);
     });
   });
@@ -436,8 +435,7 @@ describe('date setting tests', () => {
 
 // test for _dayChanged
 describe('setDate tests', () => {
-  const bpEl = document.querySelector('#test');
-  BirthdayPicker.kill(bpEl);
+  const bpEl = document.createElement('div');
   let bp = new BirthdayPicker(bpEl, {
     defaultDate: '2000-12-31',
   });
@@ -1103,8 +1101,7 @@ describe('_noFutureDate methods tests', () => {
 });
 
 describe('_dateChanged methods tests', () => {
-  const bpEl = document.querySelector('#test');
-  BirthdayPicker.kill(bpEl);
+  const bpEl = document.createElement('div');
   let bp = new BirthdayPicker(bpEl, {
     defaultDate: '2010-02-20',
   });
@@ -1176,8 +1173,7 @@ describe('_dateChanged methods tests', () => {
 // });
 
 describe('_updateDays methods tests', () => {
-  const bpEl = document.querySelector('#test');
-  BirthdayPicker.kill(bpEl);
+  const bpEl = document.createElement('div');
   const placeholder = true;
   let bp = new BirthdayPicker(bpEl, {
     defaultDate: '2010-02-20',

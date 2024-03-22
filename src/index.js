@@ -3,6 +3,7 @@
  * www.lemon3.at
  */
 import { defaults } from '@/defaults';
+import { locale } from '@/locale';
 import {
   docReady,
   createEl,
@@ -10,6 +11,7 @@ import {
   getJSONData,
   isLeapYear,
   dataStorage,
+  trigger,
 } from '@/helper';
 
 let instances = [];
@@ -27,12 +29,6 @@ const allowedEvents = [
 ];
 const optionTagName = 'option';
 
-// BirthdayPickerLocale
-const locale = {
-  en: { text: { year: 'Year', month: 'Month', day: 'Day' } },
-  de: { text: { year: 'Jahr', month: 'Monat', day: 'Tag' } },
-};
-
 const currentDate = new Date();
 const now = {
   y: currentDate.getFullYear(),
@@ -42,18 +38,6 @@ const now = {
 };
 
 let initialized = false;
-
-function trigger(elem, name, data) {
-  let funData = elem.getAttribute('on' + name);
-  let func = new Function(
-    'e',
-    // 'with(document) {' +
-    // 'with(this)' +
-    '{' + funData + '}'
-    // + '}'
-  );
-  func.call(elem, data);
-}
 
 const isTrue = (value) =>
   value === true || value === 'true' || value === 1 || value === '1';
@@ -296,22 +280,32 @@ class BirthdayPicker {
         itemEl = createEl('select');
         this.element.append(itemEl);
       }
+
+      // set aria values
+      itemEl.setAttribute('aria-label', `select ${item}`);
+      if (s.className) {
+        itemEl.classList.add(s.className);
+        itemEl.classList.add(`${s.className}-${item}`);
+      }
+
+      itemEl.dataset.init = true;
+      const eventName = 'change';
+      const listener = this._onSelect;
+      const option = false;
+      itemEl.addEventListener(eventName, listener, option);
+      this._registeredEventListeners.push({
+        element: itemEl,
+        eventName,
+        listener,
+        option,
+      });
+
       this['_' + item] = {
         el: itemEl,
         df: document.createDocumentFragment(),
         name: item, // placeholder name
       };
       this._date.push(this['_' + item]);
-
-      itemEl.dataset.init = true;
-      // todo: event delegation
-      itemEl.addEventListener(
-        'change',
-        (evt) => {
-          this._onSelect(evt);
-        },
-        false
-      );
     });
 
     const optionEl = createEl(optionTagName, { value: '' });
@@ -483,7 +477,7 @@ class BirthdayPicker {
    * @param  {Event} e The event
    * @return {void}
    */
-  _onSelect(evt) {
+  _onSelect = (evt) => {
     if (evt.target === this._year.el) {
       this._yearWasChanged(+evt.target.value);
     } else if (evt.target === this._month.el) {
@@ -492,7 +486,7 @@ class BirthdayPicker {
       this._dayWasChanged(+evt.target.value);
     }
     this._dateChanged();
-  }
+  };
 
   /**
    * called if the day was changed
@@ -653,7 +647,12 @@ class BirthdayPicker {
     }
 
     this.element.addEventListener(eventName, listener, option);
-    this._registeredEventListeners.push({ eventName, listener, option });
+    this._registeredEventListeners.push({
+      element: this.element,
+      eventName,
+      listener,
+      option,
+    });
 
     // already fired
     if (this.eventFired[eventName]) {
@@ -672,8 +671,20 @@ class BirthdayPicker {
     // remove all registered EventListeners
     if (this._registeredEventListeners) {
       this._registeredEventListeners.forEach((r) =>
-        this.removeEventListener(r.eventName, r.listener, r.option)
+        r.element.removeEventListener(r.eventName, r.listener, r.option)
       );
+    }
+    // remove classes
+    if (this.settings.className) {
+      const cn = this.settings.className;
+      ['year', 'month', 'day'].forEach((item) => {
+        const queryName = cn + '-' + item;
+        const el = this.element.querySelector('.' + queryName);
+        if (el) {
+          el.classList.remove(cn);
+          el.classList.remove(queryName);
+        }
+      });
     }
 
     this._triggerEvent(allowedEvents[5]);

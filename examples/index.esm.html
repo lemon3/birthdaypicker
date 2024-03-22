@@ -76,7 +76,7 @@
       const datechange = (evt) => {
         const i = evt.detail.instance;
         console.log(evt);
-        testInput.value = i.getDate('d.m.yyyy');
+        testInput.value = i.getDateString('d.m.yyyy');
       };
 
       const changeLang = (evt) => {

@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.1.19
+### Added or Changed
+- added aria-label
+- option to add classNames
+
 ## v0.1.18
 ### Added or Changed
 - optimizations

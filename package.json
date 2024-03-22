@@ -1,6 +1,6 @@
 {
   "name": "birthdaypicker",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "description": "i18n birthday picker with a variety of setting options",
   "browser": "dist/birthdaypicker.esm.min.js",
   "author": "wolfgang jungmayer",
@@ -32,7 +32,9 @@
     "birthdaypicker",
     "datepicker",
     "birthday picker",
-    "date picker"
+    "date picker",
+    "front-end",
+    "frontend"
   ],
   "repository": {
     "type": "git",
