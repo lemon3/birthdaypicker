@@ -67,6 +67,7 @@ I needed a birthday input field that is easy to use and without JS dependencies.
 ### Features
 * Coded in vanilla JS.
 * Internationalization (i18n)
+  * change the language on the fly
 * BirthdayPicker is dependency-free ;)
 
 **[BirthdayPicker Demo >>](https://lemon3.github.io/birthdaypicker/)**
@@ -87,10 +88,14 @@ if you use the classic js approach by loading scripts in html code, just downloa
 </script>
 ```
 #### module js approach
-use npm / yarn to install the package
+use pnpm / npm / yarn to install the package
+```Bash
+pnpm add birthdaypicker
+```
 ```Bash
 npm install birthdaypicker
-# or
+```
+```Bash
 yarn add birthdaypicker
 ```
 and then us it with
@@ -206,7 +211,7 @@ const options = {};
 const myBirthdayPicker = new BirthdayPicker(element, options);
 ```
 
-### API / option API
+### API / options
 ```js
 options = {
   // sets the minimal age for a person, animal,...
@@ -403,8 +408,54 @@ myPicker.addEventListener('datechange', (evt) => {
 element.addEventListener('datechange', (evt) => {
   // todo something ...
 });
+```
 
+### API / static Methods
+#### createLocale()
+```js
+// used to create a locale object for the selected language
+// parameter: (string, required)
+// eg.: 'de' | 'en' | 'fr'
+// returns an object for the given language (if language not found defaults to english 'en')
+// is added to BirthdayPicker.i18n
+BirthdayPicker.createLocale('de')
+```
+#### getInstance()
+```js
+// returns the instance
+// (if the element has previously been initialized with new BirthdayPicker('#myBP')
+// returns either the instance ore false
+htmlElement = document.getElementById('#myBP');
+BirthdayPicker.getInstance(htmlElement)
+```
 
+#### setMonthFormat()
+```js
+// sets the MonthFormat (select boxes) for all instances
+// format: 'short' | 'long' | 'numeric'
+BirthdayPicker.setMonthFormat('short')
+```
+
+#### kill()
+```js
+// kill all eventListeners
+htmlElement = document.getElementById('#myBP');
+BirthdayPicker.kill(htmlElement)
+```
+
+#### killAll()
+```js
+// kill all registered instances
+BirthdayPicker.killAll()
+```
+
+### API / static Properties
+```js
+// an object with all languages cerated
+BirthdayPicker.i18n
+
+// shows the current language as string (2 chars, e.g.: 'en' | 'de')
+BirthdayPicker.currentLocale
 ```
 
 ### Demo
@@ -417,27 +468,20 @@ A **small demo** of this tool can be view here: [BirthdayPicker Demo](https://le
 
 ### Prerequisites
 
-you need to have **node** with **npm** and/or **yarn**.
-skip to installation if you already have this ;)
+you need to have **node** and **pnpm**.
+skip to prerequisites if you already have this installed ;)
 
 1. Install node
-    via brew (or [download here](https://nodejs.org/en/download/))
-    this will install npm too.
+   1. download [download here](https://nodejs.org/en/download/)
+   2. via brew
     ```Bash
     brew install node
     ```
 
-2. Install yarn:
-    via npm:
-    ```Bash
-    npm install --global yarn
-    ```
-    test version, to see if it works:
-    ```Bash
-    yarn --version
-    ```
+2. Install pnpm:
+  see here: https://pnpm.io/installation
+
 ### Installation
-how to install
 
 1. Clone the repo
    ```Bash
@@ -447,24 +491,17 @@ how to install
     ```Bash
     cd birthdaypicker
     ```
-3. Install NPM packages
+3. Install packages
     ```Bash
-    yarn install
-    # or
-    npm install
+    pnpm install
     ```
-4. start
-    (opens a dev server at port 8080, with root set to **./examples** directory)
+4. start (dev server at port 8888)
     ```Bash
-    yarn run start
-    # or
-    npm run start
+    pnpm start
     ```
-To see all available scripts, open the **package.json** file or run either
+To see all available scripts, open the **package.json** file or run
 ```Bash
-yarn run
-# or
-npm run
+pnpm run
 ```
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
