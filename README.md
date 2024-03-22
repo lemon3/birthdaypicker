@@ -15,6 +15,7 @@
     <img src="https://raw.githubusercontent.com/lemon3/birthdaypicker/main/_assets/images/logo.svg" alt="Logo" width="360" height="auto">
   </a>
   <h3 align="center">an i18n javascript birthday picker</h3>
+  <p>with a variety of setting options</p>
 </div>
 
 <!-- TABLE OF CONTENTS -->
@@ -246,7 +247,7 @@ options = {
   // example: '2012-12-04'
   defaultDate: null,
 
-  // if the initialize function should be called on creating an instance:
+  // if the init method should be called on creating an instance:
   // const myBp = new BirthdayPicker(el, {})
   // if set to false, you have to call myBp.init() afterwards.
   // available: true | false
@@ -341,7 +342,7 @@ myBirthdayPicker.getDateString('yyyy-m-d');
 // for the current year, month, day values
 myBirthdayPicker.getDate();
 
-// just a small helper function, returns true or false
+// just a small helper method, returns true or false
 myBirthdayPicker.isLeapYear(2020); // true
 
 // listen to different events eg.
@@ -359,7 +360,7 @@ myBirthdayPicker.setDate(new Date());
 
 // resets the date
 // true: resets to the defaultDate (start date);
-// false: all select boxes will be reset to default value
+// false: all select boxes will be reset to default value (if available)
 myBirthdayPicker.resetDate(true);
 
 // sets the language for the current instance

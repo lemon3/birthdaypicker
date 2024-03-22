@@ -163,8 +163,9 @@
           },
           // events
           outputFormatChange(evt) {
+            const i = this.getInstance();
             this.currentOutputFormat = this.outputFormat.filter((op) => op.id === +evt.target.value)[0];
-            this.result = this.getInstance().getDateString(this.currentOutputFormat.val);
+            this.result = i.getDateString(this.currentOutputFormat.val);
             this.resultDate = i.getDate().toString();
           },
           datechange(evt) {
@@ -394,21 +395,51 @@
                 </div>
               </div>
             </div>
-            <div class="relative mb-4">
-              <div class="mb-1">selected result</div>
-              <input
-                class="w-full px-2 py-2 outline-none border-0 focus:ring-pink-500 focus:ring-2 rounded-md disabled:bg-gray-400 disabled:text-gray-600 disabled:opacity-1"
-                id="mm-input"
-                type="text"
-                :value="result"
-                disabled
-              />
-              <div class="text-xs" x-text="currentOutputFormat.desc"></div>
+
+            <div class="mb-1">getDateString(<span x-text="currentOutputFormat.val ? ('\'' + currentOutputFormat.val + '\'') : ''"></span>)</div>
+            <div class="flex align-start">
+              <div class="relative w-1/2 mb-4 mr-2">
+                <input
+                  class="w-full px-2 py-2 outline-none border-0 focus:ring-pink-500 focus:ring-2 rounded-md disabled:bg-gray-400 disabled:text-gray-800 disabled:opacity-1"
+                  id="mm-input"
+                  type="text"
+                  :value="result"
+                  disabled
+                />
+              </div>
+              <div class="ml-2 w-1/2">
+                <div class="relative">
+                  <select
+                    @change="outputFormatChange"
+                    class="w-full peer focus:outline-none pr-7 pl-2 py-2 appearance-none cursor-pointer border-0 rounded-md"
+                  >
+                    <template x-for="oFormat in outputFormat" :key="oFormat.id">
+                      <option :value="oFormat.id" x-text="oFormat.label"></option>
+                    </template>
+                  </select>
+                  <div
+                    class="top-0 left-0 pointer-events-none absolute w-full h-full border-0 peer-focus:ring-pink-500 peer-focus:ring-2 peer-focus:z-10 peer-focus:bg-pink-500/10 rounded-md"
+                  >
+                    <svg
+                      class="w-4 top-2 right-2 absolute"
+                      width="24"
+                      height="24"
+                      viewbox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="m20.902 7.331c.326-.322.851-.322 1.175 0s.325.841 0 1.163l-9.49 9.396c-.324.322-.848.322-1.175 0l-9.49-9.396c-.324-.322-.324-.841 0-1.163.325-.322.851-.322 1.175 0l8.903 8.569z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
             </div>
+
             <div class="relative mb-4">
-              <div class="mb-1">result as date object</div>
+              <div class="mb-1">getDate()</div>
               <textarea
-                class="w-full px-2 py-2 outline-none border-0 focus:ring-pink-500 focus:ring-2 rounded-md disabled:bg-gray-400 disabled:text-gray-600 disabled:opacity-1"
+                class="w-full px-2 py-2 outline-none border-0 focus:ring-pink-500 focus:ring-2 rounded-md disabled:bg-gray-400 disabled:text-gray-800 disabled:opacity-1"
                 name=""
                 id=""
                 rows="3"
@@ -538,7 +569,7 @@
         </div>
 
         <div class="mt-8">
-          <div>set date format to:</div>
+          <div>set date format for the select-boxes to:</div>
           <template x-for="df in availableDateformat" :key="df.id">
             <button
               type="button"
@@ -553,7 +584,7 @@
         </div>
 
         <div class="mt-4">
-          <div>use leading zero:</div>
+          <div>use leading zeros in select boxes:</div>
           <template x-for="lz in leadingZeros" :key="lz.id">
             <button
               type="button"
@@ -565,37 +596,6 @@
               short
             </button>
           </template>
-        </div>
-
-        <div class="mt-8">
-          <div>set output format to:</div>
-          <div class="flex">
-            <div class="relative">
-              <select
-                @change="outputFormatChange"
-                class="peer focus:outline-none pr-7 pl-2 py-2 appearance-none cursor-pointer border-0 rounded-md"
-              >
-                <template x-for="oFormat in outputFormat" :key="oFormat.id">
-                  <option :value="oFormat.id" x-text="oFormat.label"></option>
-                </template>
-              </select>
-              <div
-                class="top-0 left-0 pointer-events-none absolute w-full h-full border-0 peer-focus:ring-pink-500 peer-focus:ring-2 peer-focus:z-10 peer-focus:bg-pink-500/10 rounded-md"
-              >
-                <svg
-                  class="w-4 top-2 right-2 absolute"
-                  width="24"
-                  height="24"
-                  viewbox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="m20.902 7.331c.326-.322.851-.322 1.175 0s.325.841 0 1.163l-9.49 9.396c-.324.322-.848.322-1.175 0l-9.49-9.396c-.324-.322-.324-.841 0-1.163.325-.322.851-.322 1.175 0l8.903 8.569z"
-                  />
-                </svg>
-              </div>
-            </div>
-          </div>
         </div>
 
         <div class="mt-8">

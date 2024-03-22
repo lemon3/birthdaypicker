@@ -184,8 +184,7 @@ class BirthdayPicker {
    * @returns
    */
   _setDay(day, triggerDateChange = true) {
-    const currentMaxDays = this._daysPerMonth[this.currentMonth - 1];
-    day = restrict(day, 1, currentMaxDays);
+    day = restrict(day, 1, this.getDaysPerMonth());
     if (this.currentDay === day) {
       return false;
     }
@@ -362,7 +361,7 @@ class BirthdayPicker {
    */
   _updateDays(month) {
     // console.log('_updateDays');
-    let newDaysPerMonth = this._daysPerMonth[+month - 1];
+    let newDaysPerMonth = this.getDaysPerMonth(month);
     const offset = this.settings.placeholder ? 1 : 0;
     const currentDaysPerMonth = this._day.el.children.length - offset;
 
@@ -536,7 +535,7 @@ class BirthdayPicker {
     this._triggerEvent(allowedEvents[4]);
 
     if (!this._monthChangeTriggeredLater && this.currentMonth === 2) {
-      this._updateDays(this._month.el.value);
+      this._updateDays(this.currentMonth);
     }
   }
 
@@ -567,6 +566,10 @@ class BirthdayPicker {
       this._month.el.childNodes[i + offset].innerHTML =
         this._getMonthText(text);
     });
+  }
+
+  getDaysPerMonth(month = this.currentMonth) {
+    return this._daysPerMonth[+month - 1];
   }
 
   /**

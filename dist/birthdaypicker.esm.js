@@ -273,7 +273,7 @@ function src_typeof(o) { "@babel/helpers - typeof"; return src_typeof = "functio
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == src_typeof(i) ? i : i + ""; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == src_typeof(i) ? i : String(i); }
 function _toPrimitive(t, r) { if ("object" != src_typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != src_typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 /*!
  * (c) wolfgang jungmayer
@@ -372,7 +372,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
    * @param  {String} value Value to find
    * @return {*}       The index value or undefined
    */
-  return _createClass(BirthdayPicker, [{
+  _createClass(BirthdayPicker, [{
     key: "_getIdx",
     value: function _getIdx(nodeList, value) {
       if (!nodeList || isNaN(value || 'undefined' === typeof value)) {
@@ -468,8 +468,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
     key: "_setDay",
     value: function _setDay(day) {
       var triggerDateChange = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-      var currentMaxDays = this._daysPerMonth[this.currentMonth - 1];
-      day = restrict(day, 1, currentMaxDays);
+      day = restrict(day, 1, this.getDaysPerMonth());
       if (this.currentDay === day) {
         return false;
       }
@@ -660,7 +659,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
     key: "_updateDays",
     value: function _updateDays(month) {
       // console.log('_updateDays');
-      var newDaysPerMonth = this._daysPerMonth[+month - 1];
+      var newDaysPerMonth = this.getDaysPerMonth(month);
       var offset = this.settings.placeholder ? 1 : 0;
       var currentDaysPerMonth = this._day.el.children.length - offset;
       if (newDaysPerMonth === currentDaysPerMonth) {
@@ -836,7 +835,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       this._daysPerMonth[1] = helper_isLeapYear(year) ? 29 : 28;
       this._triggerEvent(allowedEvents[4]);
       if (!this._monthChangeTriggeredLater && this.currentMonth === 2) {
-        this._updateDays(this._month.el.value);
+        this._updateDays(this.currentMonth);
       }
     }
   }, {
@@ -869,6 +868,12 @@ var BirthdayPicker = /*#__PURE__*/function () {
       this.monthFormat[format].forEach(function (text, i) {
         _this3._month.el.childNodes[i + offset].innerHTML = _this3._getMonthText(text);
       });
+    }
+  }, {
+    key: "getDaysPerMonth",
+    value: function getDaysPerMonth() {
+      var month = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.currentMonth;
+      return this._daysPerMonth[+month - 1];
     }
 
     /**
@@ -1071,6 +1076,7 @@ var BirthdayPicker = /*#__PURE__*/function () {
       }
     }
   }]);
+  return BirthdayPicker;
 }();
 BirthdayPicker.i18n = {};
 BirthdayPicker.currentLocale = 'en';
