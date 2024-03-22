@@ -783,10 +783,14 @@ BirthdayPicker.currentLocale = 'en';
 BirthdayPicker.getInstance = (el) => dataStorage.get(el, 'instance');
 
 BirthdayPicker.createLocale = (lang) => {
+  if (!lang || lang.length !== 2) {
+    lang = 'en';
+  }
   if (BirthdayPicker.i18n[lang]) {
-    return;
+    return BirthdayPicker.i18n[lang];
   }
   let dd = new Date('2000-01-15');
+
   let obj = { month: {} };
 
   for (let i = 0; i < 12; i++) {
