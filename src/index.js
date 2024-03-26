@@ -70,8 +70,7 @@ class BirthdayPicker {
     dataStorage.put(element, 'instance', this);
 
     // from data api
-    const data = getJSONData(element);
-    console.log(data);
+    const data = getJSONData(element, pluginName, BirthdayPicker.defaults);
 
     this.options = options; // user options
     this.settings = Object.assign({}, BirthdayPicker.defaults, data, options);
