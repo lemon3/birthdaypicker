@@ -21,7 +21,7 @@ const A = {
   minAge: 0,
   maxAge: 100,
   monthFormat: "short",
-  placeholder: !0,
+  placeholder: true,
   className: null,
   defaultDate: null,
   autoInit: !0,
