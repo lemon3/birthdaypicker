@@ -651,11 +651,9 @@
           this.getInstance().resetDate(preserveStartDate);
         },
         setdate(val, id) {
-          console.log(val, id);
           if (6 === id) {
-            const rand = this.getRandomDate();
-            this.birthdays.filter(f => id===f.id)[0].val = rand
-            val = rand;
+            val = this.getRandomDate();
+            this.birthdays.filter(f => id===f.id)[0].val = val
           }
           this.getInstance().setDate(val);
         },

@@ -24,6 +24,7 @@ const allowedEvents = [
   'kill',
 ];
 const optionTagName = 'option';
+const lookup = { y: 'year', m: 'month', d: 'day' };
 
 const currentDate = new Date();
 const now = {
@@ -193,7 +194,7 @@ class BirthdayPicker {
    * @returns
    */
   _setDay(day, triggerDateChange = true) {
-    day = restrict(day, 1, this.getDaysPerMonth());
+    day = restrict(day, 1, this._getDaysPerMonth());
     if (this.currentDay === day) {
       return false;
     }
@@ -235,63 +236,71 @@ class BirthdayPicker {
       : '' + text; // return string
   }
 
+  _checkArrangement(String) {
+    // bigEndian:    ymd
+    // littleEndian: dmy
+    // else:         mdy
+    if (allowedArrangement.indexOf(String) < 0) {
+      return 'ymd';
+    }
+    return String;
+  }
+
   /**
    * Create the gui and set the default (start) values if available
    * @return {void}
    */
   _create() {
     const s = this.settings;
-    // bigEndian:    ymd
-    // littleEndian: dmy
-    // else:         mdy
-    if (allowedArrangement.indexOf(s.arrange) < 0) {
-      s.arrange = 'ymd'; // bigEndian
-    }
+    s.arrange = this._checkArrangement(s.arrange);
 
-    const lookup = { y: 'year', m: 'month', d: 'day' };
     s.arrange.split('').forEach((i) => {
-      const item = lookup[i];
-      let itemEl;
-      let query = s[item + 'El'];
+      const name = lookup[i];
+      let created = false;
+      let el;
+      let query = s[name + 'El'];
+
       if (query && 'undefined' !== typeof query.nodeName) {
-        itemEl = query;
+        el = query;
       } else {
-        query = query ? query : '[' + dataName + '-' + item + ']';
-        itemEl = this.element.querySelector(query);
+        query = query ? query : '[' + dataName + '-' + name + ']';
+        el = this.element.querySelector(query);
       }
-      if (!itemEl || itemEl.dataset.init) {
-        itemEl = createEl('select');
-        this.element.append(itemEl);
+      if (!el || el.dataset.init) {
+        el = createEl('select');
+        created = true;
+        this.element.append(el);
       }
 
       // set aria values
-      itemEl.setAttribute('aria-label', `select ${item}`);
+      el.setAttribute('aria-label', `select ${name}`);
       if (s.className) {
-        itemEl.classList.add(s.className);
-        itemEl.classList.add(`${s.className}-${item}`);
+        el.classList.add(s.className);
+        el.classList.add(`${s.className}-${name}`);
       }
 
-      itemEl.dataset.init = true;
+      el.dataset.init = true;
       const eventName = 'change';
       const listener = this._onSelect;
       const option = false;
-      itemEl.addEventListener(eventName, listener, option);
+      el.addEventListener(eventName, listener, option);
       this._registeredEventListeners.push({
-        element: itemEl,
+        element: el,
         eventName,
         listener,
         option,
       });
 
-      this['_' + item] = {
-        el: itemEl,
+      this['_' + name] = {
+        el,
+        name,
+        created,
         df: document.createDocumentFragment(),
-        name: item, // placeholder name
       };
-      this._date.push(this['_' + item]);
+      this._date.push(this['_' + name]);
     });
 
-    const optionEl = createEl(optionTagName, { value: '' });
+    const optionEl = createEl(optionTagName);
 
     // placeholder
     if (s.placeholder) {
@@ -338,7 +347,7 @@ class BirthdayPicker {
    */
   _updateDays(month) {
     // console.log('_updateDays');
-    let newDaysPerMonth = this.getDaysPerMonth(month);
+    let newDaysPerMonth = this._getDaysPerMonth(month);
     const offset = this.settings.placeholder ? 1 : 0;
     const currentDaysPerMonth = this._day.el.children.length - offset;
 
@@ -516,14 +525,24 @@ class BirthdayPicker {
     }
   }
 
+  /**
+   * updates the innerHTML off the day option list
+   * adds or removes a leading zero depending on the value of
+   * this.settings.leadingZero
+   */
   _updateDayList() {
     const offset = this.settings.placeholder ? 1 : 0;
-    for (let i = 0; i < 9; i++) {
-      const el = this._day.el.childNodes[i + offset];
-      el.innerHTML = (this.settings.leadingZero ? '0' : '') + (i + 1);
+    const string = this.settings.leadingZero ? '0' : '';
+    for (let i = offset; i < 9 + offset; i++) {
+      this._day.el.childNodes[i].innerHTML = string + i;
     }
   }
 
+  /**
+   * updates the innerHTML off the month option list
+   * adds or removes a leading zero depending on the value of
+   * this.settings.leadingZero or changes the month format
+   */
   _updateMonthList() {
     const format = this.settings.monthFormat;
     const offset = this.settings.placeholder ? 1 : 0;
@@ -533,11 +552,15 @@ class BirthdayPicker {
     });
   }
 
-  useLeadingZero(value) {
-    value = isTrue(value);
-    if (value !== this.settings.leadingZero) {
-      this.settings.leadingZero = value;
-
+  /**
+   * Set the GUI (select boxes) to use a leading zero or not
+   *
+   * @param {boolean} leadingZero
+   */
+  useLeadingZero(leadingZero) {
+    leadingZero = isTrue(leadingZero);
+    if (leadingZero !== this.settings.leadingZero) {
+      this.settings.leadingZero = leadingZero;
       if ('numeric' === this.settings.monthFormat) {
         this._updateMonthList();
       }
@@ -545,23 +568,28 @@ class BirthdayPicker {
     }
   }
 
-  getDaysPerMonth(month = this.currentMonth) {
+  /**
+   * Returns the number of days available for the given month
+   *
+   * @param {Number} month the month usually between 1-12 ;)
+   * @returns number of days
+   */
+  _getDaysPerMonth(month = this.currentMonth) {
     return this._daysPerMonth[+month - 1];
   }
 
   /**
    * Change the current active month format
-   * @param  {[type]} format [description]
-   * @return {[type]}        [description]
+   *
+   * @param {String} format the format string, available: 'short', 'long', 'numeric';
+   * @returns {boolean} true if changed, false if not
    */
   setMonthFormat(format) {
-    if (!this.monthFormat[format]) {
+    if (!this.monthFormat[format] || format === this.settings.monthFormat) {
       return false;
     }
-    if (format !== this.settings.monthFormat) {
-      this.settings.monthFormat = format;
-      this._updateMonthList();
-    }
+    this.settings.monthFormat = format;
+    this._updateMonthList();
     return true;
   }
 
@@ -648,6 +676,7 @@ class BirthdayPicker {
   }
 
   // todo: undo everything
+  // destroy if it was created
   kill() {
     this.eventFired = {};
     // remove all registered EventListeners
@@ -656,18 +685,33 @@ class BirthdayPicker {
         r.element.removeEventListener(r.eventName, r.listener, r.option)
       );
     }
-    // remove classes
-    if (this.settings.className) {
-      const cn = this.settings.className;
-      ['year', 'month', 'day'].forEach((item) => {
-        const queryName = cn + '-' + item;
-        const el = this.element.querySelector('.' + queryName);
-        if (el) {
-          el.classList.remove(cn);
-          el.classList.remove(queryName);
+
+    this._date.forEach(item => {
+      if (item.created) {
+        item.el.remove();
+      } else {
+        const cn = this.settings.className;
+        if (cn) {
+          item.el.classList.remove(cn);
+          Object.values(lookup).forEach((name) => {
+            item.el.classList.remove(`${cn}-${name}`);
+          });
         }
-      });
-    }
+      }
+    });
+
+    // remove classes
+    // if (this.settings.className) {
+    //   const cn = this.settings.className;
+    //   Object.values(lookup).forEach((item) => {
+    //     const queryName = cn + '-' + item;
+    //     const el = this.element.querySelector('.' + queryName);
+    //     if (el) {
+    //       el.classList.remove(cn);
+    //       el.classList.remove(queryName);
+    //     }
+    //   });
+    // }
 
     this._triggerEvent(allowedEvents[5]);
   }
@@ -789,7 +833,9 @@ BirthdayPicker.createLocale = (lang) => {
     dd.setMonth(i);
     monthFormats.forEach((format) => {
       obj.monthFormat[format] = obj.monthFormat[format] || [];
-      obj.monthFormat[format].push(dd.toLocaleDateString(lang, { month: format }));
+      obj.monthFormat[format].push(
+        dd.toLocaleDateString(lang, { month: format })
+      );
     });
   }
 
