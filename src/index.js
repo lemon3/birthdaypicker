@@ -1,11 +1,7 @@
-/*!
- * (c) wolfgang jungmayer
- * www.lemon3.at
- */
 import { defaults } from '@/defaults';
 import { locale } from '@/locale';
 import {
-  docReady,
+  // docReady,
   createEl,
   restrict,
   getJSONData,
@@ -667,7 +663,6 @@ class BirthdayPicker {
   // todo: undo everything
   kill() {
     this.eventFired = {};
-
     // remove all registered EventListeners
     if (this._registeredEventListeners) {
       this._registeredEventListeners.forEach((r) =>
@@ -722,10 +717,9 @@ class BirthdayPicker {
     if (!this.currentYear || !this.currentMonth || !this.currentDay) {
       return '';
     }
-    var tmp = new Date(
+    return new Date(
       Date.UTC(this.currentYear, +this.currentMonth - 1, this.currentDay)
     );
-    return tmp;
   }
 
   /**
@@ -922,6 +916,6 @@ BirthdayPicker.init = () => {
   return instances;
 };
 
-docReady(BirthdayPicker.init);
+// docReady(BirthdayPicker.init);
 
 export default BirthdayPicker;

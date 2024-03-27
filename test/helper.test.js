@@ -1,8 +1,4 @@
-/**
- * @jest-environment jsdom
- */
-
-/* global afterEach, jest, describe, test, expect */
+import { afterEach, vi, describe, test, expect } from 'vitest';
 
 import {
   addProps,
@@ -39,9 +35,9 @@ document.body.innerHTML += `
 `;
 
 afterEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
   // only for spyOn mocked Equivalent to .mockRestore()
-  jest.restoreAllMocks();
+  vi.restoreAllMocks();
 });
 
 describe('test addProps function', () => {
@@ -233,7 +229,7 @@ describe('test dataStorage', () => {
   });
   test('test put (update)', () => {
     // override
-    const dataStorageSpy = jest.spyOn(dataStorage._s, 'has');
+    const dataStorageSpy = vi.spyOn(dataStorage._s, 'has');
     dataStorage.put(dataStorageEl, 'instance', 'bla');
     expect(dataStorage.get(dataStorageEl, 'instance')).toBe('bla');
     expect(dataStorageSpy).toHaveBeenCalled();
@@ -259,7 +255,7 @@ describe('test dataStorage', () => {
     // remove element available with correct key
     expect(dataStorage.remove(dataStorageEl, 'instance')).toBe(true);
 
-    const dataStorageSpy = jest.spyOn(dataStorage._s, 'delete');
+    const dataStorageSpy = vi.spyOn(dataStorage._s, 'delete');
     dataStorage.remove(dataStorageEl, 'foo');
     dataStorage.remove(dataStorageEl, 'a');
     dataStorage.remove(dataStorageEl, 'b');
@@ -296,13 +292,13 @@ describe('test dataStorage', () => {
       }
     }
 
-    const dataStorageMock = jest.mocked(dataStorage);
-    const putSpy = jest.spyOn(dataStorageMock, 'put');
+    const dataStorageMock = vi.mocked(dataStorage);
+    const putSpy = vi.spyOn(dataStorageMock, 'put');
 
-    const wmSetSyp = jest.spyOn(dataStorageMock._s, 'set');
-    const wmGetSyp = jest.spyOn(dataStorageMock._s, 'get');
-    const wmHasSyp = jest.spyOn(dataStorageMock._s, 'has');
-    const wmDeleteSyp = jest.spyOn(dataStorageMock._s, 'delete');
+    const wmSetSyp = vi.spyOn(dataStorageMock._s, 'set');
+    const wmGetSyp = vi.spyOn(dataStorageMock._s, 'get');
+    const wmHasSyp = vi.spyOn(dataStorageMock._s, 'has');
+    const wmDeleteSyp = vi.spyOn(dataStorageMock._s, 'delete');
 
     dataStorageMock.put(div, toStore);
 
@@ -370,7 +366,7 @@ describe('test isLeapYear function', () => {
 
 describe('test docReady function', () => {
   test('function should be fired', () => {
-    const hmm = jest.fn();
+    const hmm = vi.fn();
     docReady(hmm);
     expect(hmm).toHaveBeenCalled();
   });
@@ -389,7 +385,7 @@ describe('test docReady function', () => {
   });
 
   test('docReady callback called via addEventListener', () => {
-    const cb = jest.fn();
+    const cb = vi.fn();
     // fake states
     Object.defineProperty(document, 'readyState', {
       get() {
@@ -397,12 +393,12 @@ describe('test docReady function', () => {
       },
     });
 
-    document.addEventListener = jest
+    document.addEventListener = vi
       .fn()
       .mockImplementationOnce((event, callback) => {
         callback();
       });
-    const mockedDocReady = jest.mocked(docReady);
+    const mockedDocReady = vi.mocked(docReady);
     mockedDocReady(cb);
 
     expect(document.addEventListener).toBeCalledWith(

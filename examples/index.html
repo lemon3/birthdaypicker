@@ -1,213 +1,114 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>tailwindcss &amp; alpine.js | Demo</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script
-      defer
-      src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
-    ></script>
+    <title>ESM | Demo</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: rgb(71, 73, 82);
+        font-size: 16px;
+        line-height: 1.4em;
+        font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+        color: #eaeaea;
+      }
+      .page {
+        max-width: 720px;
+        margin: 0 auto;
+        padding-left: 1em;
+        padding-right: 1em;
+      }
+
+      input,
+      button,
+      select {
+        padding: 0.5em 1em;
+        font-size: 16px;
+      }
+
+      .section {
+        margin-bottom: 1em;
+      }
+    </style>
   </head>
-  <body class="bg-slate-500" x-cloak>
-    <div class="mx-auto max-w-2xl py-4 px-4">
-      <div
-        x-data="{
-          initialized: false,
-          dateformat: '',
-          locale: '',
-          date: '',
-          result: '',
-          el: null,
-          instance: null,
-          birthdays: [
-            { id:0, val: '1926-06-01', label: 'Marilyn Monroe' },
-            { id:1, val: '1980-06-06', label: 'Eva Green' },
-            { id:2, val: '1967-02-20', label: 'Kurt Cobain' },
-            { id:3, val: '2000-02-29', label: 'Leap Year' },
-          ],
-          availableDateformat: [
-            { id:0, val:'short' },
-            { id:1, val:'long' },
-            { id:2, val:'numeric' },
-          ],
-          availableLocale: [
-            { id:0, val:'en', label:'EN' },
-            { id:1, val:'de', label:'DE' },
-            { id:2, val:'fr', label:'FR' },
-            { id:3, val:'ru', label:'RU' },
-            { id:4, val:'fi', label:'FI' },
-          ],
-          init() {
-            if (this.initialized) {
-              return;
-            }
-            this.dateformat = this.availableDateformat[0].val;
-            this.locale = this.availableLocale[2].val;
-            this.date = null; //this.birthdays[1].val;
-            this.el = $refs.bp;
-            $watch('locale', () => {
-              BirthdayPicker.setLanguage(this.locale);
-            });
-            $watch('dateformat', () => {
-              BirthdayPicker.setMonthFormat(this.dateformat);
-            });
-            this.initialized = true;
-          },
-          setdate(val) {
-            this.instance = this.instance || BirthdayPicker.getInstance(this.el);
-            this.instance.setDate(val);
-          },
-          // event
-          datechange(evt) {
-            const i = evt.detail.instance;
-            let tmp = [i.currentYear,('00'+i.currentMonth).slice(-2),('00'+i.currentDay).slice(-2)].join('-');
-            this.date = tmp;
-            this.result = i.getDate();
-          },
-        }"
-        :class="initialized ? 'display-block' : 'hidden'"
-        class="mx-auto max-w-2xl"
-      >
-        <h1 class="text-6xl mb-4">Birthday Picker</h1>
-        <h1 class="text-2xl mb-4">tailwindcss and alpine.js demo</h1>
+  <body>
+    <div class="page">
+      <h1>Birthday Picker</h1>
 
+      <div class="section">
+        change the language (for all instances on this page)
         <div>
-          <div
-            data-birthdaypicker
-            :data-birthdaypicker-locale="locale"
-            :data-birthdaypicker-default-date="date"
-            :data-birthdaypicker-month-format="dateformat"
-            x-ref="bp"
-            @datechange="datechange"
-            class="inline-flex mb-4"
-          >
-            <div class="relative">
-              <select
-                class="peer focus:outline-none pr-7 pl-2 py-2 appearance-none rounded-none cursor-pointer border-0 rounded-l-md"
-                data-birthdaypicker-year
-              ></select>
-              <div
-                class="top-0 left-0 pointer-events-none absolute w-full h-full border-0 peer-focus:ring-pink-500 peer-focus:ring-2 peer-focus:z-10 peer-focus:bg-pink-500/10 rounded-l-md"
-              >
-                <svg
-                  class="w-4 top-2 right-2 absolute"
-                  width="24"
-                  height="24"
-                  viewbox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="m20.902 7.331c.326-.322.851-.322 1.175 0s.325.841 0 1.163l-9.49 9.396c-.324.322-.848.322-1.175 0l-9.49-9.396c-.324-.322-.324-.841 0-1.163.325-.322.851-.322 1.175 0l8.903 8.569z"
-                  />
-                </svg>
-              </div>
-            </div>
+          <button data-changelang data-locale="de">DE</button>
+          <button data-changelang data-locale="en">EN</button>
+          <button data-changelang data-locale="fr">FR</button>
+          <button data-changelang data-locale="ru">RU</button>
+          <button data-changelang data-locale="fi">FI</button>
+        </div>
+      </div>
 
-            <div class="relative">
-              <select
-                class="peer focus:outline-none pr-7 pl-2 py-2 appearance-none rounded-none cursor-pointer border-0"
-                data-birthdaypicker-month
-              ></select>
-              <div
-                class="top-0 left-0 pointer-events-none absolute w-full h-full border-0 peer-focus:ring-pink-500 peer-focus:ring-2 peer-focus:z-10 peer-focus:bg-pink-500/10"
-              >
-                <svg
-                  class="w-4 top-2 right-2 absolute"
-                  width="24"
-                  height="24"
-                  viewbox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="m20.902 7.331c.326-.322.851-.322 1.175 0s.325.841 0 1.163l-9.49 9.396c-.324.322-.848.322-1.175 0l-9.49-9.396c-.324-.322-.324-.841 0-1.163.325-.322.851-.322 1.175 0l8.903 8.569z"
-                  />
-                </svg>
-              </div>
-            </div>
-
-            <div class="relative">
-              <select
-                class="peer focus:outline-none pr-7 pl-2 py-2 appearance-none rounded-none cursor-pointer border-0 rounded-r-md"
-                data-birthdaypicker-day
-              ></select>
-              <div
-                class="top-0 left-0 pointer-events-none absolute w-full h-full border-0 peer-focus:ring-pink-500 peer-focus:ring-2 peer-focus:z-10 peer-focus:bg-pink-500/10 rounded-r-md"
-              >
-                <svg
-                  class="w-4 top-2 right-2 absolute"
-                  width="24"
-                  height="24"
-                  viewbox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="m20.902 7.331c.326-.322.851-.322 1.175 0s.325.841 0 1.163l-9.49 9.396c-.324.322-.848.322-1.175 0l-9.49-9.396c-.324-.322-.324-.841 0-1.163.325-.322.851-.322 1.175 0l8.903 8.569z"
-                  />
-                </svg>
-              </div>
-            </div>
-          </div>
-          <div class="relative">
-            <div class="mb-1">
-              string result <span class="text-xs">(in an input field)</span>
-            </div>
-            <input
-              class="px-2 py-2 outline-none border-0 focus:ring-pink-500 focus:ring-2 rounded-md disabled:bg-gray-400 disabled:text-gray-600 disabled:opacity-1"
-              id="mm-input"
-              type="text"
-              :value="result"
-              disabled
-            />
-          </div>
+      <div>
+        <h2>demo 1</h2>
+        <div class="section" id="test">
+          <select data-birthdaypicker-year></select>
+          <select data-birthdaypicker-month></select>
+          <select data-birthdaypicker-day></select>
         </div>
 
-        <div class="mt-4">
-          <div>set date to Birthday of:</div>
-          <template x-for="bday in birthdays" :key="bday.id">
-            <button
-              type="button"
-              @click="setdate(bday.val)"
-              x-text="bday.label"
-              :class="date===bday.val ? 'bg-pink-600' : ''"
-              class="px-4 py-2 inline-block bg-slate-800 text-white mr-2 outline-none"
-            ></button>
-          </template>
+        <div class="section">
+          <input type="text" id="test-input" />
         </div>
+      </div>
 
-        <div class="mt-4">
-          <div>set date format to:</div>
-          <template x-for="df in availableDateformat" :key="df.id">
-            <button
-              type="button"
-              x-text="df.val"
-              @click="dateformat=df.val"
-              :class="dateformat===df.val ? 'bg-pink-600' : ''"
-              class="px-4 py-2 inline-block bg-slate-800 text-white mr-2 outline-none"
-            >
-              short
-            </button>
-          </template>
-        </div>
-
-        <div class="mt-4">
-          change language <span class="text-xs">(of the Birthday Picker)</span>
-          <div class="flex">
-            <template x-for="l in availableLocale" :key="l.id">
-              <button
-                x-text="l.label"
-                @click="locale=l.val"
-                :class="locale===l.val ? 'bg-pink-600' : ''"
-                class="px-4 py-2 inline-block bg-slate-800 text-white mr-2 outline-none"
-              ></button>
-            </template>
-          </div>
-        </div>
+      <div>
+        <h2>demo 2</h2>
+        <div data-birthdaypicker="defaultDate:now,arrange:dmy"></div>
       </div>
     </div>
 
-    <script>BirthdayPickerLocale = { fr: { year: 'Année', month: 'mois', day: 'jour' } };</script>
-    <script src="./birthdaypicker.min.js"></script>
+    <script type="module">
+      import BirthdayPicker from './birthdaypicker.esm.min.js';
+      window.BirthdayPicker = BirthdayPicker; // for testing in the console
+
+      let testInput;
+
+      const datechange = (evt) => {
+        const i = evt.detail.instance;
+        console.log(evt);
+        testInput.value = i.getDateString('d.m.yyyy');
+      };
+
+      const changeLang = (evt) => {
+        // change for all on this page
+        BirthdayPicker.setLanguage(evt.target.dataset.locale);
+      };
+
+      const init = () => {
+        testInput = document.querySelector('#test-input');
+
+        const test = new BirthdayPicker('#test', {
+          defaultDate: '2001-02-03',
+          onDatechange: function (evt) {
+            console.log(evt);
+          },
+        });
+
+        test.addEventListener('datechange', datechange);
+
+        const langButtons = document.querySelectorAll('[data-changeLang]');
+        langButtons.forEach((el) => el.addEventListener('click', changeLang));
+      };
+
+      if (
+        'complete' === document.readyState ||
+        'interactive' === document.readyState
+      ) {
+        init();
+        document.removeEventListener('DOMContentLoaded', init);
+      } else {
+        document.addEventListener('DOMContentLoaded', init, false);
+      }
+    </script>
   </body>
 </html>
