@@ -15,10 +15,12 @@
     }
   },
   "scripts": {
+    "dev": "vite",
     "build": "vite build",
+    "docs": "vite build --config vite.pages.config.js",
+    "preview": "vite preview",
     "lint": "eslint 'src/**/*.js'",
     "format": "prettier --write 'src/**/*.js'",
-    "dev": "vite",
     "test": "vitest",
     "coverage": "vitest --coverage"
   },
