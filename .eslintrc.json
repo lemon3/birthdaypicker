@@ -13,12 +13,5 @@
     "linebreak-style": ["error", "unix"],
     "quotes": ["error", "single"],
     "semi": ["error", "always"]
-  },
-  "settings": {
-    "import/resolver": {
-      "webpack": {
-        "config": "config/webpack.common.js"
-      }
-    }
   }
 }
