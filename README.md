@@ -78,10 +78,10 @@ I needed a birthday input field that is easy to use and without JS dependencies.
 ## Usage
 ### First Steps
 #### classic js approach
-if you use the classic js approach by loading scripts in html code, just download and integrate the **birthdaypicker.min.js** script in your code:
+if you use the classic js approach by loading scripts in html code, just download and integrate the **birthdaypicker.umd.js** script in your code:
 ```html
 <div id="my-div"></div>
-<script src="path/to/birthdaypicker.min.js"></script>
+<script src="path/to/birthdaypicker.umd.js"></script>
 <script>
   // BirthdayPicker is now defined
   const bp = new BirthdayPicker('#my-div');
@@ -186,7 +186,7 @@ This scenario (select-boxes in DOM) works best with [tailwindcss](https://tailwi
 <div id="bp1"></div>
 <div id="bp2"></div>
 
-<script src="path/to/birthdaypicker.min.js"></script>
+<script src="path/to/birthdaypicker.umd.js"></script>
 <script>
   // initialize with default values
   const bp1 = new BirthdayPicker('#bp1');
