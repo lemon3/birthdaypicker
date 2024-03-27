@@ -502,9 +502,9 @@ skip to prerequisites if you already have this installed ;)
     ```Bash
     pnpm install
     ```
-4. start (dev server at port 8888)
+4. start (dev)
     ```Bash
-    pnpm start
+    pnpm dev
     ```
 To see all available scripts, open the **package.json** file or run
 ```Bash
