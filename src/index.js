@@ -78,6 +78,35 @@ class BirthdayPicker {
   }
 
   /**
+   * Parses a given date string or Date object
+   *
+   * @param {*} date A data string or a Date object (new Date())
+   * @returns object with { year, month, day } or false if it is not a correct date
+   */
+  _parseDate(date) {
+    if ('object' !== typeof date) {
+      // safari fix '2004-2-29' -> '2004/2/29'
+      date = date.replaceAll('-', '/');
+    }
+    // unix timestamp
+    const parse = Date.parse(date);
+    if (isNaN(parse)) {
+      return false; // wrong date
+    }
+    date = new Date(parse);
+    // add a local timezone offset ??
+    // date.setSeconds(date.getSeconds() + date.getTimezoneOffset() * 60);
+    // const year = date.getUTCFullYear();
+    // const month = date.getUTCMonth() + 1;
+    // const day = date.getUTCDate();
+
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    return { year, month, day };
+  }
+
+  /**
    * Function to return the index of a chosen value for a given NodeList
    * @param  {NodeList} nodes Option List
    * @param  {String} value Value to find
@@ -176,25 +205,6 @@ class BirthdayPicker {
     return true;
   }
 
-  // _getDateValuesInRange({ year, month, day }) {
-  //   // todo: define a min & max date
-  //   if (year < this._yearEnd) {
-  //     year = month = day = undefined;
-  //   } else if (year > this._yearStart) {
-  //     year = now.y;
-  //     month = now.m;
-  //     day = now.d;
-  //   } else if (year === this._yearStart) {
-  //     if (month > now.m) {
-  //       month = now.m;
-  //       day = now.d;
-  //     } else if (month === now.m && day > now.d) {
-  //       day = now.d;
-  //     }
-  //   }
-  //   return { year, month, day };
-  // }
-
   /**
    * Set the date
    * @param {Object} obj with year, month, day as String or Integer
@@ -211,29 +221,6 @@ class BirthdayPicker {
     }
 
     this._monthChangeTriggeredLater = false;
-  }
-
-  _parseDate(dateString) {
-    if ('object' !== typeof dateString) {
-      // safari fix '2004-2-29' -> '2004/2/29'
-      dateString = dateString.replaceAll('-', '/');
-    }
-    // unix timestamp
-    const parse = Date.parse(dateString);
-    if (isNaN(parse)) {
-      return false; // wrong date
-    }
-    const date = new Date(parse);
-    // add a local timezone offset ??
-    // date.setSeconds(date.getSeconds() + date.getTimezoneOffset() * 60);
-    // const year = date.getUTCFullYear();
-    // const month = date.getUTCMonth() + 1;
-    // const day = date.getUTCDate();
-
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    return { year, month, day };
   }
 
   // function for update or create
@@ -309,7 +296,7 @@ class BirthdayPicker {
     // placeholder
     if (s.placeholder) {
       this._date.forEach((item) => {
-        const name = BirthdayPicker.i18n[s.locale].text[item.name];
+        const name = BirthdayPicker.i18n[s.locale][item.name];
         const option = optionEl.cloneNode();
         option.innerHTML = name;
         item.df.appendChild(option);
@@ -529,18 +516,6 @@ class BirthdayPicker {
     }
   }
 
-  useLeadingZero(value) {
-    value = isTrue(value);
-    if (value !== this.settings.leadingZero) {
-      this.settings.leadingZero = value;
-
-      if ('numeric' === this.settings.monthFormat) {
-        this._updateMonthList();
-      }
-      this._updateDayList();
-    }
-  }
-
   _updateDayList() {
     const offset = this.settings.placeholder ? 1 : 0;
     for (let i = 0; i < 9; i++) {
@@ -556,6 +531,18 @@ class BirthdayPicker {
       this._month.el.childNodes[i + offset].innerHTML =
         this._getMonthText(text);
     });
+  }
+
+  useLeadingZero(value) {
+    value = isTrue(value);
+    if (value !== this.settings.leadingZero) {
+      this.settings.leadingZero = value;
+
+      if ('numeric' === this.settings.monthFormat) {
+        this._updateMonthList();
+      }
+      this._updateDayList();
+    }
   }
 
   getDaysPerMonth(month = this.currentMonth) {
@@ -594,11 +581,11 @@ class BirthdayPicker {
     // set the placeholder texts
     if (this.settings.placeholder) {
       this._date.forEach((item) => {
-        item.el.childNodes[0].innerHTML = langTexts.text[item.name];
+        item.el.childNodes[0].innerHTML = langTexts[item.name];
       });
     }
 
-    this.monthFormat = langTexts.month;
+    this.monthFormat = langTexts.monthFormat;
     // const from = this.settings.locale;
     this.settings.locale = lang;
 
@@ -761,7 +748,7 @@ class BirthdayPicker {
     }
 
     BirthdayPicker.createLocale(s.locale);
-    this.monthFormat = BirthdayPicker.i18n[s.locale].month;
+    this.monthFormat = BirthdayPicker.i18n[s.locale].monthFormat;
 
     this._create();
 
@@ -796,25 +783,23 @@ BirthdayPicker.createLocale = (lang) => {
   }
   let dd = new Date('2000-01-15');
 
-  let obj = { month: {} };
+  let obj = { monthFormat: {} };
 
   for (let i = 0; i < 12; i++) {
     dd.setMonth(i);
     monthFormats.forEach((format) => {
-      obj.month[format] = obj.month[format] || [];
-      obj.month[format].push(dd.toLocaleDateString(lang, { month: format }));
+      obj.monthFormat[format] = obj.monthFormat[format] || [];
+      obj.monthFormat[format].push(dd.toLocaleDateString(lang, { month: format }));
     });
   }
 
   const i18n = 'BirthdayPickerLocale';
   let tmp = locale[lang] ? locale[lang] : locale.en;
-  if (window[i18n] && window[i18n][lang] && window[i18n][lang].text) {
+  if (window[i18n] && window[i18n][lang]) {
     tmp = Object.assign({}, tmp, window[i18n][lang]);
   }
 
-  obj['text'] = tmp.text;
-  BirthdayPicker.i18n[lang] = obj;
-
+  BirthdayPicker.i18n[lang] = Object.assign(obj, tmp);
   return obj;
 };
 

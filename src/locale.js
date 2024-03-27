@@ -1,5 +1,6 @@
 // BirthdayPickerLocale
 export const locale = {
-  en: { text: { year: 'Year', month: 'Month', day: 'Day' } },
-  de: { text: { year: 'Jahr', month: 'Monat', day: 'Tag' } },
+  en: { year: 'Year', month: 'Month', day: 'Day' },
+  de: { year: 'Jahr', month: 'Monat', day: 'Tag' },
+  fr: { year: 'Année', month: 'Mois', day: 'Jour' },
 };
