@@ -783,7 +783,7 @@ describe('public methods tests', () => {
       { val: 'short', expected: true },
       { val: 'long', expected: true },
       { val: 'numeric', expected: true },
-      { val: 'numeric', expected: true },
+      { val: 'numeric', expected: false }, // not changed
       { val: 'sdf', expected: false },
       { val: null, expected: false },
       { val: 0, expected: false },
