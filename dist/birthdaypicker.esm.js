@@ -36,7 +36,7 @@ var defaults = {
   maxAge: 100,
   monthFormat: 'short',
   placeholder: true,
-  className: 'null',
+  className: null,
   defaultDate: null,
   autoInit: true,
   leadingZero: true,

@@ -31,7 +31,7 @@ module.exports = merge(common, {
 
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'tailwindcss & alpine.js | Demo',
+      title: 'tailwindcss &amp; alpine.js | Demo',
       template: paths.src + '/template.html', // template file
       minify: true,
       inject: 'body',
