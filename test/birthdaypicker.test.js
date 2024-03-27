@@ -1,9 +1,4 @@
-/**
- * @jest-environment jsdom
- */
-
-/* global beforeEach, afterEach, jest, describe, test, expect */
-
+import { beforeEach, afterEach, vi, describe, test, expect } from 'vitest';
 import BirthdayPicker from '../src/index.js';
 
 // Set up our document body
@@ -23,9 +18,9 @@ document.body.innerHTML += `
 `;
 
 afterEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
   // only for spyOn mocked Equivalent to .mockRestore()
-  // jest.restoreAllMocks();
+  // vi.restoreAllMocks();
 });
 
 describe('BirthdayPicker Class tests', () => {
@@ -90,11 +85,9 @@ describe('BirthdayPicker init stage', () => {
 });
 
 describe('data api test', () => {
-  test('should be called', () => {
-    // todo
+  test.only('should be called', () => {
     window.docReady = () => {};
-    jest.mock('../src/index.js');
-    const initSpy = jest.spyOn(BirthdayPicker, 'init');
+    const initSpy = vi.spyOn(BirthdayPicker, 'init');
     expect(initSpy).toHaveBeenCalledTimes(0);
 
     BirthdayPicker.init();
@@ -113,8 +106,8 @@ describe('data api test', () => {
 describe('BirthdayPicker kill', () => {
   const testEl = document.createElement('div');
   const bp = new BirthdayPicker(testEl);
-  const cbInit = jest.fn();
-  const cbDatechange = jest.fn();
+  const cbInit = vi.fn();
+  const cbDatechange = vi.fn();
 
   bp.addEventListener('datechange', cbDatechange);
 
@@ -151,16 +144,16 @@ describe('BirthdayPicker events', () => {
   describe('init events', () => {
     test('should be called times', () => {
       const bp = new BirthdayPicker(document.createElement('div'));
-      const cb = jest.fn();
+      const cb = vi.fn();
       bp.addEventListener('init', cb);
       bp.addEventListener('init', cb);
       expect(cb).toHaveBeenCalledTimes(2);
     });
 
     test('should be called with "init"', () => {
-      const cb = jest.fn();
+      const cb = vi.fn();
       const tmp = bp.addEventListener;
-      bp.addEventListener = jest
+      bp.addEventListener = vi
         .fn()
         .mockImplementationOnce((event, callback) => {
           callback();
@@ -179,7 +172,7 @@ describe('BirthdayPicker events', () => {
     month: '2020-08-10',
     year: '2019-06-10',
   };
-  const cb = jest.fn();
+  const cb = vi.fn();
 
   // daychange, monthchange, yearchange
   describe.each([
@@ -218,9 +211,9 @@ describe('BirthdayPicker events', () => {
 
   describe('datechange events', () => {
     test('should be called with', () => {
-      const cb = jest.fn();
+      const cb = vi.fn();
       const tmp = bp.addEventListener;
-      bp.addEventListener = jest
+      bp.addEventListener = vi
         .fn()
         .mockImplementationOnce((event, callback) => {
           callback();
@@ -240,7 +233,7 @@ describe('BirthdayPicker events', () => {
   describe('addEventListener (to element)', () => {
     describe('before instance is created', () => {
       test('should fired after init, default date is set', () => {
-        const cb = jest.fn();
+        const cb = vi.fn();
         BirthdayPicker.kill(testEl2);
 
         testEl2.addEventListener('datechange', cb);
@@ -251,7 +244,7 @@ describe('BirthdayPicker events', () => {
       });
 
       test('should not fire after init, no default date set', () => {
-        const cb = jest.fn();
+        const cb = vi.fn();
         BirthdayPicker.kill(testEl2);
 
         // listener on element
@@ -265,7 +258,7 @@ describe('BirthdayPicker events', () => {
 
     describe('after instance is created', () => {
       test('should not fire after init, as event listener was set after', () => {
-        const cb = jest.fn();
+        const cb = vi.fn();
         BirthdayPicker.kill(testEl2);
         new BirthdayPicker(testEl2, {
           defaultDate: '2012-12-12',
@@ -278,20 +271,20 @@ describe('BirthdayPicker events', () => {
 
   describe('addEventListener (to instance)', () => {
     test('should register event on defined element', () => {
-      const listener = jest.spyOn(testEl, 'addEventListener');
-      const cb = jest.fn();
+      const listener = vi.spyOn(testEl, 'addEventListener');
+      const cb = vi.fn();
       bp.addEventListener('datechange', cb);
       expect(listener).toHaveBeenCalledTimes(1);
     });
 
     test('datechange should not fired on init, as no default date is set)', () => {
-      const cb = jest.fn();
+      const cb = vi.fn();
       bp.addEventListener('datechange', cb);
       expect(cb).toHaveBeenCalledTimes(0);
     });
 
     test('addEventListener should not register to element, if wrong event name given', () => {
-      const cb = jest.fn();
+      const cb = vi.fn();
       const wrong = bp.addEventListener('wrong', cb);
       expect(wrong).toBe(false);
       expect(cb).toHaveBeenCalledTimes(0);
@@ -304,7 +297,7 @@ describe('BirthdayPicker events', () => {
       const bp2 = new BirthdayPicker(testEl, {
         defaultDate: '2000-10-10',
       });
-      const cb = jest.fn();
+      const cb = vi.fn();
       bp2.addEventListener('datechange', cb);
       expect(cb).toHaveBeenCalledTimes(1);
       bp2.setDate('2000-10-11');
@@ -320,7 +313,7 @@ describe('BirthdayPicker events', () => {
   describe('removeEventListener (from element)', () => {
     test('datechange should not be called after removing the event listener', () => {
       const testEl = document.createElement('div');
-      const cb = jest.fn();
+      const cb = vi.fn();
 
       testEl.addEventListener('datechange', cb);
       const bp2 = new BirthdayPicker(testEl, {
@@ -340,7 +333,7 @@ describe('BirthdayPicker events', () => {
 
   describe('addEventListener && removeEventListener', () => {
     test('add to DOM element, remove from instance', () => {
-      const cb = jest.fn();
+      const cb = vi.fn();
       const testEl = document.createElement('div');
       testEl.addEventListener('datechange', cb);
 
@@ -358,7 +351,7 @@ describe('BirthdayPicker events', () => {
       expect(cb).toHaveBeenCalledTimes(2);
     });
     test('add to instance, remove form DOM element', () => {
-      const cb = jest.fn();
+      const cb = vi.fn();
       const testEl = document.createElement('div');
       const bp2 = new BirthdayPicker(testEl, {
         defaultDate: '2000-10-10',
@@ -447,10 +440,10 @@ describe('setDate tests', () => {
   beforeEach(() => {
     //int date
     bp.setDate('2000-12-31');
-    yearChangedSpy = jest.spyOn(bp, '_yearWasChanged');
-    monthChangedSpy = jest.spyOn(bp, '_monthWasChanged');
-    dayChangedSpy = jest.spyOn(bp, '_dayWasChanged');
-    dateChangedSpy = jest.spyOn(bp, '_dateChanged');
+    yearChangedSpy = vi.spyOn(bp, '_yearWasChanged');
+    monthChangedSpy = vi.spyOn(bp, '_monthWasChanged');
+    dayChangedSpy = vi.spyOn(bp, '_dayWasChanged');
+    dateChangedSpy = vi.spyOn(bp, '_dateChanged');
   });
 
   afterEach(() => {
@@ -508,7 +501,7 @@ describe('setDate tests', () => {
   describe('change form a leap year day', () => {
     beforeEach(() => {
       bp.setDate('2004-2-29');
-      jest.clearAllMocks();
+      vi.clearAllMocks();
     });
     test('should trigger year, month, day changes, by only changing the year', () => {
       // only change year(!)
@@ -662,7 +655,7 @@ describe('test the setLanguage function', () => {
   });
 
   test('setting lang should work', () => {
-    const langChangeSpy = jest.spyOn(BirthdayPicker, 'createLocale');
+    const langChangeSpy = vi.spyOn(BirthdayPicker, 'createLocale');
     bp.setLanguage('de');
     expect(langChangeSpy).toHaveBeenCalled();
     expect(bp.settings.locale).toBe('de');
@@ -697,7 +690,7 @@ describe('test the setLanguage function', () => {
     // init setup
     bp.setLanguage('fr');
     bp.setMonthFormat('short');
-    const _triggerEventSpy = jest.spyOn(bp, '_triggerEvent');
+    const _triggerEventSpy = vi.spyOn(bp, '_triggerEvent');
     bp.setLanguage('ru');
     expect(_triggerEventSpy).toHaveBeenCalledTimes(1);
   });
@@ -836,18 +829,18 @@ describe('public methods tests', () => {
     const bp = new BirthdayPicker(document.createElement('div'), {
       defaultDate: '2022-02-02',
     });
-    const _setDateSpy = jest.spyOn(bp, '_setDate');
-    const _setYearSpy = jest.spyOn(bp, '_setYear');
-    const _setMonthSpy = jest.spyOn(bp, '_setMonth');
-    const _setDaySpy = jest.spyOn(bp, '_setDay');
-    const _dateChangedSpy = jest.spyOn(bp, '_dateChanged');
+    const _setDateSpy = vi.spyOn(bp, '_setDate');
+    const _setYearSpy = vi.spyOn(bp, '_setYear');
+    const _setMonthSpy = vi.spyOn(bp, '_setMonth');
+    const _setDaySpy = vi.spyOn(bp, '_setDay');
+    const _dateChangedSpy = vi.spyOn(bp, '_dateChanged');
 
-    const _yearWasChangedSpy = jest.spyOn(bp, '_yearWasChanged');
-    const _monthWasChangedSpy = jest.spyOn(bp, '_monthWasChanged');
-    const _dayWasChangedSpy = jest.spyOn(bp, '_dayWasChanged');
-    const resetDateSpy = jest.spyOn(bp, 'resetDate');
+    const _yearWasChangedSpy = vi.spyOn(bp, '_yearWasChanged');
+    const _monthWasChangedSpy = vi.spyOn(bp, '_monthWasChanged');
+    const _dayWasChangedSpy = vi.spyOn(bp, '_dayWasChanged');
+    const resetDateSpy = vi.spyOn(bp, 'resetDate');
 
-    const _updateSelectBoxSpy = jest.spyOn(bp, '_updateSelectBox');
+    const _updateSelectBoxSpy = vi.spyOn(bp, '_updateSelectBox');
 
     test('_setDate should be called', () => {
       bp.resetDate();
@@ -940,8 +933,8 @@ describe.each([
   const bp = new BirthdayPicker(bpEl, {
     defaultDate: '2012-03-20',
   });
-  const _spy = jest.spyOn(bp, spyOn);
-  const _triggerEventSpy = jest.spyOn(bp, '_triggerEvent');
+  const _spy = vi.spyOn(bp, spyOn);
+  const _triggerEventSpy = vi.spyOn(bp, '_triggerEvent');
 
   test(`same ${name} should return false`, () => {
     expect(bp[fun](sameVal)).toBe(false);
@@ -988,7 +981,7 @@ describe('_noFutureDate methods tests', () => {
   // const orig = bp._noFutureDate;
   describe('try to set to a future day', () => {
     test('should result in the current date', () => {
-      const _noFutureDateSpy = jest.spyOn(bp, '_noFutureDate');
+      const _noFutureDateSpy = vi.spyOn(bp, '_noFutureDate');
       bp.setDate('2044-11-15');
       expect(_noFutureDateSpy).toHaveBeenCalled();
       const today = new Date();
@@ -1018,11 +1011,11 @@ describe('_noFutureDate methods tests', () => {
       day = 13;
       bp.setDate(year + '-' + month + '-' + day);
 
-      jest.clearAllMocks();
-      _noFutureDateSpy = jest.spyOn(bp, '_noFutureDate');
-      _setYearSpy = jest.spyOn(bp, '_setYear');
-      _setMonthSpy = jest.spyOn(bp, '_setMonth');
-      _setDaySpy = jest.spyOn(bp, '_setDay');
+      vi.clearAllMocks();
+      _noFutureDateSpy = vi.spyOn(bp, '_noFutureDate');
+      _setYearSpy = vi.spyOn(bp, '_setYear');
+      _setMonthSpy = vi.spyOn(bp, '_setMonth');
+      _setDaySpy = vi.spyOn(bp, '_setDay');
     });
 
     test('max day changed down, call: _setDay', () => {
@@ -1107,7 +1100,7 @@ describe('_dateChanged methods tests', () => {
   });
 
   test('_dateChanged should be triggering by call setDate', () => {
-    const _dateChangedSpy = jest.spyOn(bp, '_dateChanged');
+    const _dateChangedSpy = vi.spyOn(bp, '_dateChanged');
     bp.setDate('1912-10-26');
     expect(_dateChangedSpy).toHaveBeenCalledTimes(1);
 
@@ -1115,7 +1108,7 @@ describe('_dateChanged methods tests', () => {
   });
 
   test('test for _dateChanged triggering by select change', () => {
-    const _dateChangedSpy = jest.spyOn(bp, '_dateChanged');
+    const _dateChangedSpy = vi.spyOn(bp, '_dateChanged');
 
     bp._year.el.selectedIndex = 2;
     bp._year.el.dispatchEvent(new Event('change'));
@@ -1132,7 +1125,7 @@ describe('_dateChanged methods tests', () => {
   });
 
   test('test the _dateChanged should be called if changed via select', () => {
-    const _dateChangedSpy = jest.spyOn(bp, '_dateChanged');
+    const _dateChangedSpy = vi.spyOn(bp, '_dateChanged');
     bp._year.el.selectedIndex = 21;
     bp._year.el.dispatchEvent(new Event('change'));
     expect(_dateChangedSpy).toHaveBeenCalled();
@@ -1140,7 +1133,7 @@ describe('_dateChanged methods tests', () => {
   });
 
   test('test the _dateChanged should be called if changed via setDate and new date is different', () => {
-    const _dateChangedSpy = jest.spyOn(bp, '_dateChanged');
+    const _dateChangedSpy = vi.spyOn(bp, '_dateChanged');
     const curDate = bp.getDateString('yyyy-mm-dd');
     const newDate = '1980-12-22';
     expect(curDate).not.toBe(newDate);
@@ -1150,7 +1143,7 @@ describe('_dateChanged methods tests', () => {
   });
 
   test('_dateChanged should NOT be called if date is the same', () => {
-    const _dateChangedSpy = jest.spyOn(bp, '_dateChanged');
+    const _dateChangedSpy = vi.spyOn(bp, '_dateChanged');
     bp.setDate('1980-12-22');
     expect(_dateChangedSpy).not.toHaveBeenCalled();
     _dateChangedSpy.mockRestore();
@@ -1191,12 +1184,12 @@ describe('_updateDays methods tests', () => {
     //int date
     bp.setDate('2000-12-31');
 
-    _setDateSpy = jest.spyOn(bp, '_setDate');
-    _setDaySpy = jest.spyOn(bp, '_setDay');
-    _updateDaysSpy = jest.spyOn(bp, '_updateDays');
-    _dayWasChangedSpy = jest.spyOn(bp, '_dayWasChanged');
-    _monthWasChangedSpy = jest.spyOn(bp, '_monthWasChanged');
-    _yearWasChangedSpy = jest.spyOn(bp, '_yearWasChanged');
+    _setDateSpy = vi.spyOn(bp, '_setDate');
+    _setDaySpy = vi.spyOn(bp, '_setDay');
+    _updateDaysSpy = vi.spyOn(bp, '_updateDays');
+    _dayWasChangedSpy = vi.spyOn(bp, '_dayWasChanged');
+    _monthWasChangedSpy = vi.spyOn(bp, '_monthWasChanged');
+    _yearWasChangedSpy = vi.spyOn(bp, '_yearWasChanged');
   });
 
   afterEach(() => {
@@ -1206,7 +1199,7 @@ describe('_updateDays methods tests', () => {
     _dayWasChangedSpy.mockRestore();
     _monthWasChangedSpy.mockRestore();
     _yearWasChangedSpy.mockRestore();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('test the _updateDays should called if value ist set via setDate', () => {

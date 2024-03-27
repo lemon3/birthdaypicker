@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title><%= htmlWebpackPlugin.options.title %></title>
+    <title>demo</title>
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body class="bg-slate-500" x-cloak>
+  <body class="bg-slate-500">
     <a
       href="https://github.com/lemon3/birthdaypicker"
       class="fixed group top-0 right-0"
@@ -35,147 +35,7 @@
 
     <div class="mx-auto max-w-2xl my-8 py-8 px-6 bg-white/10">
       <div
-        x-data="{
-          initialized: false,
-          dateformat: '',
-          locale: '',
-          date: '',
-          result: '',
-          resultDate: '',
-          eventLines: 0,
-          events: null,
-          instance: null,
-          birthdays: [
-            // YYYY-MM-DD
-            // { id:0, val: '1926-06-01', label: 'Marilyn Monroe' },
-            { id:1, val: '1980-06-06', label: 'Eva Green' },
-            { id:2, val: '1967-02-20', label: 'Kurt Cobain' },
-            { id:3, val: '1992-11-23', label: 'Miley Cyrus' },
-            { id:4, val: 'now', label: 'now' },
-          ],
-          availableDateformat: [
-            { id:0, val:'short' },
-            { id:1, val:'long' },
-            { id:2, val:'numeric' },
-          ],
-          currentOutputFormat: null,
-          outputFormat: [
-            { id:0, val:'', label:'default', desc: '(formatting based on the selected language)' },
-            { id:1, val:'m/d/yyyy', label:'m/d/yyyy', desc: '(formatting based on m/d/yyyy)' },
-            { id:2, val:'dd. mm. yyyy', label:'dd. mm. yyyy', desc: '(formatting based on dd. mm. yyyy)' },
-            { id:3, val:'d.m.yyyy', label:'d.m.yyyy', desc: '(formatting based on d.m.yyyy)' },
-            { id:4, val:'yyyy-mm-dd', label:'yyyy-mm-dd', desc: '(formatting based on yyyy-mm-dd)' },
-          ],
-          availableLocale: [
-            { id:0, val:'en', label:'EN' },
-            { id:1, val:'de', label:'DE' },
-            { id:2, val:'fr', label:'FR' },
-            { id:3, val:'fi', label:'FI' },
-          ],
-          leadingZeros: [
-            { id:0, val: 'true', label:'YES' },
-            { id:1, val: 'false', label:'NO' },
-          ],
-
-          // for test input fields
-          _year: '2004',
-          _month: '2',
-          _day: '29',
-
-          init() {
-            if (this.initialized) {
-              return;
-            }
-            this.leadingZero = this.leadingZeros[1].val,
-            this.currentOutputFormat = this.outputFormat[0];
-
-            const a = this.birthdays.filter(b => 'now' === b.val)[0];
-            a.val = this.getNow();
-
-            $refs.bp.addEventListener('init', () => {
-              $watch('locale', () => {
-              this.getInstance().setLanguage(this.locale);
-              });
-              $watch('dateformat', () => {
-                this.getInstance().setMonthFormat(this.dateformat);
-              });
-              $watch('leadingZero', () => {
-                this.getInstance().useLeadingZero(this.leadingZero);
-              });
-            });
-
-            this.date = this.birthdays[0].val;
-            this.locale = this.availableLocale[0].val;
-            this.dateformat = this.availableDateformat[0].val;
-            this.initialized = true;
-            this.events = $refs.events;
-            this.events.innerHTML = '';
-
-            // listen for these events (event log)
-            ['datechange','yearchange', 'monthchange','daychange', 'init', 'kill']
-              .forEach(eventName => {
-                $refs.bp.addEventListener(eventName, (evt) => { this.updateEvents(evt); });
-              });
-          },
-          clearLog() {
-            this.events.innerHTML = '';
-            this.eventLines = 0;
-          },
-          updateEvents(evt) {
-            const name = evt.type;
-            this.eventLines++;
-            const line = (this.eventLines % 2 === 0) ? ' bg-slate-200' : '';
-            this.events.innerHTML += `<div class='${line}'><span class='text-right text-white bg-pink-600 w-6 px-1 inline-block'>${this.eventLines}.</span> <span class='font-bold italic'>${name}</span> called</div>`;
-            // '<div>' this.eventLines + ': \'<b>' + name + '\'</b> called<div>';
-            this.events.scrollTop = this.events.scrollHeight - this.events.offsetHeight;
-          },
-          getNow() {
-            const date = new Date();
-            const y = date.getUTCFullYear();
-            const m = ('0' + (date.getUTCMonth()+1)).slice(-2);
-            const d = ('0' + date.getUTCDate()).slice(-2);
-            return `${y}-${m}-${d}`;
-          },
-          getInstance() {
-            if (this.instance) {
-              return this.instance;
-            }
-            this.instance = window.BirthdayPicker.getInstance($refs.bp);
-            return this.instance;
-          },
-          resetDate(preserveStartDate) {
-            this.getInstance().resetDate(preserveStartDate);
-          },
-          setdate(val) {
-            if ('now' === val) {
-              val = this.getNow();
-            }
-            this.getInstance().setDate(val);
-          },
-          setYear(val) {
-            this.getInstance()._setYear(val);
-          },
-          setMonth(val) {
-            this.getInstance()._setMonth(val);
-          },
-          setDay(val) {
-            this.getInstance()._setDay(val);
-          },
-          // events
-          outputFormatChange(evt) {
-            const i = this.getInstance();
-            this.currentOutputFormat = this.outputFormat.filter((op) => op.id === +evt.target.value)[0];
-            this.result = i.getDateString(this.currentOutputFormat.val);
-            this.resultDate = i.getDate().toString();
-          },
-          datechange(evt) {
-            const i = evt.detail.instance;
-            // let tmp = [i.currentYear,('00'+i.currentMonth).slice(-2),('00'+i.currentDay).slice(-2)].join('-');
-            this.date = i.getDateString('yyyy-mm-dd');
-            this.result = i.getDateString(this.currentOutputFormat.val);
-            this.resultDate = i.getDate().toString();
-          },
-        }"
+        x-data="demo"
         :class="initialized ? 'display-block' : 'hidden'"
         class="mx-auto max-w-2xl"
       >
@@ -396,7 +256,12 @@
               </div>
             </div>
 
-            <div class="mb-1">getDateString(<span x-text="currentOutputFormat.val ? ('\'' + currentOutputFormat.val + '\'') : ''"></span>)</div>
+            <div class="mb-1">
+              getDateString(<span
+                x-text="currentOutputFormat.val ? ('\'' + currentOutputFormat.val + '\'') : ''"
+              ></span
+              >)
+            </div>
             <div class="flex align-start">
               <div class="relative w-1/2 mb-4 mr-2">
                 <input
@@ -414,7 +279,10 @@
                     class="w-full peer focus:outline-none pr-7 pl-2 py-2 appearance-none cursor-pointer border-0 rounded-md"
                   >
                     <template x-for="oFormat in outputFormat" :key="oFormat.id">
-                      <option :value="oFormat.id" x-text="oFormat.label"></option>
+                      <option
+                        :value="oFormat.id"
+                        x-text="oFormat.label"
+                      ></option>
                     </template>
                   </select>
                   <div
@@ -614,10 +482,200 @@
       </div>
     </div>
 
-    <script>
+    <script defer>
       window.BirthdayPickerLocale = {
         fr: { text: { year: 'Année', month: 'mois', day: 'jour' } },
       };
+
+      window.demo = {
+        initialized: false,
+        dateformat: '',
+        locale: '',
+        date: '',
+        result: '',
+        resultDate: '',
+        eventLines: 0,
+        events: null,
+        instance: null,
+        birthdays: [
+          // YYYY-MM-DD
+          // { id:0, val: '1926-06-01', label: 'Marilyn Monroe' },
+          { id: 1, val: '1980-06-06', label: 'Eva Green' },
+          { id: 2, val: '1967-02-20', label: 'Kurt Cobain' },
+          { id: 3, val: '1992-11-23', label: 'Miley Cyrus' },
+          { id: 4, val: '1986-03-28', label: 'Lady Gaga' },
+          { id: 5, val: 'now', label: 'now' },
+        ],
+        availableDateformat: [
+          { id: 0, val: 'short' },
+          { id: 1, val: 'long' },
+          { id: 2, val: 'numeric' },
+        ],
+        currentOutputFormat: null,
+        outputFormat: [
+          {
+            id: 0,
+            val: '',
+            label: 'default',
+            desc: '(formatting based on the selected language)',
+          },
+          {
+            id: 1,
+            val: 'm/d/yyyy',
+            label: 'm/d/yyyy',
+            desc: '(formatting based on m/d/yyyy)',
+          },
+          {
+            id: 2,
+            val: 'dd. mm. yyyy',
+            label: 'dd. mm. yyyy',
+            desc: '(formatting based on dd. mm. yyyy)',
+          },
+          {
+            id: 3,
+            val: 'd.m.yyyy',
+            label: 'd.m.yyyy',
+            desc: '(formatting based on d.m.yyyy)',
+          },
+          {
+            id: 4,
+            val: 'yyyy-mm-dd',
+            label: 'yyyy-mm-dd',
+            desc: '(formatting based on yyyy-mm-dd)',
+          },
+        ],
+        availableLocale: [
+          { id: 0, val: 'en', label: 'EN' },
+          { id: 1, val: 'de', label: 'DE' },
+          { id: 2, val: 'fr', label: 'FR' },
+          { id: 3, val: 'fi', label: 'FI' },
+        ],
+        leadingZeros: [
+          { id: 0, val: 'true', label: 'YES' },
+          { id: 1, val: 'false', label: 'NO' },
+        ],
+
+        // for test input fields
+        _year: '2004',
+        _month: '2',
+        _day: '29',
+
+        init() {
+          if (this.initialized) {
+            return;
+          }
+          (this.leadingZero = this.leadingZeros[1].val),
+            (this.currentOutputFormat = this.outputFormat[0]);
+
+          const a = this.birthdays.filter((b) => 'now' === b.val)[0];
+          a.val = this.getNow();
+
+          // this.$refs.bp.addEventListener('init', () => {
+          this.$watch('locale', () => {
+            this.getInstance().setLanguage(this.locale);
+          });
+          this.$watch('dateformat', () => {
+            this.getInstance().setMonthFormat(this.dateformat);
+          });
+          this.$watch('leadingZero', () => {
+            this.getInstance().useLeadingZero(this.leadingZero);
+          });
+          // });
+
+          this.date = this.birthdays[0].val;
+          this.locale = this.availableLocale[0].val;
+          this.dateformat = this.availableDateformat[0].val;
+          this.initialized = true;
+          this.events = this.$refs.events;
+          this.events.innerHTML = '';
+
+          // listen for these events (event log)
+          [
+            'datechange',
+            'yearchange',
+            'monthchange',
+            'daychange',
+            'init',
+            'kill',
+          ].forEach((eventName) => {
+            this.$refs.bp.addEventListener(eventName, (evt) => {
+              this.updateEvents(evt);
+            });
+          });
+        },
+        clearLog() {
+          this.events.innerHTML = '';
+          this.eventLines = 0;
+        },
+        updateEvents(evt) {
+          const name = evt.type;
+          this.eventLines++;
+          const line = this.eventLines % 2 === 0 ? ' bg-slate-200' : '';
+          this.events.innerHTML += `<div class='${line}'><span class='text-right text-white bg-pink-600 w-6 px-1 inline-block'>${this.eventLines}.</span> <span class='font-bold italic'>${name}</span> called</div>`;
+          // '<div>' this.eventLines + ': \'<b>' + name + '\'</b> called<div>';
+          this.events.scrollTop =
+            this.events.scrollHeight - this.events.offsetHeight;
+        },
+        getNow() {
+          const date = new Date();
+          const y = date.getUTCFullYear();
+          const m = ('0' + (date.getUTCMonth() + 1)).slice(-2);
+          const d = ('0' + date.getUTCDate()).slice(-2);
+          return `${y}-${m}-${d}`;
+        },
+        getInstance() {
+          if (this.instance) {
+            return this.instance;
+          }
+          this.instance = window.BirthdayPicker.getInstance(this.$refs.bp);
+          return this.instance;
+        },
+        resetDate(preserveStartDate) {
+          this.getInstance().resetDate(preserveStartDate);
+        },
+        setdate(val) {
+          if ('now' === val) {
+            val = this.getNow();
+          }
+          this.getInstance().setDate(val);
+        },
+        setYear(val) {
+          this.getInstance()._setYear(val);
+        },
+        setMonth(val) {
+          this.getInstance()._setMonth(val);
+        },
+        setDay(val) {
+          this.getInstance()._setDay(val);
+        },
+        // events
+        outputFormatChange(evt) {
+          const i = this.getInstance();
+          this.currentOutputFormat = this.outputFormat.filter(
+            (op) => op.id === +evt.target.value
+          )[0];
+          this.result = i.getDateString(this.currentOutputFormat.val);
+          this.resultDate = i.getDate().toString();
+        },
+        datechange(evt) {
+          const i = evt.detail.instance;
+          // let tmp = [i.currentYear,('00'+i.currentMonth).slice(-2),('00'+i.currentDay).slice(-2)].join('-');
+          this.date = i.getDateString('yyyy-mm-dd');
+          this.result = i.getDateString(this.currentOutputFormat.val);
+          this.resultDate = i.getDate().toString();
+        },
+      };
+    </script>
+    <script type="module" defer>
+      import BirthdayPicker from './src/index.js';
+      // to window
+      window.BirthdayPicker = BirthdayPicker;
+      document.addEventListener('alpine:init', () => {
+        Alpine.data('demo', () => window.demo);
+      });
+      document.addEventListener('alpine:initialized', () => {
+        BirthdayPicker.init();
+      });
     </script>
     <script
       defer
