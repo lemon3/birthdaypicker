@@ -85,7 +85,7 @@ describe('BirthdayPicker init stage', () => {
 });
 
 describe('data api test', () => {
-  test.only('should be called', () => {
+  test('should be called', () => {
     window.docReady = () => {};
     const initSpy = vi.spyOn(BirthdayPicker, 'init');
     expect(initSpy).toHaveBeenCalledTimes(0);
