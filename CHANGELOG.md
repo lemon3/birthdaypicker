@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.1.20
+### Added or Changed
+- added getAge method
+- fixed maxAge option issue
+
 ## v0.1.19
 ### Added or Changed
 - added aria-label

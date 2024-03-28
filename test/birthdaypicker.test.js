@@ -389,7 +389,7 @@ describe('date setting tests', () => {
       const newDate = '1823-10-12';
       bp.setDate(newDate);
       const result = bp.getDateString('yyyy-mm-dd');
-      const start = bp._yearEnd;
+      const start = bp._yearFrom;
       expect(result).toBe(start + '-10-12');
     });
 
@@ -609,7 +609,7 @@ describe('test the settings', () => {
     };
     const el = document.createElement('div');
     const bp = new BirthdayPicker(el, options);
-    expect(bp._yearEnd).toBe(options.minYear);
+    expect(bp._yearFrom).toBe(options.minYear);
   });
 
   test('maxYear, should be 2018', () => {
@@ -618,7 +618,7 @@ describe('test the settings', () => {
     };
     const el = document.createElement('div');
     const bp = new BirthdayPicker(el, options);
-    expect(bp._yearStart).toBe(options.maxYear);
+    expect(bp._yearTo).toBe(options.maxYear);
   });
 
   test('maxYear, should be 2008', () => {
@@ -628,7 +628,7 @@ describe('test the settings', () => {
     };
     const el = document.createElement('div');
     const bp = new BirthdayPicker(el, options);
-    expect(bp._yearStart).toBe(2008);
+    expect(bp._yearTo).toBe(2008);
   });
 
   test('maxYear, should be 2008', () => {
@@ -640,8 +640,8 @@ describe('test the settings', () => {
     };
     const el = document.createElement('div');
     const bp = new BirthdayPicker(el, options);
-    expect(bp._yearStart).toBe(2010);
-    expect(bp._yearEnd).toBe(1960);
+    expect(bp._yearTo).toBe(2010);
+    expect(bp._yearFrom).toBe(1960);
   });
 });
 

@@ -323,6 +323,12 @@ options = {
   // false: returns undefined for the day (so nothing is selected)
   // available: true | false
   // default: true
+  //
+  // Example:
+  // Current date is 2024-02-29 (yyyy-mm-dd)
+  // set year back to 2023
+  // if roundDownDay is true: day will be: 28
+  // if roundDownDay is false: day will be: undefined
   roundDownDay: true
 };
 ```
@@ -353,6 +359,9 @@ myBirthdayPicker.getDateString('yyyy-m-d');
 // returns a Date object (like new Date())
 // for the current year, month, day values
 myBirthdayPicker.getDate();
+
+// returns the age of the subject (person)
+myBirthdayPicker.getAge();
 
 // just a small helper method, returns true or false
 myBirthdayPicker.isLeapYear(2020); // true

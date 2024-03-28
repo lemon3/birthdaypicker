@@ -144,6 +144,7 @@ class BirthdayPicker {
       this._noFutureDate(now.y, now.m, now.d);
     }
     this._triggerEvent(allowedEvents[1]);
+    // set value to element    this.element.value = this.getDateString();
   }
 
   /**
@@ -154,7 +155,7 @@ class BirthdayPicker {
    * @returns
    */
   _setYear(year, triggerDateChange = true) {
-    year = restrict(year, this._yearEnd, this._yearStart);
+    year = restrict(year, this._yearFrom, this._yearTo);
     if (this.currentYear === year) {
       return false;
     }
@@ -313,7 +314,7 @@ class BirthdayPicker {
     }
 
     // add option data to year field
-    for (let i = this._yearStart; i >= this._yearEnd; i--) {
+    for (let i = this._yearTo; i >= this._yearFrom; i--) {
       const option = optionEl.cloneNode();
       option.value = i;
       option.innerHTML = i;
@@ -342,10 +343,12 @@ class BirthdayPicker {
 
   /**
    * function to update the days, according to the given month
-   * @param  {String} month The month String
-   * @return {[type]}       [description]
+   * called when month changes or year changes form non-leap-year to a leap-year
+   * or vice versa
+   * @param  {number} month The number of the month 1 ... 12
+   * @return {void}
    */
-  _updateDays(month) {
+  _updateDays(month = this.currentMonth) {
     // console.log('_updateDays');
     let newDaysPerMonth = this._getDaysPerMonth(month);
     const offset = this.settings.placeholder ? 1 : 0;
@@ -370,6 +373,8 @@ class BirthdayPicker {
       for (let i = currentDaysPerMonth; i > newDaysPerMonth; i--) {
         this._day.el.children[i + offset - 1].remove();
       }
+
+
 
       // day changed after changing month
       // todo: set currentDay to the next or the prev. correct date
@@ -504,7 +509,7 @@ class BirthdayPicker {
     // const from = this.currentMonth;
     this.currentMonth = month;
     this._triggerEvent(allowedEvents[3]);
-    this._updateDays(month);
+    this._updateDays();
   }
 
   /**
@@ -521,7 +526,7 @@ class BirthdayPicker {
     this._triggerEvent(allowedEvents[4]);
 
     if (!this._monthChangeTriggeredLater && this.currentMonth === 2) {
-      this._updateDays(this.currentMonth);
+      this._updateDays();
     }
   }
 
@@ -720,6 +725,16 @@ class BirthdayPicker {
     return undefined === year ? undefined : isLeapYear(year);
   }
 
+  getAge() {
+    const y = this.currentYear;
+    const m = this.currentMonth;
+    const d = this.currentDay;
+    const date = new Date();
+    const curMonth = date.getMonth() + 1;
+    let age = date.getFullYear() - y;
+    return (curMonth < m || curMonth === m && date.getDate() < d) ? --age : age;
+  }
+
   getDateString(format) {
     if (!format) {
       const string = this.getDate();
@@ -779,17 +794,17 @@ class BirthdayPicker {
     s.selectFuture = isTrue(s.selectFuture);
 
     if ('now' === s.maxYear) {
-      this._yearStart = now.y;
+      this._yearTo = now.y;
     } else {
-      this._yearStart = s.maxYear;
+      this._yearTo = s.maxYear;
     }
 
-    this._yearStart -= +s.minAge;
     if (s.minYear) {
-      this._yearEnd = +s.minYear;
+      this._yearFrom = +s.minYear;
     } else {
-      this._yearEnd = this._yearStart - +s.maxAge;
+      this._yearFrom = this._yearTo - +s.maxAge;
     }
+    this._yearTo -= +s.minAge;
 
     BirthdayPicker.createLocale(s.locale);
     this.monthFormat = BirthdayPicker.i18n[s.locale].monthFormat;

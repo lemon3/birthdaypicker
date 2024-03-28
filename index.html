@@ -289,6 +289,16 @@
                 disabled
               ></textarea>
             </div>
+            <div class="relative mb-4">
+              <div class="mb-1">getAge()</div>
+              <input
+                  class="w-full px-2 py-2 outline-none border-0 focus:ring-pink-500 focus:ring-2 rounded-md disabled:bg-gray-400 disabled:text-gray-800 disabled:opacity-1"
+                  id="mm-input"
+                  type="text"
+                  :value="resultAge"
+                  disabled
+                />
+            </div>
           </div>
           <div class="md:w-1/2 md:ml-2">
             <div>event log:</div>
@@ -493,6 +503,7 @@
         date: '',
         result: '',
         resultDate: '',
+        resultAge: '',
         eventLines: 0,
         events: null,
         instance: null,
@@ -681,6 +692,7 @@
           this.date = i.getDateString('yyyy-mm-dd');
           this.result = i.getDateString(this.currentOutputFormat.val);
           this.resultDate = i.getDate().toString();
+          this.resultAge = i.getAge();
         },
       };
     </script>
