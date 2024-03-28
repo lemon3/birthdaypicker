@@ -375,8 +375,6 @@ class BirthdayPicker {
         this._day.el.children[i + offset - 1].remove();
       }
 
-
-
       // day changed after changing month
       // todo: set currentDay to the next or the prev. correct date
       // eg. 2010-12-31 -> change month to 11 -> 2010-11-31
@@ -692,7 +690,7 @@ class BirthdayPicker {
       );
     }
 
-    this._date.forEach(item => {
+    this._date.forEach((item) => {
       if (item.created) {
         item.el.remove();
       } else {
@@ -733,7 +731,7 @@ class BirthdayPicker {
     const date = new Date();
     const curMonth = date.getMonth() + 1;
     let age = date.getFullYear() - y;
-    return (curMonth < m || curMonth === m && date.getDate() < d) ? --age : age;
+    return curMonth < m || (curMonth === m && date.getDate() < d) ? --age : age;
   }
 
   getDateString(format) {
@@ -807,7 +805,8 @@ class BirthdayPicker {
     }
     this._yearTo -= +s.minAge;
 
-    BirthdayPicker.createLocale(s.locale);
+    const [currentLocale] = BirthdayPicker.createLocale(s.locale);
+    s.locale = currentLocale;
     this.monthFormat = BirthdayPicker.i18n[s.locale].monthFormat;
 
     this._create();
@@ -839,7 +838,7 @@ BirthdayPicker.createLocale = (lang) => {
     lang = 'en';
   }
   if (BirthdayPicker.i18n[lang]) {
-    return BirthdayPicker.i18n[lang];
+    return [lang, BirthdayPicker.i18n[lang]];
   }
   let dd = new Date('2000-01-15');
 
@@ -862,7 +861,7 @@ BirthdayPicker.createLocale = (lang) => {
   }
 
   BirthdayPicker.i18n[lang] = Object.assign(obj, tmp);
-  return obj;
+  return [lang, obj];
 };
 
 /**

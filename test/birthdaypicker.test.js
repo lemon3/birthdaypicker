@@ -645,6 +645,17 @@ describe('test the settings', () => {
   });
 });
 
+describe('test all options', () => {
+  test('locale should use standard (\'en\') if wrong string is given', () => {
+    const div = document.createElement('div');
+    const options = {
+      locale: 'wrong'
+    };
+    const bp = new BirthdayPicker(div, options);
+    expect(bp.settings.locale).toBe('en');
+  });
+});
+
 describe('test the setLanguage function', () => {
   const bpEl = document.querySelector('#test');
   BirthdayPicker.kill(bpEl);
@@ -1376,13 +1387,12 @@ describe('static function tests', () => {
 
   test('test the createLocale function with BirthdayPickerLocale', () => {
     window.BirthdayPickerLocale = {
-      fi: {
-        text: { year: 'vuosi', month: 'kuukausi', day: 'päivä' },
-      },
+      fi: { year: 'vuosi', month: 'kuukausi', day: 'päivä' },
     };
 
-    const obj = BirthdayPicker.createLocale('fi');
-    expect(obj.text.year).toBe('vuosi');
+    const [lang, obj] = BirthdayPicker.createLocale('fi');
+    expect(lang).toBe('fi');
+    expect(obj.year).toBe('vuosi');
   });
 
   test('test the killAll function', () => {

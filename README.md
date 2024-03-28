@@ -179,6 +179,17 @@ This scenario (select-boxes in DOM) works best with [tailwindcss](https://tailwi
   <select class="myDay"></select>
 </div>
 ```
+
+**Don't forget to call the init function if using the data API**.
+```html
+<script>
+  // initializes all found BirthdayPicker
+  // looking for [data-birthdaypicker]
+  BirthdayPicker.init();
+</script>
+```
+
+
 ### Example via js
 
 #### html
@@ -470,7 +481,7 @@ BirthdayPicker.killAll()
 // an object with all languages cerated
 BirthdayPicker.i18n
 
-// shows the current language as string (2 chars, e.g.: 'en' | 'de')
+// shows the current global language as string (2 chars, e.g.: 'en' | 'de')
 BirthdayPicker.currentLocale
 ```
 
