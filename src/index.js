@@ -144,7 +144,8 @@ class BirthdayPicker {
       this._noFutureDate(now.y, now.m, now.d);
     }
     this._triggerEvent(allowedEvents[1]);
-    // set value to element    this.element.value = this.getDateString();
+    // set value to element
+    this.element.value = this.getDateString();
   }
 
   /**
