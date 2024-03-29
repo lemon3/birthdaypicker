@@ -57,7 +57,7 @@ class BirthdayPicker {
       return { error: true };
     }
 
-    // todo: use dataStorage.has(element) ?
+    // TODO: use dataStorage.has(element) ?
     if (element.dataset.bdpInit) {
       return BirthdayPicker.getInstance(element);
     }
@@ -376,7 +376,7 @@ class BirthdayPicker {
       }
 
       // day changed after changing month
-      // todo: set currentDay to the next or the prev. correct date
+      // TODO: set currentDay to the next or the prev. correct date
       // eg. 2010-12-31 -> change month to 11 -> 2010-11-31
       // either: 2010-11-30, or 2010-12-01
       if (this.currentDay > newDaysPerMonth) {
@@ -621,7 +621,7 @@ class BirthdayPicker {
     // const from = this.settings.locale;
     this.settings.locale = lang;
 
-    // todo: is this correct for all languages?
+    // TODO: is this correct for all languages?
     if ('numeric' === this.settings.monthFormat) {
       return false;
     }
@@ -635,7 +635,7 @@ class BirthdayPicker {
     this._triggerEvent(allowedEvents[1]);
   }
 
-  // todo: use a format option, eg.: yyyy-dd-mm
+  // TODO: use a format option, eg.: yyyy-dd-mm
   setDate(dateString) {
     let parsed = this._parseDate(dateString);
     if (parsed) {
@@ -679,7 +679,7 @@ class BirthdayPicker {
     this.element.removeEventListener(eventName, listener, option);
   }
 
-  // todo: undo everything
+  // TODO: undo everything
   // destroy if it was created
   kill() {
     this.eventFired = {};
@@ -769,7 +769,7 @@ class BirthdayPicker {
 
   /**
    * The init method
-   * todo: test all(!) option values for correctness
+   * TODO: test all(!) option values for correctness
    *
    * @return {*}
    * @memberof BirthdayPicker
@@ -926,7 +926,7 @@ BirthdayPicker.kill = (instance) => {
     return false;
   }
 
-  // todo: reset all to default!
+  // TODO: reset all to default!
   instance.kill();
 
   const el = instance.element;
