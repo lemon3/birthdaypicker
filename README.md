@@ -473,6 +473,32 @@ element.addEventListener('datechange', (evt) => {
 });
 ```
 
+### API / event-listeners (as callback)
+inside the option object
+```js
+const options = {
+  datechange: (evt) => { /* do stuff */ },
+  monthchange: (evt) => { /* do stuff */ },
+  // ...
+};
+const myPicker = new BirthdayPicker('#my-element', options);
+```
+
+#### example using both
+```js
+import BirthdayPicker from 'birthdaypicker';
+const options = {
+  datechange: (evt) => {
+    console.log('i am second');
+  },
+};
+const myPicker = new BirthdayPicker('#my-element', options);
+
+myPicker.addEventListener('datechange', (evt) => {
+  console.log('i am first');
+})
+```
+
 ### API / static Methods
 #### createLocale()
 ```js

@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.1.21
+### Added
+- if select boxes found inside the main element: use them in the defined order, eg: 'ymd' (year, month, day).
+- event callbacks can be defined inside the option object
+
 ## v0.1.20
 ### Added or Changed
 - added getAge method

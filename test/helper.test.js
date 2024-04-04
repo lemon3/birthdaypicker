@@ -345,6 +345,10 @@ describe('test restrict function', () => {
     expect(restrict(-5, null, -6)).toBe(-6);
     expect(restrict(-5, -10, -6)).toBe(-6);
   });
+  test('restrict value is NaN should return NaN', () => {
+    expect(restrict(NaN, 0, 10)).toBe(NaN);
+    expect(restrict('test', 0, 10)).toBe(NaN);
+  });
 });
 
 describe('test isLeapYear function', () => {

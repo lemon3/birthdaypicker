@@ -238,14 +238,62 @@ class BirthdayPicker {
       : '' + text; // return string
   }
 
-  _checkArrangement(String) {
+  _checkArrangement(string) {
     // bigEndian:    ymd
     // littleEndian: dmy
     // else:         mdy
-    if (allowedArrangement.indexOf(String) < 0) {
+    string = string.toLowerCase();
+    if (allowedArrangement.indexOf(string) < 0) {
       return 'ymd';
     }
-    return String;
+    return string;
+  }
+
+  _mapSelectBoxes() {
+    let selectBoxes = this.element.querySelectorAll('select');
+    const selectBoxMapping = {};
+    if (0 === selectBoxes.length) {
+      return selectBoxMapping;
+    }
+
+    let notFound = this.settings.arrange.split('');
+    notFound.forEach((i) => {
+      const name = lookup[i];
+      let query =
+        this.settings[name + 'El'] || '[' + dataName + '-' + name + ']';
+      if (query) {
+        let el;
+        if ('undefined' !== typeof query.nodeName) {
+          el = query;
+        } else {
+          el = this.element.querySelector(query);
+        }
+        if (el) {
+          selectBoxMapping[name] = el;
+          notFound = notFound.filter((n) => n !== i);
+          selectBoxes = Object.values(selectBoxes).filter(
+            (item) => item !== el
+          );
+          return;
+        }
+      }
+      selectBoxes = Object.values(selectBoxes).filter((item) => {
+        const cond = item.attributes[dataName + '-' + name];
+        if (cond) {
+          selectBoxMapping[name] = item;
+          notFound = notFound.filter((n) => n !== i);
+        }
+        return !cond;
+      });
+    });
+
+    // set the remaining not found
+    notFound.forEach((i, index) => {
+      const name = lookup[i];
+      selectBoxMapping[name] = selectBoxes[index];
+    });
+
+    return selectBoxMapping;
   }
 
   /**
@@ -255,19 +303,13 @@ class BirthdayPicker {
   _create() {
     const s = this.settings;
     s.arrange = this._checkArrangement(s.arrange);
+    const selectBoxMapping = this._mapSelectBoxes();
 
     s.arrange.split('').forEach((i) => {
       const name = lookup[i];
       let created = false;
-      let el;
-      let query = s[name + 'El'];
+      let el = selectBoxMapping[name];
 
-      if (query && 'undefined' !== typeof query.nodeName) {
-        el = query;
-      } else {
-        query = query ? query : '[' + dataName + '-' + name + ']';
-        el = this.element.querySelector(query);
-      }
       if (!el || el.dataset.init) {
         el = createEl('select');
         created = true;
@@ -406,6 +448,14 @@ class BirthdayPicker {
     const ce = new CustomEvent(eventName, eventData);
     this.element.dispatchEvent(ce);
     this.eventFired[eventName] = ce;
+
+    // const optionEventName = `on${eventName[0].toUpperCase()}${eventName.slice(1)}`;
+    if (
+      this.settings[eventName] &&
+      'function' === typeof this.settings[eventName]
+    ) {
+      this.settings[eventName].call(this, ce);
+    }
 
     // for inline events
     trigger(this.element, eventName, ce);
