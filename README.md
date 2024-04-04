@@ -144,6 +144,16 @@ and then us it with
   data-birthdaypicker="locale:fr,defaultDate:now,arrange:dmy"
 ></div>
 ```
+
+**Don't forget to call the init function if using the data API**.
+```html
+<script>
+  // initializes all found BirthdayPicker
+  // looking for [data-birthdaypicker]
+  BirthdayPicker.init();
+</script>
+```
+
 ### Example via data API (select boxes in DOM)
 Select-boxes boxes must be inside the main container (where the **data-birthdaypicker** attribute is defined)!
 If the data attributes are set to the select-boxes, the plugin knows which box should be used for what.
@@ -169,6 +179,7 @@ This scenario (select-boxes in DOM) works best with [tailwindcss](https://tailwi
 ... or use with specified selectors (these selectors take precedence over the data attribute values like **data-birthdaypicker-year**)
 #### html:
 ```html
+<!-- yearEl, monthEl and dayEl must be a regular querySelector! -->
 <div data-birthdaypicker="{
   'yearEl':'#myYear',
   'monthEl':'#myMonth',
@@ -192,9 +203,12 @@ This scenario (select-boxes in DOM) works best with [tailwindcss](https://tailwi
 
 ### Example via js
 
-#### html
+#### js Example #1
+just a div, js does the "magic"!
 ```html
+<!-- initialized with default values -->
 <div id="bp1"></div>
+<!-- initialized with custom options (see below) -->
 <div id="bp2"></div>
 
 <script src="path/to/birthdaypicker.umd.js"></script>
@@ -207,6 +221,28 @@ This scenario (select-boxes in DOM) works best with [tailwindcss](https://tailwi
   // see 'option API' section for all available options
   const options = { defaultDate: new Date() };
   const bp2 = new BirthdayPicker(el, options);
+</script>
+```
+
+#### js Example #2
+html file with defined select boxes.
+Reference these in the options object.
+```html
+<div id="bp1">
+  <select id="myYear"></select>
+  <select id="myMonth"></select>
+  <select id="myDay"></select>
+</div>
+
+<script src="path/to/birthdaypicker.umd.js"></script>
+<script>
+  // initialize
+  const bp1 = new BirthdayPicker('#bp1', {
+    yearEl: '#myYear',
+    monthEl: '#myMonth',
+    dayEl: '#myDay',
+    // ... other options
+  });
 </script>
 ```
 
