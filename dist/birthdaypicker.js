@@ -298,15 +298,17 @@ class h {
       return !0;
     this.initialized = !0, this.eventFired = {}, this._registeredEventListeners = [], this._daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31], this._date = [], this._disabled = [];
     const e = this.settings;
-    if (e.placeholder = f(e.placeholder), e.leadingZero = f(e.leadingZero), e.selectFuture = f(e.selectFuture), e.maxYear === "now" ? this._yearTo = p.y : this._yearTo = e.maxYear, e.minYear ? this._yearFrom = +e.minYear : this._yearFrom = this._yearTo - +e.maxAge, this._yearTo -= +e.minAge, h.createLocale(e.locale), this.monthFormat = h.i18n[e.locale].monthFormat, this._create(), this._triggerEvent(g[0]), e.defaultDate) {
-      const t = this.setDate(e.defaultDate === "now" ? (/* @__PURE__ */ new Date()).toString() : e.defaultDate);
-      this.currentYear = t.year, this.currentMonth = t.month, this.currentDay = t.day, this.startDate = t;
+    e.placeholder = f(e.placeholder), e.leadingZero = f(e.leadingZero), e.selectFuture = f(e.selectFuture), e.maxYear === "now" ? this._yearTo = p.y : this._yearTo = e.maxYear, e.minYear ? this._yearFrom = +e.minYear : this._yearFrom = this._yearTo - +e.maxAge, this._yearTo -= +e.minAge;
+    const [t] = h.createLocale(e.locale);
+    if (e.locale = t, this.monthFormat = h.i18n[e.locale].monthFormat, this._create(), this._triggerEvent(g[0]), e.defaultDate) {
+      const r = this.setDate(e.defaultDate === "now" ? (/* @__PURE__ */ new Date()).toString() : e.defaultDate);
+      this.currentYear = r.year, this.currentMonth = r.month, this.currentDay = r.day, this.startDate = r;
     }
   }
 }
 h.i18n = {}, h.currentLocale = "en", h.getInstance = (s) => E.get(s, "instance"), h.createLocale = (s) => {
   if (s && s.length === 2 || (s = "en"), h.i18n[s])
-    return h.i18n[s];
+    return [s, h.i18n[s]];
   let e = /* @__PURE__ */ new Date("2000-01-15"), t = { monthFormat: {} };
   for (let a = 0; a < 12; a++)
     e.setMonth(a), j.forEach((i) => {
@@ -314,7 +316,7 @@ h.i18n = {}, h.currentLocale = "en", h.getInstance = (s) => E.get(s, "instance")
     });
   const r = "BirthdayPickerLocale";
   let n = v[s] ? v[s] : v.en;
-  return window[r] && window[r][s] && (n = Object.assign({}, n, window[r][s])), h.i18n[s] = Object.assign(t, n), t;
+  return window[r] && window[r][s] && (n = Object.assign({}, n, window[r][s])), h.i18n[s] = Object.assign(t, n), [s, t];
 }, h.setMonthFormat = (s) => {
   u.forEach((e) => {
     e.setMonthFormat(s);
