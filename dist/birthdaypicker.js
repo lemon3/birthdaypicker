@@ -1,63 +1,63 @@
 /*!
-* BirthdayPicker v0.1.21
+* BirthdayPicker v0.1.22
 * https://lemon3.github.io/birthdaypicker
 */
-var j = Object.defineProperty;
-var Y = Object.getOwnPropertySymbols;
-var k = Object.prototype.hasOwnProperty, I = Object.prototype.propertyIsEnumerable;
-var v = (s, e, t) => e in s ? j(s, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : s[e] = t, T = (s, e) => {
+var H = Object.defineProperty;
+var w = Object.getOwnPropertySymbols;
+var B = Object.prototype.hasOwnProperty, P = Object.prototype.propertyIsEnumerable;
+var L = (r, e, t) => e in r ? H(r, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : r[e] = t, Y = (r, e) => {
   for (var t in e || (e = {}))
-    k.call(e, t) && v(s, t, e[t]);
-  if (Y)
-    for (var t of Y(e))
-      I.call(e, t) && v(s, t, e[t]);
-  return s;
+    B.call(e, t) && L(r, t, e[t]);
+  if (w)
+    for (var t of w(e))
+      P.call(e, t) && L(r, t, e[t]);
+  return r;
 };
-var w = (s, e, t) => (v(s, typeof e != "symbol" ? e + "" : e, t), t);
-const M = { en: { year: "Year", month: "Month", day: "Day" }, de: { year: "Jahr", month: "Monat", day: "Tag" }, fr: { year: "Année", month: "Mois", day: "Jour" } }, _ = (s, e, t, r) => ((a, n, i, h) => {
-  if (n)
-    for (const o in n)
-      a.setAttribute(o, n[o]);
-  if (i)
-    for (const o in i)
-      a.style[o] = i[o];
-  return h && (a.innerHTML = h), a;
-})(document.createElement(s), e, t, r), C = (s) => +s % 4 == 0 && +s % 100 != 0 || +s % 400 == 0, b = { _s: /* @__PURE__ */ new WeakMap(), put(s, ...e) {
-  this._s.has(s) || this._s.set(s, /* @__PURE__ */ new Map());
-  let t = this._s.get(s);
+var x = (r, e, t) => (L(r, typeof e != "symbol" ? e + "" : e, t), t);
+const v = { en: { year: "Year", month: "Month", day: "Day" }, de: { year: "Jahr", month: "Monat", day: "Tag" }, fr: { year: "Année", month: "Mois", day: "Jour" } }, y = (r, e, t, n) => ((i, s, a, h) => {
+  if (s)
+    for (const o in s)
+      i.setAttribute(o, s[o]);
+  if (a)
+    for (const o in a)
+      i.style[o] = a[o];
+  return h && (i.innerHTML = h), i;
+})(document.createElement(r), e, t, n), T = (r) => +r % 4 == 0 && +r % 100 != 0 || +r % 400 == 0, E = { _s: /* @__PURE__ */ new WeakMap(), put(r, ...e) {
+  this._s.has(r) || this._s.set(r, /* @__PURE__ */ new Map());
+  let t = this._s.get(r);
   if (e.length > 1)
     return t.set(e[0], e[1]), this;
   if (typeof e[0] == "object")
-    for (const r in e[0])
-      t.set(r, e[0][r]);
+    for (const n in e[0])
+      t.set(n, e[0][n]);
   else
     t.set(e[0]);
   return this;
-}, get(s, e) {
-  return !!this._s.has(s) && (e ? this._s.get(s).get(e) : this._s.get(s));
-}, has(s, e) {
-  return this._s.has(s) && this._s.get(s).has(e);
-}, remove(s, e) {
-  if (!this._s.has(s))
+}, get(r, e) {
+  return !!this._s.has(r) && (e ? this._s.get(r).get(e) : this._s.get(r));
+}, has(r, e) {
+  return this._s.has(r) && this._s.get(r).has(e);
+}, remove(r, e) {
+  if (!this._s.has(r))
     return !1;
-  let t = this._s.get(s).delete(e);
-  return this._s.get(s).size === 0 && this._s.delete(s), t;
-} }, L = (s, e, t) => {
-  if (s = parseFloat(s, 10), isNaN(s))
+  let t = this._s.get(r).delete(e);
+  return this._s.get(r).size === 0 && this._s.delete(r), t;
+} }, M = (r, e, t) => {
+  if (r = parseFloat(r, 10), isNaN(r))
     return NaN;
   if (e = parseFloat(e, 10), (t = parseFloat(t, 10)) < e) {
-    let r = t;
-    t = e, e = r;
+    let n = t;
+    t = e, e = n;
   }
-  return !isNaN(e) && s < e ? e : !isNaN(t) && s > t ? t : s;
+  return !isNaN(e) && r < e ? e : !isNaN(t) && r > t ? t : r;
 };
-let m = [];
-const x = "birthdaypicker", N = "data-" + x, W = ["short", "long", "numeric"], Z = ["ymd", "ydm", "myd", "mdy", "dmy", "dym"], u = ["init", "datechange", "daychange", "monthchange", "yearchange", "kill"], E = "option", y = { y: "year", m: "month", d: "day" }, f = /* @__PURE__ */ new Date(), p = { y: f.getFullYear(), m: f.getMonth() + 1, d: f.getDate(), t: f.getTime() };
-let F = !1;
-const D = (s) => s === !0 || s === "true" || s === 1 || s === "1";
+let g = [];
+const C = "birthdaypicker", b = "data-" + C, $ = ["short", "long", "numeric"], q = ["ymd", "ydm", "myd", "mdy", "dmy", "dym"], S = "init", D = "datechange", A = "daychange", I = "monthchange", O = "yearchange", j = "kill", z = [S, D, A, I, O, j], F = "option", _ = { y: "year", m: "month", d: "day" }, p = /* @__PURE__ */ new Date(), m = { y: p.getFullYear(), m: p.getMonth() + 1, d: p.getDate(), t: p.getTime() };
+let N = !1;
+const f = (r) => r === !0 || r === "true" || r === 1 || r === "1";
 class l {
   constructor(e, t) {
-    w(this, "_onSelect", (e) => {
+    x(this, "_onSelect", (e) => {
       e.target === this._year.el ? this._yearWasChanged(+e.target.value) : e.target === this._month.el ? this._monthWasChanged(+e.target.value) : e.target === this._day.el && this._dayWasChanged(+e.target.value), this._dateChanged();
     });
     if (!e)
@@ -66,36 +66,36 @@ class l {
       return { error: !0 };
     if (e.dataset.bdpInit)
       return l.getInstance(e);
-    e.dataset.bdpInit = !0, m.push(this), b.put(e, "instance", this);
-    const r = ((a, n, i = null) => {
-      if (!a)
+    e.dataset.bdpInit = !0, g.push(this), E.put(e, "instance", this);
+    const n = ((i, s, a = null) => {
+      if (!i)
         return !1;
-      if (n === void 0 || a.dataset[n] === void 0)
-        return a.dataset;
+      if (s === void 0 || i.dataset[s] === void 0)
+        return i.dataset;
       let h;
       try {
-        h = JSON.parse(a.dataset[n].replace(/'/g, '"'));
+        h = JSON.parse(i.dataset[s].replace(/'/g, '"'));
       } catch (c) {
       }
       if (typeof h != "object") {
-        h = a.dataset[n];
+        h = i.dataset[s];
         const c = {};
         h = h.replace(/ /g, "");
-        const g = h.split(",");
-        g.length > 1 ? g.forEach((S) => {
-          const [A, O] = S.split(":");
-          c[A.replace(/'/g, "")] = O.replace(/'/g, "");
-        }) : c[n] = h, h = c;
+        const u = h.split(",");
+        u.length > 1 ? u.forEach((k) => {
+          const [W, Z] = k.split(":");
+          c[W.replace(/'/g, "")] = Z.replace(/'/g, "");
+        }) : c[s] = h, h = c;
       }
-      let o = {}, d = n.length;
-      return Object.entries(a.dataset).forEach((c) => {
-        if (c[0].toLowerCase().indexOf(n) >= 0 && c[0].length > d) {
-          let g = c[0][d].toLowerCase() + c[0].substring(d + 1);
-          (i === null || i && i[g] !== void 0) && (o[g] = c[1]);
+      let o = {}, d = s.length;
+      return Object.entries(i.dataset).forEach((c) => {
+        if (c[0].toLowerCase().indexOf(s) >= 0 && c[0].length > d) {
+          let u = c[0][d].toLowerCase() + c[0].substring(d + 1);
+          (a === null || a && a[u] !== void 0) && (o[u] = c[1]);
         }
       }), Object.assign(h, o);
-    })(e, x, l.defaults);
-    this.options = t, this.settings = Object.assign({}, l.defaults, r, t), this.element = e, this.settings.autoInit && this.init();
+    })(e, C, l.defaults);
+    this.options = t || {}, this.settings = Object.assign({}, l.defaults, n, t), this.element = e, this.settings.autoInit && this.init();
   }
   _parseDate(e) {
     typeof e != "object" && (e = e.replaceAll("-", "/"));
@@ -104,149 +104,160 @@ class l {
   }
   _getIdx(e, t) {
     if (e && !isNaN(t || t === void 0)) {
-      for (let r, a = 0; a < e.length; a++)
-        if (r = e[a], +r.value == +t)
-          return a;
+      for (let n, i = 0; i < e.length; i++)
+        if (n = e[i], +n.value == +t)
+          return i;
     }
   }
   _updateSelectBox(e, t) {
-    const r = this[e].el;
-    r.selectedIndex = this._getIdx(r.childNodes, t);
+    const n = this[e].el;
+    n.selectedIndex = this._getIdx(n.childNodes, t);
   }
-  _dateChanged() {
-    this.settings.selectFuture || this._noFutureDate(p.y, p.m, p.d), this._triggerEvent(u[1]), this.element.value = this.getDateString();
+  _setYear(e) {
+    return e = M(e, this._yearFrom, this._yearTo), this.currentYear !== e && (this._updateSelectBox("_year", e), this._yearWasChanged(e, !1), !0);
   }
-  _setYear(e, t = !0) {
-    return e = L(e, this._yearFrom, this._yearTo), this.currentYear !== e && (this._updateSelectBox("_year", e), this._yearWasChanged(e), t && this._dateChanged(), !0);
+  _setMonth(e) {
+    return e = M(e, 1, 12), this.currentMonth !== e && (this._updateSelectBox("_month", e), this._monthWasChanged(e, !1), !0);
   }
-  _setMonth(e, t = !0) {
-    return e = L(e, 1, 12), this.currentMonth !== e && (this._updateSelectBox("_month", e), this._monthWasChanged(e), t && this._dateChanged(), !0);
+  _setDay(e) {
+    return e = M(e, 1, this._getDaysPerMonth()), this.currentDay !== e && (this._updateSelectBox("_day", e), this._dayWasChanged(e, !1), !0);
   }
-  _setDay(e, t = !0) {
-    return e = L(e, 1, this._getDaysPerMonth()), this.currentDay !== e && (this._updateSelectBox("_day", e), this._dayWasChanged(e), t && this._dateChanged(), !0);
+  _getDateInRange({ year: e = this.currentYear, month: t = this.currentMonth, day: n = this.currentDay }) {
+    const i = this._lowerLimit, s = this._upperLimit;
+    return e > s.year || e >= s.year && t > s.month || e >= s.year && t >= s.month && n > s.day ? s : e < i.year || e <= i.year && t < i.month || e <= i.year && t <= i.month && n < i.day ? i : { year: e, month: t, day: n };
   }
-  _setDate({ year: e, month: t, day: r }) {
-    this._monthChangeTriggeredLater = t !== this.currentMonth;
-    let a = this._setYear(e, !1), n = this._setMonth(t, !1), i = this._setDay(r, !1);
-    (a || n || i) && this._dateChanged(), this._monthChangeTriggeredLater = !1;
+  _setDate(e, t = !1) {
+    e = this._getDateInRange(e);
+    let n = this._setYear(e.year), i = this._setMonth(e.month), s = this._setDay(e.day);
+    return (n || i || s) && this._dateChanged(t), e;
   }
   _getMonthText(e) {
     return this.settings.monthFormat !== "numeric" ? e : this.settings.leadingZero && +e < 10 ? "0" + e : "" + e;
   }
   _checkArrangement(e) {
-    return e = e.toLowerCase(), Z.indexOf(e) < 0 ? "ymd" : e;
+    return e = e.toLowerCase(), q.indexOf(e) < 0 ? "ymd" : e;
   }
   _mapSelectBoxes() {
     let e = this.element.querySelectorAll("select");
     const t = {};
     if (e.length === 0)
       return t;
-    let r = this.settings.arrange.split("");
-    return r.forEach((a) => {
-      const n = y[a];
-      let i = this.settings[n + "El"] || "[" + N + "-" + n + "]";
-      if (i) {
+    let n = this.settings.arrange.split("");
+    return n.forEach((i) => {
+      const s = _[i];
+      let a = this.settings[s + "El"] || "[" + b + "-" + s + "]";
+      if (a) {
         let h;
-        if (h = i.nodeName !== void 0 ? i : this.element.querySelector(i), h)
-          return t[n] = h, r = r.filter((o) => o !== a), void (e = Object.values(e).filter((o) => o !== h));
+        if (h = a.nodeName !== void 0 ? a : this.element.querySelector(a), h)
+          return t[s] = h, n = n.filter((o) => o !== i), void (e = Object.values(e).filter((o) => o !== h));
       }
       e = Object.values(e).filter((h) => {
-        const o = h.attributes[N + "-" + n];
-        return o && (t[n] = h, r = r.filter((d) => d !== a)), !o;
+        const o = h.attributes[b + "-" + s];
+        return o && (t[s] = h, n = n.filter((d) => d !== i)), !o;
       });
-    }), r.forEach((a, n) => {
-      t[y[a]] = e[n];
+    }), n.forEach((i, s) => {
+      t[_[i]] = e[s];
     }), t;
   }
   _create() {
     const e = this.settings;
     e.arrange = this._checkArrangement(e.arrange);
     const t = this._mapSelectBoxes();
-    e.arrange.split("").forEach((n) => {
-      const i = y[n];
-      let h = !1, o = t[i];
-      o && !o.dataset.init || (o = _("select"), h = !0, this.element.append(o)), o.setAttribute("aria-label", `select ${i}`), e.className && (o.classList.add(e.className), o.classList.add(`${e.className}-${i}`)), o.dataset.init = !0;
-      const d = "change", c = this._onSelect, g = !1;
-      o.addEventListener(d, c, g), this._registeredEventListeners.push({ element: o, eventName: d, listener: c, option: g }), this["_" + i] = { el: o, name: i, created: h, df: document.createDocumentFragment() }, this._date.push(this["_" + i]);
+    e.arrange.split("").forEach((s) => {
+      const a = _[s];
+      let h = !1, o = t[a];
+      o && !o.dataset.init || (o = y("select"), h = !0, this.element.append(o)), o.setAttribute("aria-label", `select ${a}`), e.className && (o.classList.add(e.className), o.classList.add(`${e.className}-${a}`)), o.dataset.init = !0;
+      const d = "change", c = this._onSelect, u = !1;
+      o.addEventListener(d, c, u), this._registeredEventListeners.push({ element: o, eventName: d, listener: c, option: u }), this["_" + a] = { el: o, name: a, created: h, df: document.createDocumentFragment() }, this._date.push(this["_" + a]);
     });
-    const r = _(E);
-    e.placeholder && this._date.forEach((n) => {
-      const i = l.i18n[e.locale][n.name], h = r.cloneNode();
-      h.innerHTML = i, n.df.appendChild(h);
+    const n = y(F);
+    e.placeholder && this._date.forEach((s) => {
+      const a = l.i18n[e.locale][s.name], h = n.cloneNode();
+      h.innerHTML = a, s.df.appendChild(h);
     });
-    for (let n = this._yearTo; n >= this._yearFrom; n--) {
-      const i = r.cloneNode();
-      i.value = n, i.innerHTML = n, this._year.df.append(i);
+    for (let s = this._yearTo; s >= this._yearFrom; s--) {
+      const a = n.cloneNode();
+      a.value = s, a.innerHTML = s, this._year.df.append(a);
     }
-    let a;
-    this.monthFormat[e.monthFormat].forEach((n, i) => {
-      const h = r.cloneNode();
-      h.value = i + 1, h.innerHTML = this._getMonthText(n), this._month.df.append(h);
+    let i;
+    this.monthFormat[e.monthFormat].forEach((s, a) => {
+      const h = n.cloneNode();
+      h.value = a + 1, h.innerHTML = this._getMonthText(s), this._month.df.append(h);
     });
-    for (let n = 1; n <= 31; n++) {
-      a = e.leadingZero && n < 10 ? "0" + n : n;
-      const i = _(E, { value: n }, "", a);
-      this._day.df.append(i);
+    for (let s = 1; s <= 31; s++) {
+      i = e.leadingZero && s < 10 ? "0" + s : s;
+      const a = y(F, { value: s }, "", i);
+      this._day.df.append(a);
     }
-    this._date.forEach((n) => n.el.append(n.df));
+    this._date.forEach((s) => s.el.append(s.df));
   }
   _updateDays(e = this.currentMonth) {
     let t = this._getDaysPerMonth(e);
-    const r = this.settings.placeholder ? 1 : 0, a = this._day.el.children.length - r;
-    if (t !== a)
-      if (t === void 0 && (t = 31), t - a > 0)
-        for (let n = a; n < t; n++) {
-          let i = _(E, { value: n + 1 }, "", "" + (n + 1));
-          this._day.el.append(i);
+    const n = this.settings.placeholder ? 1 : 0, i = this._day.el.children.length - n;
+    if (t !== i)
+      if (t === void 0 && (t = 31), t - i > 0)
+        for (let s = i; s < t; s++) {
+          let a = y(F, { value: s + 1 }, "", "" + (s + 1));
+          this._day.el.append(a);
         }
       else {
-        for (let n = a; n > t; n--)
-          this._day.el.children[n + r - 1].remove();
-        this.currentDay > t && (this.settings.roundDownDay ? this._setDay(t, !1) : this._dayWasChanged(void 0));
+        for (let s = i; s > t; s--)
+          this._day.el.children[s + n - 1].remove();
+        this.currentDay > t && (this.settings.roundDownDay ? this._setDay(t) : this._dayWasChanged(void 0));
       }
   }
   _triggerEvent(e, t) {
-    const r = T({ instance: this, year: +this._year.el.value, month: +this._month.el.value, day: +this._day.el.value, date: this.getDate() }, t), a = new CustomEvent(e, { detail: r });
-    this.element.dispatchEvent(a), this.eventFired[e] = a, this.settings[e] && typeof this.settings[e] == "function" && this.settings[e].call(this, a), ((n, i, h) => {
-      let o = n.getAttribute("on" + i);
-      new Function("e", "{" + o + "}").call(n, h);
-    })(this.element, e, a);
+    const n = Y({ instance: this, year: +this._year.el.value, month: +this._month.el.value, day: +this._day.el.value, date: this.getDate() }, t), i = new CustomEvent(e, { detail: n });
+    this.element.dispatchEvent(i), this.eventFired[e] = i, this.settings[e] && typeof this.settings[e] == "function" && this.settings[e].call(this, i), ((s, a, h) => {
+      let o = s.getAttribute("on" + a);
+      new Function("e", "{" + o + "}").call(s, h);
+    })(this.element, e, i);
   }
-  _noFutureDate(e, t, r) {
-    if (this._disabled.length && (this._disabled.forEach((n) => {
-      n.disabled = !1;
-    }), this._disabled = []), this.currentYear < e || !this.currentYear || !this.currentYear && !this.currentMonth && !this.currentDay)
-      return !1;
-    this.currentYear > e && this._setYear(e, !1), this._month.el.childNodes.forEach((n) => {
-      n.value > t && (n.disabled = !0, this._disabled.push(n));
+  _disable(e, t, n) {
+    const i = t === "<" ? (s) => s < n : (s) => s > n;
+    this[e].el.childNodes.forEach((s) => {
+      i(+s.value) && (s.disabled = !0, this._disabled.push(s));
     });
-    const a = this.currentMonth > t;
-    return a && this._setMonth(t, !1), t === this.currentMonth && (this._day.el.childNodes.forEach((n) => {
-      n.value > r && (n.disabled = !0, this._disabled.push(n));
-    }), (a || this.currentDay > r) && this._setDay(r, !1)), !0;
   }
-  _dayWasChanged(e) {
-    this.currentDay = e, this._triggerEvent(u[2]);
+  _noFutureDate(e = this._lowerLimit, t = this._upperLimit) {
+    const n = () => {
+      this.currentYear > t.year && this._setYear(t.year), this._disable("_month", ">", t.month);
+      const s = this.currentMonth > t.month;
+      s && this._setMonth(t.month), t.month === this.currentMonth && (this._disable("_day", ">", t.day), (s || this.currentDay > t.day) && this._setDay(t.day));
+    }, i = () => {
+      this.currentYear < e.year && this._setYear(e.year), this._disable("_month", "<", e.month);
+      const s = this.currentMonth < e.month;
+      s && this._setMonth(e.month), e.month === this.currentMonth && (this._disable("_day", "<", e.day), (s || this.currentDay < e.day) && this._setDay(e.day));
+    };
+    return this._disabled.length && (this._disabled.forEach((s) => {
+      s.disabled = !1;
+    }), this._disabled = []), !(this.currentYear < t.year && this.currentYear > e.year || !this.currentYear || !(this.currentYear || this.currentMonth || this.currentDay)) && (this.currentYear >= t.year ? n() : this.currentYear <= e.year && i(), !0);
   }
-  _monthWasChanged(e) {
-    this.currentMonth = e, this._triggerEvent(u[3]), this._updateDays();
+  _yearWasChanged(e, t = !0) {
+    this.currentYear = e, this._daysPerMonth[1] = T(e) ? 29 : 28, t && this._triggerEvent(O), this.currentMonth === 2 && this._updateDays();
   }
-  _yearWasChanged(e) {
-    this.currentYear = e, this._daysPerMonth[1] = C(e) ? 29 : 28, this._triggerEvent(u[4]), this._monthChangeTriggeredLater || this.currentMonth !== 2 || this._updateDays();
+  _monthWasChanged(e, t = !0) {
+    this.currentMonth = e, t && this._triggerEvent(I), this._updateDays();
+  }
+  _dayWasChanged(e, t = !0) {
+    this.currentDay = e, t && this._triggerEvent(A);
+  }
+  _dateChanged(e = !0) {
+    this.settings.selectFuture || this._noFutureDate(this._lowerLimit, this._upperLimit), e && this._triggerEvent(D), this.element.value = this.getDateString();
   }
   _updateDayList() {
     const e = this.settings.placeholder ? 1 : 0, t = this.settings.leadingZero ? "0" : "";
-    for (let r = e; r < 9 + e; r++)
-      this._day.el.childNodes[r].innerHTML = t + r;
+    for (let n = e; n < 9 + e; n++)
+      this._day.el.childNodes[n].innerHTML = t + n;
   }
   _updateMonthList() {
     const e = this.settings.monthFormat, t = this.settings.placeholder ? 1 : 0;
-    this.monthFormat[e].forEach((r, a) => {
-      this._month.el.childNodes[a + t].innerHTML = this._getMonthText(r);
+    this.monthFormat[e].forEach((n, i) => {
+      this._month.el.childNodes[i + t].innerHTML = this._getMonthText(n);
     });
   }
   useLeadingZero(e) {
-    (e = D(e)) !== this.settings.leadingZero && (this.settings.leadingZero = e, this.settings.monthFormat === "numeric" && this._updateMonthList(), this._updateDayList());
+    (e = f(e)) !== this.settings.leadingZero && (this.settings.leadingZero = e, this.settings.monthFormat === "numeric" && this._updateMonthList(), this._updateDayList());
   }
   _getDaysPerMonth(e = this.currentMonth) {
     return this._daysPerMonth[+e - 1];
@@ -259,30 +270,30 @@ class l {
       return !1;
     l.createLocale(e);
     const t = l.i18n[e];
-    if (this.settings.placeholder && this._date.forEach((a) => {
-      a.el.childNodes[0].innerHTML = t[a.name];
+    if (this.settings.placeholder && this._date.forEach((i) => {
+      i.el.childNodes[0].innerHTML = t[i.name];
     }), this.monthFormat = t.monthFormat, this.settings.locale = e, this.settings.monthFormat === "numeric")
       return !1;
-    let r = this.settings.placeholder ? 1 : 0;
-    this.monthFormat[this.settings.monthFormat].forEach((a, n) => {
-      this._month.el.childNodes[r + n].innerHTML = a;
-    }), this._triggerEvent(u[1]);
+    let n = this.settings.placeholder ? 1 : 0;
+    this.monthFormat[this.settings.monthFormat].forEach((i, s) => {
+      this._month.el.childNodes[n + s].innerHTML = i;
+    }), this._triggerEvent(D);
   }
-  setDate(e) {
-    let t = this._parseDate(e);
-    return t && this._setDate(t), t;
+  setDate(e, t = !1) {
+    let n = this._parseDate(e);
+    return n && (n = this._setDate(n, t)), n;
   }
   resetDate(e = !1) {
-    let t = this.startDate && e ? this.startDate : { year: void 0, month: void 0, day: void 0 };
-    this._setDate(t);
+    let t = "";
+    this.startDate && e ? (this._setDate(this.startDate), t = this.getDateString()) : this._setDate({ year: NaN, month: NaN, day: NaN }), this.element.value = t, this._triggerEvent(D);
   }
-  addEventListener(e, t, r) {
-    if (u.indexOf(e) < 0 || typeof t != "function")
+  addEventListener(e, t, n) {
+    if (z.indexOf(e) < 0 || typeof t != "function")
       return !1;
-    this.element.addEventListener(e, t, r), this._registeredEventListeners.push({ element: this.element, eventName: e, listener: t, option: r }), this.eventFired[e] && t.call(this.element, this.eventFired[e]);
+    this.element.addEventListener(e, t, n), this._registeredEventListeners.push({ element: this.element, eventName: e, listener: t, option: n }), this.eventFired[e] && t.call(this.element, this.eventFired[e]);
   }
-  removeEventListener(e, t, r) {
-    this.element.removeEventListener(e, t, r);
+  removeEventListener(e, t, n) {
+    this.element.removeEventListener(e, t, n);
   }
   kill() {
     this.eventFired = {}, this._registeredEventListeners && this._registeredEventListeners.forEach((e) => e.element.removeEventListener(e.eventName, e.listener, e.option)), this._date.forEach((e) => {
@@ -290,24 +301,26 @@ class l {
         e.el.remove();
       else {
         const t = this.settings.className;
-        t && (e.el.classList.remove(t), Object.values(y).forEach((r) => {
-          e.el.classList.remove(`${t}-${r}`);
+        t && (e.el.classList.remove(t), Object.values(_).forEach((n) => {
+          e.el.classList.remove(`${t}-${n}`);
         }));
       }
-    }), this._triggerEvent(u[5]);
+    }), this._triggerEvent(j);
   }
   isLeapYear(e = this.currentYear) {
-    return e === void 0 ? void 0 : C(e);
+    return e === void 0 ? void 0 : T(e);
   }
   getAge() {
-    const e = this.currentYear, t = this.currentMonth, r = this.currentDay, a = /* @__PURE__ */ new Date(), n = a.getMonth() + 1;
-    let i = a.getFullYear() - e;
-    return n < t || n === t && a.getDate() < r ? --i : i;
+    if (isNaN(this.currentYear) || isNaN(this.currentMonth) || isNaN(this.currentDay))
+      return "";
+    const e = this.currentYear, t = this.currentMonth, n = this.currentDay, i = /* @__PURE__ */ new Date(), s = i.getMonth() + 1;
+    let a = i.getFullYear() - e;
+    return s < t || s === t && i.getDate() < n ? --a : a;
   }
   getDateString(e) {
     if (!e) {
-      const r = this.getDate();
-      return r && r.toLocaleDateString(this.settings.locale);
+      const n = this.getDate();
+      return n && n.toLocaleDateString(this.settings.locale);
     }
     if (!this.currentYear || !this.currentMonth || !this.currentDay)
       return "";
@@ -317,58 +330,70 @@ class l {
   getDate() {
     return this.currentYear && this.currentMonth && this.currentDay ? new Date(Date.UTC(this.currentYear, +this.currentMonth - 1, this.currentDay)) : "";
   }
+  _getUpperLimit(e) {
+    if (e.upperLimit)
+      return e.upperLimit;
+    let t;
+    return e.maxYear === "now" ? (t = m.y - +e.minAge, { year: t, month: m.m, day: m.d }) : (t = e.maxYear, { year: t, month: 12, day: 31 });
+  }
+  _getLowerLimit(e) {
+    if (e.lowerLimit)
+      return e.lowerLimit;
+    let t;
+    return e.minYear !== null ? (t = +e.minYear, { year: t, month: 1, day: 1 }) : (t = (e.maxYear === "now" ? m.y : e.maxYear) - +e.maxAge, { year: t, month: m.m, day: m.d });
+  }
   init() {
     if (this.initialized)
       return !0;
     this.initialized = !0, this.eventFired = {}, this._registeredEventListeners = [], this._daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31], this._date = [], this._disabled = [];
     const e = this.settings;
-    e.placeholder = D(e.placeholder), e.leadingZero = D(e.leadingZero), e.selectFuture = D(e.selectFuture), e.maxYear === "now" ? this._yearTo = p.y : this._yearTo = e.maxYear, e.minYear ? this._yearFrom = +e.minYear : this._yearFrom = this._yearTo - +e.maxAge, this._yearTo -= +e.minAge;
+    e.placeholder = f(e.placeholder), e.leadingZero = f(e.leadingZero), e.selectFuture = f(e.selectFuture), this._lowerLimit = this._getLowerLimit(e), this._upperLimit = this._getUpperLimit(e), this._yearFrom = this._lowerLimit.year, this._yearTo = this._upperLimit.year;
     const [t] = l.createLocale(e.locale);
-    if (e.locale = t, this.monthFormat = l.i18n[e.locale].monthFormat, this._create(), this._triggerEvent(u[0]), e.defaultDate) {
-      const r = this.setDate(e.defaultDate === "now" ? (/* @__PURE__ */ new Date()).toString() : e.defaultDate);
-      this.currentYear = r.year, this.currentMonth = r.month, this.currentDay = r.day, this.startDate = r;
+    if (e.locale = t, this.monthFormat = l.i18n[e.locale].monthFormat, this._create(), this._triggerEvent(S), e.defaultDate) {
+      const n = this.setDate(e.defaultDate === "now" ? (/* @__PURE__ */ new Date()).toString() : e.defaultDate, !0);
+      this.startDate = n;
     }
   }
 }
-l.i18n = {}, l.currentLocale = "en", l.getInstance = (s) => b.get(s, "instance"), l.createLocale = (s) => {
-  if (s && s.length === 2 || (s = "en"), l.i18n[s])
-    return [s, l.i18n[s]];
+l.i18n = {}, l.currentLocale = "en", l.getInstance = (r) => E.get(r, "instance"), l.createLocale = (r) => {
+  if (r && r.length === 2 || (r = "en"), l.i18n[r])
+    return [r, l.i18n[r]];
   let e = /* @__PURE__ */ new Date("2000-01-15"), t = { monthFormat: {} };
-  for (let n = 0; n < 12; n++)
-    e.setMonth(n), W.forEach((i) => {
-      t.monthFormat[i] = t.monthFormat[i] || [], t.monthFormat[i].push(e.toLocaleDateString(s, { month: i }));
+  for (let s = 0; s < 12; s++)
+    e.setMonth(s), $.forEach((a) => {
+      t.monthFormat[a] = t.monthFormat[a] || [], t.monthFormat[a].push(e.toLocaleDateString(r, { month: a }));
     });
-  const r = "BirthdayPickerLocale";
-  let a = M[s] ? M[s] : M.en;
-  return window[r] && window[r][s] && (a = Object.assign({}, a, window[r][s])), l.i18n[s] = Object.assign(t, a), [s, t];
-}, l.setMonthFormat = (s) => {
-  m.forEach((e) => {
-    e.setMonthFormat(s);
+  const n = "BirthdayPickerLocale";
+  let i = v[r] ? v[r] : v.en;
+  return window[n] && window[n][r] && (i = Object.assign({}, i, window[n][r])), l.i18n[r] = Object.assign(t, i), [r, t];
+}, l.setMonthFormat = (r) => {
+  g.forEach((e) => {
+    e.setMonthFormat(r);
   });
-}, l.setLanguage = (s) => {
-  l.currentLocale = s, m.forEach((e) => {
-    e.setLanguage(s);
+}, l.setLanguage = (r) => {
+  l.currentLocale = r, g.forEach((e) => {
+    e.setLanguage(r);
   });
-}, l.killAll = () => !!m.length && (m.forEach((s) => {
-  l.kill(s);
-}), m = [], !0), l.kill = (s) => {
-  if (!s || (s.element || (s = l.getInstance(s)), !s))
+}, l.killAll = () => !!g.length && (g.forEach((r) => {
+  l.kill(r);
+}), g = [], !0), l.kill = (r) => {
+  if (!r || (r.element || (r = l.getInstance(r)), !r))
     return !1;
-  s.kill();
-  const e = s.element;
-  return e.dataset.bdpInit = !1, delete e.dataset.bdpInit, b.remove(e, "instance"), F = !1, !0;
-}, l.defaults = { minYear: null, maxYear: "now", minAge: 0, maxAge: 100, monthFormat: "short", placeholder: !0, className: null, defaultDate: null, autoInit: !0, leadingZero: !0, locale: "en", selectFuture: !1, arrange: "ymd", yearEl: null, monthEl: null, dayEl: null, roundDownDay: !0 }, l.init = () => {
-  if (F)
+  r.kill();
+  const e = r.element;
+  return e.dataset.bdpInit = !1, delete e.dataset.bdpInit, E.remove(e, "instance"), N = !1, !0;
+}, l.defaults = { minAge: 0, maxAge: 100, minYear: null, maxYear: "now", lowerLimit: null, upperLimit: null, monthFormat: "short", placeholder: !0, className: null, defaultDate: null, autoInit: !0, leadingZero: !0, locale: "en", selectFuture: !1, arrange: "ymd", yearEl: null, monthEl: null, dayEl: null, roundDownDay: !0 }, l.init = () => {
+  if (N)
     return !1;
-  F = !0, l.createLocale(l.currentLocale);
-  let s = document.querySelectorAll("[" + N + "]");
-  return s.length !== 0 && (s.forEach((e) => {
+  N = !0, l.createLocale(l.currentLocale);
+  let r = document.querySelectorAll("[" + b + "]");
+  return r.length !== 0 && (r.forEach((e) => {
     new l(e);
-  }), m);
+  }), g);
 };
 if (globalThis.getDomData)
-  for (const s of Object.keys(globalThis.getDomData))
-    globalThis[s] = globalThis.getDomData[s];
+  for (const r of Object.keys(globalThis.getDomData))
+    globalThis[r] = globalThis.getDomData[r];
 export {
   l as default
 };

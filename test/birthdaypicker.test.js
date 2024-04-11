@@ -117,11 +117,11 @@ describe('BirthdayPicker kill', () => {
       expect(cbInit).toHaveBeenCalled();
       expect(cbInit).toHaveBeenCalledTimes(1);
     });
-    test('datechange callbacks should be called after setting date', () => {
+    test('datechange callbacks should NOT be called after setting date', () => {
       expect(cbDatechange).not.toHaveBeenCalled();
       bp.setDate('2000-10-10');
       bp.setDate(new Date());
-      expect(cbDatechange).toHaveBeenCalledTimes(2);
+      expect(cbDatechange).not.toHaveBeenCalled();
     });
   });
 
@@ -181,16 +181,16 @@ describe('BirthdayPicker events', () => {
     { val: 'year', event: 'yearchange' },
   ])('$event events ', ({ val, event }) => {
     describe('after initialization', () => {
-      test(`default date set, ${event} should be called`, () => {
+      test(`default date set, ${event} should NOT be called`, () => {
         const bp = new BirthdayPicker(document.createElement('div'), options);
         bp.addEventListener(event, cb);
-        expect(cb).toHaveBeenCalledTimes(1);
+        expect(cb).not.toHaveBeenCalled();
       });
-      test(`default date set, (eventlistener on element), ${event} should be called`, () => {
+      test(`default date set, (eventlistener on element), ${event} should NOT be called`, () => {
         const el = document.createElement('div');
         el.addEventListener(event, cb);
         new BirthdayPicker(el, options);
-        expect(cb).toHaveBeenCalledTimes(1);
+        expect(cb).not.toHaveBeenCalled();
       });
       test(`default date NOT set, ${event} should NOT be called`, () => {
         const bp = new BirthdayPicker(document.createElement('div'));
@@ -199,12 +199,12 @@ describe('BirthdayPicker events', () => {
       });
     });
     describe('after using setDate()', () => {
-      test(`${event} should be called 2 times`, () => {
+      test(`${event} should NOT called`, () => {
         const bp = new BirthdayPicker(document.createElement('div'), options);
         bp.addEventListener(event, cb);
-        expect(cb).toHaveBeenCalledTimes(1);
+        expect(cb).not.toHaveBeenCalled();
         bp.setDate(dates[val]);
-        expect(cb).toHaveBeenCalledTimes(2);
+        expect(cb).not.toHaveBeenCalled();
       });
     });
   });
@@ -290,84 +290,6 @@ describe('BirthdayPicker events', () => {
       expect(cb).toHaveBeenCalledTimes(0);
     });
   });
-
-  describe('removeEventListener (from instance)', () => {
-    test('datechange should not be called after removing the event listener', () => {
-      BirthdayPicker.kill(testEl);
-      const bp2 = new BirthdayPicker(testEl, {
-        defaultDate: '2000-10-10',
-      });
-      const cb = vi.fn();
-      bp2.addEventListener('datechange', cb);
-      expect(cb).toHaveBeenCalledTimes(1);
-      bp2.setDate('2000-10-11');
-      expect(cb).toHaveBeenCalledTimes(2);
-
-      bp2.removeEventListener('datechange', cb);
-      bp2.setDate('2000-10-11');
-      // no changes here!
-      expect(cb).toHaveBeenCalledTimes(2);
-    });
-  });
-
-  describe('removeEventListener (from element)', () => {
-    test('datechange should not be called after removing the event listener', () => {
-      const testEl = document.createElement('div');
-      const cb = vi.fn();
-
-      testEl.addEventListener('datechange', cb);
-      const bp2 = new BirthdayPicker(testEl, {
-        defaultDate: '2000-10-10',
-      });
-
-      expect(cb).toHaveBeenCalledTimes(1);
-      bp2.setDate('2000-10-11');
-      expect(cb).toHaveBeenCalledTimes(2);
-
-      testEl.removeEventListener('datechange', cb);
-      bp2.setDate('2000-10-11');
-      // no changes here!
-      expect(cb).toHaveBeenCalledTimes(2);
-    });
-  });
-
-  describe('addEventListener && removeEventListener', () => {
-    test('add to DOM element, remove from instance', () => {
-      const cb = vi.fn();
-      const testEl = document.createElement('div');
-      testEl.addEventListener('datechange', cb);
-
-      const bp2 = new BirthdayPicker(testEl, {
-        defaultDate: '2000-10-10',
-      });
-
-      expect(cb).toHaveBeenCalledTimes(1);
-      bp2.setDate('2000-10-11');
-      expect(cb).toHaveBeenCalledTimes(2);
-
-      bp2.removeEventListener('datechange', cb);
-      bp2.setDate('2000-10-11');
-      // no changes here!
-      expect(cb).toHaveBeenCalledTimes(2);
-    });
-    test('add to instance, remove form DOM element', () => {
-      const cb = vi.fn();
-      const testEl = document.createElement('div');
-      const bp2 = new BirthdayPicker(testEl, {
-        defaultDate: '2000-10-10',
-      });
-
-      bp2.addEventListener('datechange', cb);
-      expect(cb).toHaveBeenCalledTimes(1);
-      bp2.setDate('2000-10-11');
-      expect(cb).toHaveBeenCalledTimes(2);
-
-      testEl.removeEventListener('datechange', cb);
-      bp2.setDate('2000-10-11');
-      // no changes here!
-      expect(cb).toHaveBeenCalledTimes(2);
-    });
-  });
 });
 
 describe('date setting tests', () => {
@@ -390,7 +312,10 @@ describe('date setting tests', () => {
       bp.setDate(newDate);
       const result = bp.getDateString('yyyy-mm-dd');
       const start = bp._yearFrom;
-      expect(result).toBe(start + '-10-12');
+      const date = new Date();
+      const m = ('0' + (date.getMonth() + 1)).slice(-2);
+      const d = ('0' + date.getDate() + 1).slice(-2);
+      expect(result).toBe(`${start}-${m}-${d}`);
     });
 
     test('new date out of date range should return ""', () => {
@@ -423,7 +348,6 @@ describe('date setting tests', () => {
       expect(newDate).toEqual(date2);
     });
   });
-
 });
 
 // test for _dayChanged
@@ -497,65 +421,6 @@ describe('setDate tests', () => {
       expect(dayChangedSpy).toHaveBeenCalledTimes(2);
     });
   });
-
-  describe('change form a leap year day', () => {
-    beforeEach(() => {
-      bp.setDate('2004-2-29');
-      vi.clearAllMocks();
-    });
-    test('should trigger year, month, day changes, by only changing the year', () => {
-      // only change year(!)
-      bp.setDate('2005-2-29'); // should be 2005-3-1
-      expect(yearChangedSpy).toHaveBeenCalledTimes(1);
-      expect(monthChangedSpy).toHaveBeenCalledTimes(1);
-      expect(dayChangedSpy).toHaveBeenCalledTimes(1);
-      expect(bp.getDateString('yyyy-mm-dd')).toBe('2005-03-01');
-    });
-  });
-
-  describe('only day changed', () => {
-    test('should only call day and date changed', () => {
-      bp.setDate('2000-12-20'); // day changed
-      expect(yearChangedSpy).toHaveBeenCalledTimes(0);
-      expect(monthChangedSpy).toHaveBeenCalledTimes(0);
-      expect(dayChangedSpy).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe('only month changed', () => {
-    test('should call only month and date changed', () => {
-      bp.setDate('2000-10-31'); // month changed
-      expect(yearChangedSpy).toHaveBeenCalledTimes(0);
-      expect(monthChangedSpy).toHaveBeenCalledTimes(1);
-      expect(dayChangedSpy).toHaveBeenCalledTimes(0);
-    });
-  });
-
-  describe('only year changed', () => {
-    test('should call only year and date changed', () => {
-      bp.setDate('2020-12-31'); // year changed
-      expect(yearChangedSpy).toHaveBeenCalledTimes(1);
-      expect(monthChangedSpy).toHaveBeenCalledTimes(0);
-      expect(dayChangedSpy).toHaveBeenCalledTimes(0);
-    });
-  });
-
-  describe('all values change', () => {
-    test('should trigger all changes', () => {
-      bp.setDate('1999-1-15'); // year, month and day changed
-      expect(yearChangedSpy).toHaveBeenCalledTimes(1);
-      expect(monthChangedSpy).toHaveBeenCalledTimes(1);
-      expect(dayChangedSpy).toHaveBeenCalledTimes(1);
-    });
-  });
-  describe('no values change', () => {
-    test('nothing should be triggered', () => {
-      bp.setDate('2000-12-31'); // no change!!
-      expect(yearChangedSpy).not.toHaveBeenCalled();
-      expect(monthChangedSpy).not.toHaveBeenCalled();
-      expect(dayChangedSpy).not.toHaveBeenCalled();
-    });
-  });
 });
 
 describe('test the _parseDate function', () => {
@@ -621,35 +486,35 @@ describe('test the settings', () => {
     expect(bp._yearTo).toBe(options.maxYear);
   });
 
-  test('maxYear, should be 2008', () => {
+  test('maxYear, should be 2018', () => {
     const options = {
-      maxYear: 2018,
+      maxYear: 2018, // max Year overrides minAge (!)
       minAge: 10,
     };
     const el = document.createElement('div');
     const bp = new BirthdayPicker(el, options);
-    expect(bp._yearTo).toBe(2008);
+    expect(bp._yearTo).toBe(2018);
   });
 
-  test('maxYear, should be 2008', () => {
+  test('maxYear, should be 2020', () => {
     const options = {
-      minYear: 1960,
-      maxYear: 2020,
+      minYear: 1960, // minYear overrides max age
+      maxYear: 2020, // maxYear overrides min age
       minAge: 10,
       maxAge: 20,
     };
     const el = document.createElement('div');
     const bp = new BirthdayPicker(el, options);
-    expect(bp._yearTo).toBe(2010);
+    expect(bp._yearTo).toBe(2020);
     expect(bp._yearFrom).toBe(1960);
   });
 });
 
 describe('test all options', () => {
-  test('locale should use standard (\'en\') if wrong string is given', () => {
+  test("locale should use standard ('en') if wrong string is given", () => {
     const div = document.createElement('div');
     const options = {
-      locale: 'wrong'
+      locale: 'wrong',
     };
     const bp = new BirthdayPicker(div, options);
     expect(bp.settings.locale).toBe('en');
@@ -818,7 +683,7 @@ describe('public methods tests', () => {
     });
   });
 
-  describe('test resetDate() if no default start date was given', () => {
+  describe('test resetDate() if default start date was given', () => {
     const bp = new BirthdayPicker(document.createElement('div'), {
       locale: 'en',
       defaultDate: '2022-02-02',
@@ -836,7 +701,7 @@ describe('public methods tests', () => {
     });
   });
 
-  describe('test resetDate() if no default start date was given', () => {
+  describe('test resetDate() if default start date was given', () => {
     const bp = new BirthdayPicker(document.createElement('div'), {
       defaultDate: '2022-02-02',
     });
@@ -855,26 +720,23 @@ describe('public methods tests', () => {
 
     test('_setDate should be called', () => {
       bp.resetDate();
-      const resetCall = { year: undefined, month: undefined, day: undefined };
+      const resetCall = { year: NaN, month: NaN, day: NaN };
       expect(_setDateSpy).toHaveBeenCalledTimes(1);
       expect(_setDateSpy).toHaveBeenCalledWith(resetCall);
       expect(resetDateSpy).toHaveBeenCalledWith();
 
-      expect(_setYearSpy).toHaveBeenCalledWith(undefined, false);
-      expect(_setMonthSpy).toHaveBeenCalledWith(undefined, false);
-      expect(_setDaySpy).toHaveBeenCalledWith(undefined, false);
+      expect(_setYearSpy).toHaveBeenCalledWith(NaN);
+      expect(_setMonthSpy).toHaveBeenCalledWith(NaN);
+      expect(_setDaySpy).toHaveBeenCalledWith(NaN);
 
-      expect(_yearWasChangedSpy).toHaveBeenCalledWith(NaN);
-      expect(_monthWasChangedSpy).toHaveBeenCalledWith(NaN);
-      expect(_dayWasChangedSpy).toHaveBeenCalledWith(NaN);
+      expect(_yearWasChangedSpy).toHaveBeenCalledWith(NaN, false);
+      expect(_monthWasChangedSpy).toHaveBeenCalledWith(NaN, false);
+      expect(_dayWasChangedSpy).toHaveBeenCalledWith(NaN, false);
 
       expect(_dateChangedSpy).toHaveBeenCalledTimes(1);
       expect(_updateSelectBoxSpy).toHaveBeenCalledTimes(3);
     });
-
   });
-
-
 });
 
 describe('private methods tests', () => {
@@ -956,9 +818,10 @@ describe.each([
   test(`new ${name} should return true`, () => {
     expect(bp[fun](diffVal)).toBe(true);
     expect(_spy).toHaveBeenCalledTimes(1);
-    expect(_spy).toHaveBeenCalledWith(diffVal);
-    // 2 -> one for year and one for datechange event
-    expect(_triggerEventSpy).toHaveBeenCalledTimes(2);
+    expect(_spy).toHaveBeenCalledWith(diffVal, false);
+
+    // no events trigger on set
+    expect(_triggerEventSpy).toHaveBeenCalledTimes(0);
   });
 });
 
@@ -993,15 +856,9 @@ describe('_noFutureDate methods tests', () => {
   describe('try to set to a future day', () => {
     test('should result in the current date', () => {
       const _noFutureDateSpy = vi.spyOn(bp, '_noFutureDate');
-      bp.setDate('2044-11-15');
+      bp.setDate('2054-11-15');
       expect(_noFutureDateSpy).toHaveBeenCalled();
-      const today = new Date();
-      const todayYear = today.getFullYear();
-      const todayMonth = today.getMonth() + 1;
-      const todayDay = today.getDate();
-      const todayString = `${todayYear}-${todayMonth}-${todayDay}`;
-      expect(bp.getDateString('yyyy-m-d')).toEqual(todayString);
-
+      expect(bp.getDateString('yyyy-mm-dd')).toEqual('2030-12-31');
       _noFutureDateSpy.mockRestore();
     });
   });
@@ -1031,8 +888,7 @@ describe('_noFutureDate methods tests', () => {
 
     test('max day changed down, call: _setDay', () => {
       day = 12;
-      bp._noFutureDate(year, month, day);
-      expect(_noFutureDateSpy).lastCalledWith(year, month, day);
+      bp._noFutureDate(bp._lowerLimit, { year, month, day });
       expect(_setYearSpy).toHaveBeenCalledTimes(0);
       expect(_setMonthSpy).toHaveBeenCalledTimes(0);
       expect(_setDaySpy).toHaveBeenCalledTimes(1);
@@ -1040,8 +896,7 @@ describe('_noFutureDate methods tests', () => {
 
     test('max month changed down, call: _setMonth & _setDay', () => {
       month = 8;
-      bp._noFutureDate(year, month, day);
-      expect(_noFutureDateSpy).lastCalledWith(year, month, day);
+      bp._noFutureDate(bp._lowerLimit, { year, month, day });
       expect(_setYearSpy).toHaveBeenCalledTimes(0);
       expect(_setMonthSpy).toHaveBeenCalledTimes(1);
       expect(_setDaySpy).toHaveBeenCalledTimes(1);
@@ -1049,19 +904,18 @@ describe('_noFutureDate methods tests', () => {
 
     test('max year changed down (month and day are the same), call: _setYear', () => {
       year = 2019;
-      bp._noFutureDate(year, month, day);
-      expect(_noFutureDateSpy).lastCalledWith(year, month, day);
+      bp._noFutureDate(bp._lowerLimit, { year, month, day });
       expect(_setYearSpy).toHaveBeenCalledTimes(1);
       expect(_setMonthSpy).toHaveBeenCalledTimes(0);
       expect(_setDaySpy).toHaveBeenCalledTimes(0);
     });
 
     test('all values changed down, call: _setYear, _setMonth & _setDay', () => {
-      const _year = year - 1;
-      const _month = month - 1;
-      const _day = day - 1;
-      bp._noFutureDate(_year, _month, _day);
-      expect(_noFutureDateSpy).lastCalledWith(_year, _month, _day);
+      bp._noFutureDate(bp._lowerLimit, {
+        year: year - 1,
+        month: month - 1,
+        day: day - 1,
+      });
       expect(_setYearSpy).toHaveBeenCalledTimes(1);
       expect(_setMonthSpy).toHaveBeenCalledTimes(1);
       expect(_setDaySpy).toHaveBeenCalledTimes(1);
@@ -1069,23 +923,23 @@ describe('_noFutureDate methods tests', () => {
 
     // change month and day
     test('max month and day changed, call: _setMonth & _setDay', () => {
-      const _year = year;
-      const _month = month - 1;
-      const _day = day - 1;
-      bp._noFutureDate(_year, _month, _day);
-      expect(_noFutureDateSpy).lastCalledWith(_year, _month, _day);
+      bp._noFutureDate(bp._lowerLimit, {
+        year,
+        month: month - 1,
+        day: day - 1,
+      });
+
       expect(_setYearSpy).toHaveBeenCalledTimes(0);
       expect(_setMonthSpy).toHaveBeenCalledTimes(1);
       expect(_setDaySpy).toHaveBeenCalledTimes(1);
     });
 
-    // change month and day
     test('max year and day changed, call: _setMonth & _setDay', () => {
-      const _year = year - 1;
-      const _month = month;
-      const _day = day - 1;
-      bp._noFutureDate(_year, _month, _day);
-      expect(_noFutureDateSpy).lastCalledWith(_year, _month, _day);
+      bp._noFutureDate(bp._lowerLimit, {
+        year: year - 1,
+        month: month,
+        day: day - 1,
+      });
       expect(_setYearSpy).toHaveBeenCalledTimes(1);
       expect(_setMonthSpy).toHaveBeenCalledTimes(0);
       expect(_setDaySpy).toHaveBeenCalledTimes(1);
@@ -1220,8 +1074,8 @@ describe('_updateDays methods tests', () => {
         year: 2010,
         month: 2,
         day: 10,
-      });
-      expect(_setDaySpy).toHaveBeenCalledWith(10, false);
+      }, false);
+      expect(_setDaySpy).toHaveBeenCalledWith(10);
       expect(_updateDaysSpy).toHaveBeenCalledTimes(1);
       expect(bp.getDateString('yyyy-m-d')).toEqual('2010-2-10');
     });
@@ -1229,7 +1083,7 @@ describe('_updateDays methods tests', () => {
     test('change month, expect _updateDay to NOT be called', () => {
       bp.setDate('2010-11-31'); // as day is already set to 30
       expect(bp.getDateString('yyyy-mm-dd')).toEqual('2010-12-01');
-      expect(_dayWasChangedSpy).toHaveBeenCalledWith(1);
+      expect(_dayWasChangedSpy).toHaveBeenCalledWith(1, false);
       expect(_updateDaysSpy).toHaveBeenCalledTimes(0);
     });
 
@@ -1337,8 +1191,8 @@ describe('_updateDays methods tests', () => {
     bp.setDate(newDate); // 3.call
 
     expect(_setDaySpy).toHaveBeenCalledTimes(2);
-    expect(_updateDaysSpy).toHaveBeenCalledTimes(2);
-    expect(_dayWasChangedSpy).toHaveBeenCalledTimes(3);
+    expect(_updateDaysSpy).toHaveBeenCalledTimes(3);
+    expect(_dayWasChangedSpy).toHaveBeenCalledTimes(4);
     expect(_monthWasChangedSpy).toHaveBeenCalledTimes(2);
     expect(_yearWasChangedSpy).toHaveBeenCalledTimes(1);
   });

@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.22
+### Added or Changed
+- remove the datechange event-triggering when calling setDate(). Only the select boxes trigger this event.
+
 ## v0.1.21
 ### Added
 - if select boxes found inside the main element: use them in the defined order, eg: 'ymd' (year, month, day).

@@ -7,25 +7,32 @@
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body class="bg-slate-500">
-
-    <div id="test123">
+    <!-- <div id="test123">
       <select></select>
       <select></select>
     </div>
+    <div id="test123result"></div>
     <script type="module">
       import BirthdayPicker from './src/index.js';
+      const result = document.getElementById('test123result');
       const bp = new BirthdayPicker('#test123', {
         monthEl: '#month',
-        arrange: 'dmy',
+        arrange: 'ymd',
+        // minAge: 20,
+        maxAge: 30,
+
         datechange: (evt) => {
-          console.log('i am second');
-        }
+          // console.log(evt.detail.instance);
+          // console.log('i am second');
+        },
       });
 
       bp.addEventListener('datechange', (evt) => {
-        console.log('i am first');
-      })
+        // console.log('i am first');
+        result.innerHTML = bp.getAge();
+      });
     </script>
+    -->
 
     <div class="mx-auto max-w-2xl my-8 py-8 px-6 bg-white/10">
       <div
@@ -308,12 +315,12 @@
             <div class="relative mb-4">
               <div class="mb-1">getAge()</div>
               <input
-                  class="w-full px-2 py-2 outline-none border-0 focus:ring-pink-500 focus:ring-2 rounded-md disabled:bg-gray-400 disabled:text-gray-800 disabled:opacity-1"
-                  id="resultAge"
-                  type="text"
-                  :value="resultAge"
-                  disabled
-                />
+                class="w-full px-2 py-2 outline-none border-0 focus:ring-pink-500 focus:ring-2 rounded-md disabled:bg-gray-400 disabled:text-gray-800 disabled:opacity-1"
+                id="resultAge"
+                type="text"
+                :value="resultAge"
+                disabled
+              />
             </div>
           </div>
           <div class="md:w-1/2 md:ml-2">
@@ -625,11 +632,11 @@
 
           // listen for these events (event log)
           [
-            'datechange',
-            'yearchange',
-            'monthchange',
-            'daychange',
             'init',
+            'datechange',
+            'daychange',
+            'monthchange',
+            'yearchange',
             'kill',
           ].forEach((eventName) => {
             this.$refs.bp.addEventListener(eventName, (evt) => {
@@ -680,18 +687,22 @@
         setdate(val, id) {
           if (6 === id) {
             val = this.getRandomDate();
-            this.birthdays.filter(f => id===f.id)[0].val = val
+            this.birthdays.filter((f) => id === f.id)[0].val = val;
           }
           this.getInstance().setDate(val);
+          this.datechange();
         },
         setYear(val) {
           this.getInstance()._setYear(val);
+          this.datechange();
         },
         setMonth(val) {
           this.getInstance()._setMonth(val);
+          this.datechange();
         },
         setDay(val) {
           this.getInstance()._setDay(val);
+          this.datechange();
         },
         // events
         outputFormatChange(evt) {
@@ -703,7 +714,8 @@
           this.resultDate = i.getDate().toString();
         },
         datechange(evt) {
-          const i = evt.detail.instance;
+          const i = evt ? evt.detail.instance : this.getInstance();
+
           // let tmp = [i.currentYear,('00'+i.currentMonth).slice(-2),('00'+i.currentDay).slice(-2)].join('-');
           this.date = i.getDateString('yyyy-mm-dd');
           this.result = i.getDateString(this.currentOutputFormat.val);

@@ -15,14 +15,23 @@ const pluginName = 'birthdaypicker';
 const dataName = 'data-' + pluginName;
 const monthFormats = ['short', 'long', 'numeric'];
 const allowedArrangement = ['ymd', 'ydm', 'myd', 'mdy', 'dmy', 'dym'];
+
+const INIT = 'init';
+const DATECHANGE = 'datechange';
+const DAYCHANGE = 'daychange';
+const MONTHCHANGE = 'monthchange';
+const YEARCHANGE = 'yearchange';
+const KILL = 'kill';
+
 const allowedEvents = [
-  'init',
-  'datechange',
-  'daychange',
-  'monthchange',
-  'yearchange',
-  'kill',
+  INIT,
+  DATECHANGE,
+  DAYCHANGE,
+  MONTHCHANGE,
+  YEARCHANGE,
+  KILL,
 ];
+
 const optionTagName = 'option';
 const lookup = { y: 'year', m: 'month', d: 'day' };
 
@@ -38,6 +47,13 @@ let initialized = false;
 
 const isTrue = (value) =>
   value === true || value === 'true' || value === 1 || value === '1';
+
+// const getDaysPerMonth = (month, year) => {
+//   month = month < 1 ? 1 : month > 12 ? 12 : month;
+//   const daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+//   if (isLeapYear(year)) daysPerMonth[1] = 29;
+//   return daysPerMonth[+month - 1];
+// };
 
 /**
  * The Main Class
@@ -69,7 +85,7 @@ class BirthdayPicker {
     // from data api
     const data = getJSONData(element, pluginName, BirthdayPicker.defaults);
 
-    this.options = options; // user options
+    this.options = options || {}; // user options
     this.settings = Object.assign({}, BirthdayPicker.defaults, data, options);
     this.element = element;
 
@@ -137,34 +153,18 @@ class BirthdayPicker {
   }
 
   /**
-   * called if one value was changed
-   */
-  _dateChanged() {
-    if (!this.settings.selectFuture) {
-      this._noFutureDate(now.y, now.m, now.d);
-    }
-    this._triggerEvent(allowedEvents[1]);
-    // set value to element
-    this.element.value = this.getDateString();
-  }
-
-  /**
    * set the year to a given value
    * and change the corresponding select-box too.
    * @param {String|Int} year the day value (eg, 1988, 2012, ...)
-   * @param {Boolean} triggerDateChange true if a dateChange event should be triggered
    * @returns
    */
-  _setYear(year, triggerDateChange = true) {
+  _setYear(year) {
     year = restrict(year, this._yearFrom, this._yearTo);
     if (this.currentYear === year) {
       return false;
     }
     this._updateSelectBox('_year', year);
-    this._yearWasChanged(year);
-    if (triggerDateChange) {
-      this._dateChanged();
-    }
+    this._yearWasChanged(year, false);
     return true;
   }
 
@@ -172,19 +172,15 @@ class BirthdayPicker {
    * set the month to a given value
    * and change the corresponding select-box too.
    * @param {String|Int} month the month value (usually between 1 - 12)
-   * @param {Boolean} triggerDateChange true if a dateChange event should be triggered
    * @returns
    */
-  _setMonth(month, triggerDateChange = true) {
+  _setMonth(month) {
     month = restrict(month, 1, 12);
     if (this.currentMonth === month) {
       return false;
     }
     this._updateSelectBox('_month', month);
-    this._monthWasChanged(month);
-    if (triggerDateChange) {
-      this._dateChanged();
-    }
+    this._monthWasChanged(month, false);
     return true;
   }
 
@@ -192,38 +188,60 @@ class BirthdayPicker {
    * set the day to a given value
    * and change the corresponding select-box too.
    * @param {String|Int} day the day value (usually between 1 - 31)
-   * @param {Boolean} triggerDateChange true if a dateChange event should be triggered
    * @returns
    */
-  _setDay(day, triggerDateChange = true) {
+  _setDay(day) {
     day = restrict(day, 1, this._getDaysPerMonth());
     if (this.currentDay === day) {
       return false;
     }
     this._updateSelectBox('_day', day);
-    this._dayWasChanged(day);
-    if (triggerDateChange) {
-      this._dateChanged();
-    }
+    this._dayWasChanged(day, false);
     return true;
+  }
+
+  _getDateInRange({
+    year = this.currentYear,
+    month = this.currentMonth,
+    day = this.currentDay,
+  }) {
+    const lower = this._lowerLimit;
+    const upper = this._upperLimit;
+
+    if (
+      year > upper.year ||
+      (year >= upper.year && month > upper.month) ||
+      (year >= upper.year && month >= upper.month && day > upper.day)
+    ) {
+      return upper;
+    } else if (
+      year < lower.year ||
+      (year <= lower.year && month < lower.month) ||
+      (year <= lower.year && month <= lower.month && day < lower.day)
+    ) {
+      return lower;
+    }
+
+    return { year, month, day };
   }
 
   /**
    * Set the date
    * @param {Object} obj with year, month, day as String or Integer
+   * @param {Number} obj.year the year value
+   * @param {Number} obj.month the month value
+   * @param {Number} obj.day the day value
    */
-  _setDate({ year, month, day }) {
-    // small helper for the event triggering system
-    this._monthChangeTriggeredLater = month !== this.currentMonth;
-    let _yChanged = this._setYear(year, false);
-    let _mChanged = this._setMonth(month, false);
-    let _dChanged = this._setDay(day, false);
+  _setDate(obj, triggerEvent = false) {
+    obj = this._getDateInRange(obj);
+    let _yChanged = this._setYear(obj.year);
+    let _mChanged = this._setMonth(obj.month);
+    let _dChanged = this._setDay(obj.day);
 
     if (_yChanged || _mChanged || _dChanged) {
-      this._dateChanged();
+      this._dateChanged(triggerEvent);
     }
-
-    this._monthChangeTriggeredLater = false;
+    return obj;
   }
 
   // function for update or create
@@ -297,7 +315,7 @@ class BirthdayPicker {
   }
 
   /**
-   * Create the gui and set the default (start) values if available
+   * Create the gui
    * @return {void}
    */
   _create() {
@@ -324,6 +342,7 @@ class BirthdayPicker {
       }
 
       el.dataset.init = true;
+
       const eventName = 'change';
       const listener = this._onSelect;
       const option = false;
@@ -423,7 +442,7 @@ class BirthdayPicker {
       // either: 2010-11-30, or 2010-12-01
       if (this.currentDay > newDaysPerMonth) {
         if (this.settings.roundDownDay) {
-          this._setDay(newDaysPerMonth, false);
+          this._setDay(newDaysPerMonth);
         } else {
           this._dayWasChanged(undefined);
         }
@@ -461,8 +480,68 @@ class BirthdayPicker {
     trigger(this.element, eventName, ce);
   }
 
-  _noFutureDate(year, month, day) {
-    // console.log('_noFutureDate');
+  /**
+   * Disable the options in the select box
+   *
+   * @param {String} selectBox - Name of the select box (_year, _month, _day)
+   * @param {String} condition - '>' or '<'
+   * @param {Number} limit - the limit
+   */
+  _disable(selectBox, condition, limit) {
+    const fun = condition === '<' ? (val) => val < limit : (val) => val > limit;
+    this[selectBox].el.childNodes.forEach((el) => {
+      if (fun(+el.value)) {
+        el.disabled = true;
+        this._disabled.push(el);
+      }
+    });
+  }
+
+  // TODO: only on select change
+  _noFutureDate(lower = this._lowerLimit, upper = this._upperLimit) {
+    const setBack = () => {
+      // TODO: not really needed
+      if (this.currentYear > upper.year) {
+        this._setYear(upper.year);
+      }
+
+      this._disable('_month', '>', upper.month);
+
+      const setMonthBack = this.currentMonth > upper.month;
+      if (setMonthBack) {
+        this._setMonth(upper.month);
+      }
+
+      if (upper.month === this.currentMonth) {
+        this._disable('_day', '>', upper.day);
+
+        if (setMonthBack || this.currentDay > upper.day) {
+          this._setDay(upper.day);
+        }
+      }
+    };
+
+    const setFwd = () => {
+      // TODO: not really needed
+      if (this.currentYear < lower.year) {
+        this._setYear(lower.year);
+      }
+
+      this._disable('_month', '<', lower.month);
+
+      const setMonthFwd = this.currentMonth < lower.month;
+      if (setMonthFwd) {
+        this._setMonth(lower.month);
+      }
+
+      if (lower.month === this.currentMonth) {
+        this._disable('_day', '<', lower.day);
+
+        if (setMonthFwd || this.currentDay < lower.day) {
+          this._setDay(lower.day);
+        }
+      }
+    };
 
     // set all previously disabled option elements to false (reenable them)
     if (this._disabled.length) {
@@ -474,47 +553,19 @@ class BirthdayPicker {
 
     // early exit
     if (
-      this.currentYear < year ||
+      (this.currentYear < upper.year && this.currentYear > lower.year) ||
       !this.currentYear ||
       (!this.currentYear && !this.currentMonth && !this.currentDay)
     ) {
       return false;
     }
 
-    if (this.currentYear > year) {
-      this._setYear(year, false);
+    if (this.currentYear >= upper.year) {
+      setBack();
+    } else if (this.currentYear <= lower.year) {
+      setFwd();
     }
 
-    // console.log(this.currentYear, this.currentMonth, this.currentDay);
-    // console.log(year, month, day);
-    // console.log('--->', this.currentYear, this.currentMonth, this.currentDay);
-
-    // Disable months greater than the current month
-    this._month.el.childNodes.forEach((el) => {
-      if (el.value > month) {
-        el.disabled = true;
-        this._disabled.push(el);
-      }
-    });
-
-    const setMonthBack = this.currentMonth > month;
-    if (setMonthBack) {
-      this._setMonth(month, false);
-    }
-
-    if (month === this.currentMonth) {
-      // disable all days greater than the current day
-      this._day.el.childNodes.forEach((el) => {
-        if (el.value > day) {
-          el.disabled = true;
-          this._disabled.push(el);
-        }
-      });
-
-      if (setMonthBack || this.currentDay > day) {
-        this._setDay(day, false);
-      }
-    }
     return true;
   }
 
@@ -535,16 +586,20 @@ class BirthdayPicker {
   };
 
   /**
-   * called if the day was changed
-   * sets the currentDay value and triggers the corresponding event
-   * @param {number} day the new day value
+   * called if the year was changed
+   * sets the currentYear value and triggers the corresponding event
+   * @param {number} year the new year value
    * @returns
    */
-  _dayWasChanged(day) {
-    // console.log('_dayWasChanged:', day);
-    // const from = this.currentDay;
-    this.currentDay = day;
-    this._triggerEvent(allowedEvents[2]);
+  _yearWasChanged(year, triggerEvent = true) {
+    // console.log('_yearWasChanged:', year);
+    // const from = this.currentYear;
+    this.currentYear = year;
+    this._daysPerMonth[1] = isLeapYear(year) ? 29 : 28;
+    if (triggerEvent) this._triggerEvent(YEARCHANGE);
+    if (this.currentMonth === 2) {
+      this._updateDays();
+    }
   }
 
   /**
@@ -553,30 +608,39 @@ class BirthdayPicker {
    * @param {number} month the new month value
    * @returns
    */
-  _monthWasChanged(month) {
+  _monthWasChanged(month, triggerEvent = true) {
     // console.log('_monthWasChanged:', month);
     // const from = this.currentMonth;
     this.currentMonth = month;
-    this._triggerEvent(allowedEvents[3]);
+    if (triggerEvent) this._triggerEvent(MONTHCHANGE);
     this._updateDays();
   }
 
   /**
-   * called if the year was changed
-   * sets the currentYear value and triggers the corresponding event
-   * @param {number} year the new year value
+   * called if the day was changed
+   * sets the currentDay value and triggers the corresponding event
+   * @param {number} day the new day value
    * @returns
    */
-  _yearWasChanged(year) {
-    // console.log('_yearWasChanged:', year);
-    // const from = this.currentYear;
-    this.currentYear = year;
-    this._daysPerMonth[1] = isLeapYear(year) ? 29 : 28;
-    this._triggerEvent(allowedEvents[4]);
+  _dayWasChanged(day, triggerEvent = true) {
+    // console.log('_dayWasChanged:', day);
+    // const from = this.currentDay;
+    this.currentDay = day;
+    if (triggerEvent) this._triggerEvent(DAYCHANGE);
+  }
 
-    if (!this._monthChangeTriggeredLater && this.currentMonth === 2) {
-      this._updateDays();
+  /**
+   * called if one value was changed
+   *
+   * @param {boolean} [triggerEvent = true] - true if the event should be triggered, default: true
+   */
+  _dateChanged(triggerEvent = true) {
+    if (!this.settings.selectFuture) {
+      this._noFutureDate(this._lowerLimit, this._upperLimit);
     }
+    if (triggerEvent) this._triggerEvent(DATECHANGE);
+    // set value to element
+    this.element.value = this.getDateString();
   }
 
   /**
@@ -671,7 +735,7 @@ class BirthdayPicker {
     // const from = this.settings.locale;
     this.settings.locale = lang;
 
-    // TODO: is this correct for all languages?
+    // TODO: test: is this correct for all languages?
     if ('numeric' === this.settings.monthFormat) {
       return false;
     }
@@ -682,25 +746,28 @@ class BirthdayPicker {
     });
 
     // trigger a datechange event, as the output format might change
-    this._triggerEvent(allowedEvents[1]);
+    this._triggerEvent(DATECHANGE);
   }
 
-  // TODO: use a format option, eg.: yyyy-dd-mm
-  setDate(dateString) {
+  setDate(dateString, triggerEvent = false) {
     let parsed = this._parseDate(dateString);
     if (parsed) {
       // parsed = this._getDateValuesInRange(parsed);
-      this._setDate(parsed);
+      parsed = this._setDate(parsed, triggerEvent);
     }
     return parsed;
   }
 
   resetDate(preserveStartDate = false) {
-    let resetTo =
-      this.startDate && preserveStartDate
-        ? this.startDate
-        : { year: undefined, month: undefined, day: undefined };
-    this._setDate(resetTo);
+    let value = '';
+    if (this.startDate && preserveStartDate) {
+      this._setDate(this.startDate);
+      value = this.getDateString();
+    } else {
+      this._setDate({ year: NaN, month: NaN, day: NaN });
+    }
+    this.element.value = value;
+    this._triggerEvent(DATECHANGE);
   }
 
   addEventListener(eventName, listener, option) {
@@ -767,7 +834,7 @@ class BirthdayPicker {
     //   });
     // }
 
-    this._triggerEvent(allowedEvents[5]);
+    this._triggerEvent(KILL);
   }
 
   isLeapYear(year = this.currentYear) {
@@ -775,6 +842,14 @@ class BirthdayPicker {
   }
 
   getAge() {
+    if (
+      isNaN(this.currentYear) ||
+      isNaN(this.currentMonth) ||
+      isNaN(this.currentDay)
+    ) {
+      return '';
+    }
+
     const y = this.currentYear;
     const m = this.currentMonth;
     const d = this.currentDay;
@@ -818,6 +893,47 @@ class BirthdayPicker {
   }
 
   /**
+   *
+   * @param {Object} s - the settings object
+   * @returns Object containing { year, month, day }
+   */
+  _getUpperLimit(s) {
+    if (s.upperLimit) {
+      return s.upperLimit;
+    }
+
+    let yearTo;
+    if ('now' === s.maxYear) {
+      yearTo = now.y - +s.minAge;
+      return { year: yearTo, month: now.m, day: now.d };
+    }
+
+    yearTo = s.maxYear;
+    return { year: yearTo, month: 12, day: 31 };
+  }
+
+  /**
+   *
+   * @param {Object} s - the settings object
+   * @returns Object containing { year, month, day }
+   */
+  _getLowerLimit(s) {
+    if (s.lowerLimit) {
+      return s.lowerLimit;
+    }
+
+    let yearFrom;
+    if (null !== s.minYear) {
+      yearFrom = +s.minYear;
+      return { year: yearFrom, month: 1, day: 1 };
+    }
+
+    let yearTo = 'now' === s.maxYear ? now.y : s.maxYear;
+    yearFrom = yearTo - +s.maxAge;
+    return { year: yearFrom, month: now.m, day: now.d };
+  }
+
+  /**
    * The init method
    * TODO: test all(!) option values for correctness
    *
@@ -829,31 +945,23 @@ class BirthdayPicker {
       return true;
     }
     this.initialized = true;
+
     this.eventFired = {};
     this._registeredEventListeners = [];
     this._daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     this._date = [];
-
-    // store all disabled elements in an array for quicker reenable
     this._disabled = [];
 
     const s = this.settings;
+    // check settings
     s.placeholder = isTrue(s.placeholder);
     s.leadingZero = isTrue(s.leadingZero);
     s.selectFuture = isTrue(s.selectFuture);
 
-    if ('now' === s.maxYear) {
-      this._yearTo = now.y;
-    } else {
-      this._yearTo = s.maxYear;
-    }
-
-    if (s.minYear) {
-      this._yearFrom = +s.minYear;
-    } else {
-      this._yearFrom = this._yearTo - +s.maxAge;
-    }
-    this._yearTo -= +s.minAge;
+    this._lowerLimit = this._getLowerLimit(s);
+    this._upperLimit = this._getUpperLimit(s);
+    this._yearFrom = this._lowerLimit.year;
+    this._yearTo = this._upperLimit.year;
 
     const [currentLocale] = BirthdayPicker.createLocale(s.locale);
     s.locale = currentLocale;
@@ -861,18 +969,16 @@ class BirthdayPicker {
 
     this._create();
 
-    this._triggerEvent(allowedEvents[0]);
+    this._triggerEvent(INIT);
 
     // set default start value
     if (s.defaultDate) {
       const parsed = this.setDate(
-        s.defaultDate === 'now' ? new Date().toString() : s.defaultDate
+        s.defaultDate === 'now' ? new Date().toString() : s.defaultDate,
+        true
       );
 
-      this.currentYear = parsed.year;
-      this.currentMonth = parsed.month;
-      this.currentDay = parsed.day;
-
+      // store value for resetting
       this.startDate = parsed;
     }
   }

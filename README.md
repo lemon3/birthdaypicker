@@ -108,7 +108,6 @@ and then us it with
 </script>
 ```
 
-
 ### Examples via data API
 #### html:
 ```html
@@ -168,7 +167,8 @@ This scenario (select-boxes in DOM) works best with [tailwindcss](https://tailwi
 |:------------|
 | If select-boxes already exist in the DOM you cannot use the **arrange** option, eg.: { arrange: 'dmy' }, as this plugin doesn't rearrange existing Elements |
 
-#### html:
+#### 1) with special data attribute on the select boxes
+html
 ```html
 <div data-birthdaypicker>
   <select data-birthdaypicker-year></select>
@@ -177,7 +177,8 @@ This scenario (select-boxes in DOM) works best with [tailwindcss](https://tailwi
 </div>
 ```
 ... or use with specified selectors (these selectors take precedence over the data attribute values like **data-birthdaypicker-year**)
-#### html:
+#### 2) with id's
+html
 ```html
 <!-- yearEl, monthEl and dayEl must be a regular querySelector! -->
 <div data-birthdaypicker="{
@@ -188,6 +189,16 @@ This scenario (select-boxes in DOM) works best with [tailwindcss](https://tailwi
   <select id="myYear"></select>
   <select id="myMonth"></select>
   <select class="myDay"></select>
+</div>
+```
+
+#### 2) with just 'blank' select boxes
+html
+```html
+<div data-birthdaypicker="{'arrange':'dmy'}">
+  <select></select> <!-- day -->
+  <select></select> <!-- month -->
+  <select></select> <!-- year -->
 </div>
 ```
 
@@ -603,9 +614,8 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 ## Roadmap
 
-add options
-- upperLimit: new Date()
-- lowerLimit: new Date()
+- be able to define lowerLimit and upperLimit via new Date()
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

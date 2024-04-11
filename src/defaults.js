@@ -1,8 +1,10 @@
 export const defaults = {
-  minYear: null, // overrides the value set by maxAge
-  maxYear: 'now',
   minAge: 0,
   maxAge: 100,
+  minYear: null,
+  maxYear: 'now',
+  lowerLimit: null,
+  upperLimit: null,
   monthFormat: 'short',
   placeholder: true,
   className: null,
