@@ -480,7 +480,7 @@
             <template x-for="l in availableLocale" :key="l.id">
               <button
                 x-text="l.label"
-                @click="locale=l.val"
+                @click="setLocale(l.val)"
                 class="px-4 py-2 inline-block text-white mb-2 mr-2 outline-none"
                 :class="[locale===l.val ? 'bg-pink-600 hover:bg-pink-700' : 'bg-slate-800 hover:bg-slate-900']"
               ></button>
@@ -612,9 +612,6 @@
           const a = this.birthdays.filter((b) => 'now' === b.val)[0];
 
           // this.$refs.bp.addEventListener('init', () => {
-          this.$watch('locale', () => {
-            this.getInstance().setLanguage(this.locale);
-          });
           this.$watch('dateformat', () => {
             this.getInstance().setMonthFormat(this.dateformat);
           });
@@ -683,6 +680,11 @@
         },
         resetDate(preserveStartDate) {
           this.getInstance().resetDate(preserveStartDate);
+        },
+        setLocale(locale) {
+          this.locale = locale;
+          this.getInstance().setLanguage(locale);
+          this.datechange();
         },
         setdate(val, id) {
           if (6 === id) {

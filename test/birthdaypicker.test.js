@@ -562,13 +562,13 @@ describe('test the setLanguage function', () => {
     expect(bp.setLanguage('')).toBe(false);
   });
 
-  test('test setLanguage trigger a dateChange event', () => {
+  test('test setLanguage should not trigger a dateChange event', () => {
     // init setup
     bp.setLanguage('fr');
     bp.setMonthFormat('short');
     const _triggerEventSpy = vi.spyOn(bp, '_triggerEvent');
     bp.setLanguage('ru');
-    expect(_triggerEventSpy).toHaveBeenCalledTimes(1);
+    expect(_triggerEventSpy).toHaveBeenCalledTimes(0);
   });
 });
 

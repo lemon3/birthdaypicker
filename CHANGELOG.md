@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.23
+### Added or Changed
+- remove the datechange trigger when the language was changed via setLanguage()
+
 ## v0.1.22
 ### Added or Changed
 - remove the datechange event-triggering when calling setDate(). Only the select boxes trigger this event.

@@ -735,7 +735,6 @@ class BirthdayPicker {
     // const from = this.settings.locale;
     this.settings.locale = lang;
 
-    // TODO: test: is this correct for all languages?
     if ('numeric' === this.settings.monthFormat) {
       return false;
     }
@@ -744,9 +743,6 @@ class BirthdayPicker {
     this.monthFormat[this.settings.monthFormat].forEach((el, ind) => {
       this._month.el.childNodes[filter + ind].innerHTML = el;
     });
-
-    // trigger a datechange event, as the output format might change
-    this._triggerEvent(DATECHANGE);
   }
 
   setDate(dateString, triggerEvent = false) {
