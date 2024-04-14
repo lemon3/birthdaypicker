@@ -15,24 +15,33 @@
     <script type="module">
       import BirthdayPicker from './src/index.js';
       const result = document.getElementById('test123result');
-      const bp = new BirthdayPicker('#test123', {
+      const bpEl = document.querySelector('#test123');
+      const bp = new BirthdayPicker(bpEl, {
         monthEl: '#month',
         arrange: 'ymd',
         // minAge: 20,
         maxAge: 30,
-
         datechange: (evt) => {
+          // todo register to ... addEventListener
           // console.log(evt.detail.instance);
-          // console.log('i am second');
+          console.log('i am: 1st');
         },
       });
 
+      // document.body.addEventListener('datechange', (evt) => {
+      //   // console.log('i am first');
+      //   console.log(evt);
+      // });
+
       bp.addEventListener('datechange', (evt) => {
-        // console.log('i am first');
+        console.log('i am: 2nd');
         result.innerHTML = bp.getAge();
       });
-    </script>
-    -->
+
+      bpEl.addEventListener('datechange', (evt) => {
+        console.log('i am: 3rd');
+      });
+    </script> -->
 
     <div class="mx-auto max-w-2xl my-8 py-8 px-6 bg-white/10">
       <div

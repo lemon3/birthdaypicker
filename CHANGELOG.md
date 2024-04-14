@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.0
+### Added or Changed
+- event update: event-listeners registered to the instance are no longer registered to the main element.
+
 ## v0.1.23
 ### Added or Changed
 - remove the datechange trigger when the language was changed via setLanguage()

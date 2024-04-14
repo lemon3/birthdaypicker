@@ -294,6 +294,12 @@ options = {
   // example: 2040 | 'now'
   maxYear: 'now',
 
+  // coming soon
+  lowerLimit: null,
+
+  // coming soon
+  upperLimit: null,
+
   // sets the month format for the select box
   // available: 'short', 'long', 'numeric'
   // default: 'short'
@@ -488,6 +494,7 @@ element.addEventListener('datechange', (evt) => {
 inside the option object
 ```js
 const options = {
+  // ...
   datechange: (evt) => { /* do stuff */ },
   monthchange: (evt) => { /* do stuff */ },
   // ...
@@ -495,19 +502,27 @@ const options = {
 const myPicker = new BirthdayPicker('#my-element', options);
 ```
 
-#### example using both
+#### example using all
+see the event sequence!
 ```js
 import BirthdayPicker from 'birthdaypicker';
 const options = {
   datechange: (evt) => {
-    console.log('i am second');
+    console.log('i am: 1st');
   },
 };
-const myPicker = new BirthdayPicker('#my-element', options);
+const pickerEl = document.getElementById('my-element');
+const picker = new BirthdayPicker(pickerEl, options);
 
-myPicker.addEventListener('datechange', (evt) => {
-  console.log('i am first');
+// on instance
+picker.addEventListener('datechange', (evt) => {
+  console.log('i am: 2nd');
 })
+
+// on DOM element
+pickerEl.addEventListener('datechange', (evt) => {
+  console.log('i am: 3rd');
+});
 ```
 
 ### API / static Methods

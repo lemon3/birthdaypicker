@@ -7,8 +7,8 @@ import {
   getJSONData,
   isLeapYear,
   dataStorage,
-  trigger,
 } from '@/helper';
+import { Emitter } from '@/emitter';
 
 let instances = [];
 const pluginName = 'birthdaypicker';
@@ -23,15 +23,6 @@ const MONTHCHANGE = 'monthchange';
 const YEARCHANGE = 'yearchange';
 const KILL = 'kill';
 
-const allowedEvents = [
-  INIT,
-  DATECHANGE,
-  DAYCHANGE,
-  MONTHCHANGE,
-  YEARCHANGE,
-  KILL,
-];
-
 const optionTagName = 'option';
 const lookup = { y: 'year', m: 'month', d: 'day' };
 
@@ -40,7 +31,6 @@ const now = {
   y: currentDate.getFullYear(),
   m: currentDate.getMonth() + 1,
   d: currentDate.getDate(),
-  t: currentDate.getTime(),
 };
 
 let initialized = false;
@@ -60,7 +50,7 @@ const isTrue = (value) =>
  *
  * @class BirthdayPicker
  */
-class BirthdayPicker {
+class BirthdayPicker extends Emitter {
   constructor(element, options) {
     if (!element) {
       return { error: true };
@@ -73,11 +63,22 @@ class BirthdayPicker {
       return { error: true };
     }
 
+    super();
+
     // TODO: use dataStorage.has(element) ?
     if (element.dataset.bdpInit) {
       return BirthdayPicker.getInstance(element);
     }
     element.dataset.bdpInit = true;
+
+    this.allowedEvents = [
+      INIT,
+      DATECHANGE,
+      DAYCHANGE,
+      MONTHCHANGE,
+      YEARCHANGE,
+      KILL,
+    ];
 
     instances.push(this);
     dataStorage.put(element, 'instance', this);
@@ -89,9 +90,24 @@ class BirthdayPicker {
     this.settings = Object.assign({}, BirthdayPicker.defaults, data, options);
     this.element = element;
 
+    this.state = 0; // ready state
+
     if (this.settings.autoInit) {
       this.init();
     }
+  }
+
+  _triggerEvent(eventName, detail) {
+    // default detail data
+    detail = {
+      instance: this,
+      year: +this.currentYear,
+      month: +this.currentMonth,
+      day: +this.currentDay,
+      date: this.getDate(),
+      ...detail,
+    };
+    this.emit(eventName, detail);
   }
 
   /**
@@ -454,32 +470,6 @@ class BirthdayPicker {
     // }
   }
 
-  _triggerEvent(eventName, data) {
-    const detail = {
-      instance: this,
-      year: +this._year.el.value,
-      month: +this._month.el.value,
-      day: +this._day.el.value,
-      date: this.getDate(),
-      ...data,
-    };
-    const eventData = { detail };
-    const ce = new CustomEvent(eventName, eventData);
-    this.element.dispatchEvent(ce);
-    this.eventFired[eventName] = ce;
-
-    // const optionEventName = `on${eventName[0].toUpperCase()}${eventName.slice(1)}`;
-    if (
-      this.settings[eventName] &&
-      'function' === typeof this.settings[eventName]
-    ) {
-      this.settings[eventName].call(this, ce);
-    }
-
-    // for inline events
-    trigger(this.element, eventName, ce);
-  }
-
   /**
    * Disable the options in the select box
    *
@@ -766,36 +756,10 @@ class BirthdayPicker {
     this._triggerEvent(DATECHANGE);
   }
 
-  addEventListener(eventName, listener, option) {
-    if (
-      allowedEvents.indexOf(eventName) < 0 ||
-      'function' !== typeof listener
-    ) {
-      return false;
-    }
-
-    this.element.addEventListener(eventName, listener, option);
-    this._registeredEventListeners.push({
-      element: this.element,
-      eventName,
-      listener,
-      option,
-    });
-
-    // already fired
-    if (this.eventFired[eventName]) {
-      listener.call(this.element, this.eventFired[eventName]);
-    }
-  }
-
-  removeEventListener(eventName, listener, option) {
-    this.element.removeEventListener(eventName, listener, option);
-  }
-
   // TODO: undo everything
   // destroy if it was created
   kill() {
-    this.eventFired = {};
+    // this._initEventFired = null;
     // remove all registered EventListeners
     if (this._registeredEventListeners) {
       this._registeredEventListeners.forEach((r) =>
@@ -940,10 +904,11 @@ class BirthdayPicker {
     if (this.initialized) {
       return true;
     }
+
     this.initialized = true;
 
-    this.eventFired = {};
-    this._registeredEventListeners = [];
+    // this._initEventFired = null;
+    this._registeredEventListeners = []; // for killing
     this._daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     this._date = [];
     this._disabled = [];
@@ -963,9 +928,14 @@ class BirthdayPicker {
     s.locale = currentLocale;
     this.monthFormat = BirthdayPicker.i18n[s.locale].monthFormat;
 
-    this._create();
+    // look for defined callbacks in settings
+    this.allowedEvents.forEach((eventName) => {
+      if (s[eventName]) {
+        this.addEventListener(eventName, s[eventName]);
+      }
+    });
 
-    this._triggerEvent(INIT);
+    this._create();
 
     // set default start value
     if (s.defaultDate) {
@@ -977,6 +947,10 @@ class BirthdayPicker {
       // store value for resetting
       this.startDate = parsed;
     }
+
+    this.state = 1; // initialized
+    this._triggerEvent(INIT);
+    // this._initEventFired = this._crateEvent(INIT);
   }
 }
 

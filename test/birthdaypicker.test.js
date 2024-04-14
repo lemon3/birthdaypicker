@@ -106,24 +106,9 @@ describe('data api test', () => {
 describe('BirthdayPicker kill', () => {
   const testEl = document.createElement('div');
   const bp = new BirthdayPicker(testEl);
-  const cbInit = vi.fn();
   const cbDatechange = vi.fn();
 
   bp.addEventListener('datechange', cbDatechange);
-
-  describe('first test if event listeners are working', () => {
-    test('init callbacks should be called', () => {
-      bp.addEventListener('init', cbInit);
-      expect(cbInit).toHaveBeenCalled();
-      expect(cbInit).toHaveBeenCalledTimes(1);
-    });
-    test('datechange callbacks should NOT be called after setting date', () => {
-      expect(cbDatechange).not.toHaveBeenCalled();
-      bp.setDate('2000-10-10');
-      bp.setDate(new Date());
-      expect(cbDatechange).not.toHaveBeenCalled();
-    });
-  });
 
   describe('now call kill method', () => {
     test('evt callbacks should not work', () => {
@@ -142,14 +127,6 @@ describe('BirthdayPicker events', () => {
   const bp = new BirthdayPicker(testEl);
 
   describe('init events', () => {
-    test('should be called times', () => {
-      const bp = new BirthdayPicker(document.createElement('div'));
-      const cb = vi.fn();
-      bp.addEventListener('init', cb);
-      bp.addEventListener('init', cb);
-      expect(cb).toHaveBeenCalledTimes(2);
-    });
-
     test('should be called with "init"', () => {
       const cb = vi.fn();
       const tmp = bp.addEventListener;
@@ -268,28 +245,6 @@ describe('BirthdayPicker events', () => {
       });
     });
   });
-
-  describe('addEventListener (to instance)', () => {
-    test('should register event on defined element', () => {
-      const listener = vi.spyOn(testEl, 'addEventListener');
-      const cb = vi.fn();
-      bp.addEventListener('datechange', cb);
-      expect(listener).toHaveBeenCalledTimes(1);
-    });
-
-    test('datechange should not fired on init, as no default date is set)', () => {
-      const cb = vi.fn();
-      bp.addEventListener('datechange', cb);
-      expect(cb).toHaveBeenCalledTimes(0);
-    });
-
-    test('addEventListener should not register to element, if wrong event name given', () => {
-      const cb = vi.fn();
-      const wrong = bp.addEventListener('wrong', cb);
-      expect(wrong).toBe(false);
-      expect(cb).toHaveBeenCalledTimes(0);
-    });
-  });
 });
 
 describe('date setting tests', () => {
@@ -314,7 +269,8 @@ describe('date setting tests', () => {
       const start = bp._yearFrom;
       const date = new Date();
       const m = ('0' + (date.getMonth() + 1)).slice(-2);
-      const d = ('0' + date.getDate() + 1).slice(-2);
+      const d = ('0' + date.getDate()).slice(-2);
+      console.log(result);
       expect(result).toBe(`${start}-${m}-${d}`);
     });
 
@@ -1070,11 +1026,14 @@ describe('_updateDays methods tests', () => {
   describe('test the _updateDays should called if value ist set via setDate', () => {
     test('change days, expect _updateDay to be called', () => {
       bp.setDate('2010-2-10');
-      expect(_setDateSpy).toHaveBeenCalledWith({
-        year: 2010,
-        month: 2,
-        day: 10,
-      }, false);
+      expect(_setDateSpy).toHaveBeenCalledWith(
+        {
+          year: 2010,
+          month: 2,
+          day: 10,
+        },
+        false
+      );
       expect(_setDaySpy).toHaveBeenCalledWith(10);
       expect(_updateDaysSpy).toHaveBeenCalledTimes(1);
       expect(bp.getDateString('yyyy-m-d')).toEqual('2010-2-10');

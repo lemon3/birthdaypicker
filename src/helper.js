@@ -1,24 +1,4 @@
 /**
- * helper to trigger inline events
- * e.g.:
- * <div ondatechange="foo()">bar</bla>
- * @param {Object} elem the html element
- * @param {String} name the event name
- * @param {Object} data event data
- */
-export const trigger = (elem, name, data) => {
-  let funData = elem.getAttribute('on' + name);
-  let func = new Function(
-    'e',
-    // 'with(document) {' +
-    // 'with(this)' +
-    '{' + funData + '}'
-    // + '}'
-  );
-  func.call(elem, data);
-};
-
-/**
  * add properties and style attributes to a given HTML object
  * @param  {object} el - The HTML object to add properties and styles too.
  * @param  {object} properties - An object with valid HTML properties
