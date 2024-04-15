@@ -2,7 +2,6 @@
 import { resolve } from 'path';
 import { defineConfig } from 'vite';
 import { configDefaults } from 'vitest/config';
-import terser from '@rollup/plugin-terser';
 // import babel from 'vite-plugin-babel';
 
 import banner from 'vite-plugin-banner';
@@ -12,12 +11,6 @@ const bannerText = `/*!
 * BirthdayPicker v${pkg.version}
 * ${pkg.homepage}
 */`;
-
-const terserOptions = {
-  format: {
-    comments: false,
-  },
-};
 
 export default defineConfig({
   build: {

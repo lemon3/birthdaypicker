@@ -71,10 +71,15 @@ const getJSONData = (el, name, defaults = null) => {
 
   let data;
   try {
-    // eslint-disable-next-line quotes
-    data = JSON.parse(el.dataset[name].replace(/'/g, '"'));
-    // eslint-disable-next-line no-empty
-  } catch (e) {}
+    if (
+      'undefined' !== el.dataset[name] &&
+      el.dataset[name].indexOf('{') >= 0
+    ) {
+      data = JSON.parse(el.dataset[name].replace(/'/g, '"'));
+    }
+  } catch (e) {
+    console.error(e);
+  }
 
   if ('object' !== typeof data) {
     data = el.dataset[name];
