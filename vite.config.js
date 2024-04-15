@@ -13,14 +13,6 @@ const bannerText = `/*!
 * ${pkg.homepage}
 */`;
 
-const footer = `
-if (globalThis.getDomData) {
-  for (const key of Object.keys(globalThis.getDomData)) {
-    globalThis[key] = globalThis.getDomData[key]
-  }
-}
-`;
-
 const terserOptions = {
   format: {
     comments: false,
@@ -30,8 +22,6 @@ const terserOptions = {
 export default defineConfig({
   build: {
     target: 'es2015', // esnext
-    // minify: 'terser',
-    // terserOptions,
     lib: {
       entry: resolve(__dirname, 'src/index.js'),
       name: 'BirthdayPicker',
@@ -39,12 +29,6 @@ export default defineConfig({
         format = 'es' === format ? '' : `.${format}`;
         return `birthdaypicker${format}.js`;
       },
-    },
-    // copyPublicDir: false,
-    rollupOptions: {
-      // input: ['./index.html'],
-      plugins: [terser(terserOptions)],
-      output: { footer },
     },
   },
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.1
+### Added or Changed
+- umd js fix
+
 ## v0.2.0
 ### Added or Changed
 - event update: event-listeners registered to the instance are no longer registered to the main element.
