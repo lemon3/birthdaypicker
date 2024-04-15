@@ -44,6 +44,8 @@
 </details>
 
 ## tl;dr
+
+**module:**
 ```Bash
 npm install birthdaypicker
 ```
@@ -53,11 +55,21 @@ npm install birthdaypicker
 ```
 
 ```js
-import BirthdayPicker from 'birthdaypicker';
+import BirthdayPicker from '@/birthdaypicker';
+// import BirthdayPicker from "./node_modules/birthdaypicker/index.js";
 const options {}; // options (see below)
 const bp = new BirthdayPicker('#my-div', options);
 ```
 
+**classic:**
+```html
+<div id="my-div"></div>
+<script src="https://unpkg.com/birthdaypicker"></script>
+<script>
+  const options {}; // options (see below)
+  const bp = new BirthdayPicker('#my-div', options);
+</script>
+```
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
