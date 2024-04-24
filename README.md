@@ -69,7 +69,7 @@ const bp = new BirthdayPicker('#my-div', options);
 <div id="my-div"></div>
 <script src="https://unpkg.com/birthdaypicker"></script>
 <script>
-  const options {}; // options (see below)
+  const options = {}; // options (see below)
   const bp = new BirthdayPicker('#my-div', options);
 </script>
 ```
