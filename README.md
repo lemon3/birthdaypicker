@@ -16,6 +16,9 @@
   </a>
   <h3 align="center">an i18n javascript birthday picker</h3>
   <p>with a variety of setting options</p>
+  <a href="https://lemon3.github.io/birthdaypicker/">BirthdayPicker Demo</a>
+  <br>
+  <br>
 </div>
 
 <!-- TABLE OF CONTENTS -->
