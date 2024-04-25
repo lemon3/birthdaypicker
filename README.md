@@ -410,7 +410,7 @@ const myBirthdayPicker = new BirthdayPicker(element, options);
 myBirthdayPicker.init();
 
 // getDate returns the current selected date with the language default date-formatting!
-// you can change the format, by calling the method with a specific data-format value.
+// you can change the format, by calling the method with a specific date-format value.
 // e.g.: 'yyyy-m-d'
 // if date is 2. Sep. 1994
 // return values are:
