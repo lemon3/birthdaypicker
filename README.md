@@ -130,33 +130,20 @@ and then us it with
 <div data-birthdaypicker></div>
 
 <!-- with current date -->
-<div
-  data-birthdaypicker
-  data-birthdaypicker-default-date="now"
-></div>
+<div data-birthdaypicker="{ 'defaultDate': 'now' }"></div>
 
 <!-- with arrangement set to: day | month | year -->
-<div
-  data-birthdaypicker
-  data-birthdaypicker-arrange="dmy"
-></div>
+<div data-birthdaypicker="{ 'arrange': 'dmy' }"></div>
 
-<!-- with language set to 'fr' and current date -->
-<div
-  data-birthdaypicker
-  data-birthdaypicker-locale="fr"
-  data-birthdaypicker-default-date="now"
-></div>
-
-<!-- using the inline-json to set multiple values -->
-<div
-  data-birthdaypicker="{'locale':'de','arrange':'dmy'}"
-></div>
+<!-- using multiple values -->
+<div data-birthdaypicker="{
+  'locale': 'fr',
+  'defaultDate': 'now',
+  'arrange':'dmy'
+}"></div>
 
 <!-- using the settings string -->
-<div
-  data-birthdaypicker="locale:fr,defaultDate:now,arrange:dmy"
-></div>
+<div data-birthdaypicker="locale:fr,defaultDate:now"></div>
 ```
 
 **Don't forget to call the init function if using the data API**.
