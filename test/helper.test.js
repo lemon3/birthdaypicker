@@ -9,7 +9,7 @@ import {
   isLeapYear,
   monthNumbers,
   dataStorage,
-} from '../src/helper.js';
+} from '../src/utils.js';
 
 // setup
 document.body.innerHTML += `

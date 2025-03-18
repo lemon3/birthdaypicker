@@ -1,8 +1,6 @@
 /* global __dirname */
 import { resolve } from 'path';
 import { defineConfig } from 'vite';
-import { configDefaults } from 'vitest/config';
-// import babel from 'vite-plugin-babel';
 
 import banner from 'vite-plugin-banner';
 import pkg from './package.json';
@@ -25,22 +23,6 @@ export default defineConfig({
     },
   },
 
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    coverage: {
-      provider: 'v8', // 'istanbul' or 'v8'
-      exclude: [
-        ...configDefaults.exclude,
-        '_notes/**',
-        'config/**',
-        'docs/**',
-        'test/*.bench.*',
-        '.eslintrc.js',
-      ],
-    },
-  },
-
   resolve: {
     alias: [
       {
@@ -50,8 +32,5 @@ export default defineConfig({
     ],
   },
 
-  plugins: [
-    // babel(),
-    banner(bannerText),
-  ],
+  plugins: [banner(bannerText)],
 });

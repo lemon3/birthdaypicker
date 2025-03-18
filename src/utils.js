@@ -212,7 +212,11 @@ const restrict = (value, min, max) => {
   return value;
 };
 
+const isTrue = (value) =>
+  value === true || value === 'true' || value === 1 || value === '1';
+
 export {
+  isTrue,
   restrict,
   dataStorage,
   addProps,

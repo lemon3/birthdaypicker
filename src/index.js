@@ -1,14 +1,14 @@
-import { defaults } from '@/defaults';
-import { locale } from '@/locale';
+import { defaults } from './defaults';
+import { locale } from './locale';
 import {
-  // docReady,
   createEl,
   restrict,
   getJSONData,
   isLeapYear,
   dataStorage,
-} from '@/helper';
-import { Emitter } from '@/emitter';
+  isTrue,
+} from './utils';
+import { Emitter } from './emitter';
 
 let instances = [];
 const pluginName = 'birthdaypicker';
@@ -35,16 +35,6 @@ const now = {
 
 let initialized = false;
 
-const isTrue = (value) =>
-  value === true || value === 'true' || value === 1 || value === '1';
-
-// const getDaysPerMonth = (month, year) => {
-//   month = month < 1 ? 1 : month > 12 ? 12 : month;
-//   const daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-//   if (isLeapYear(year)) daysPerMonth[1] = 29;
-//   return daysPerMonth[+month - 1];
-// };
-
 /**
  * The Main Class
  *
@@ -65,7 +55,6 @@ class BirthdayPicker extends Emitter {
 
     super();
 
-    // TODO: use dataStorage.has(element) ?
     if (element.dataset.bdpInit) {
       return BirthdayPicker.getInstance(element);
     }
@@ -117,45 +106,60 @@ class BirthdayPicker extends Emitter {
    * @returns object with { year, month, day } or false if it is not a correct date
    */
   _parseDate(date) {
-    if ('object' !== typeof date) {
-      // safari fix '2004-2-29' -> '2004/2/29'
-      date = date.replaceAll('-', '/');
+    // If the date is already a Date object and valid, return its parts
+    if (date instanceof Date && !isNaN(date)) {
+      return {
+        year: date.getFullYear(),
+        month: date.getMonth() + 1,
+        day: date.getDate(),
+      };
     }
-    // unix timestamp
-    const parse = Date.parse(date);
-    if (isNaN(parse)) {
-      return false; // wrong date
-    }
-    date = new Date(parse);
-    // add a local timezone offset ??
-    // date.setSeconds(date.getSeconds() + date.getTimezoneOffset() * 60);
-    // const year = date.getUTCFullYear();
-    // const month = date.getUTCMonth() + 1;
-    // const day = date.getUTCDate();
 
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    return { year, month, day };
+    // Check if date is a valid string
+    if (typeof date !== 'string' || !date.trim()) {
+      return false; // Invalid input
+    }
+
+    // Replace "-" with "/" for better parsing compatibility
+    const parsedDate = new Date(date.replace(/-/g, '/'));
+
+    // Check if the parsed date is valid
+    if (isNaN(parsedDate)) {
+      return false; // Invalid date
+    }
+
+    return {
+      year: parsedDate.getFullYear(),
+      month: parsedDate.getMonth() + 1,
+      day: parsedDate.getDate(),
+    };
   }
 
   /**
    * Function to return the index of a chosen value for a given NodeList
-   * @param  {NodeList} nodes Option List
-   * @param  {String} value Value to find
-   * @return {*}       The index value or undefined
+   * @param  {NodeList} nodeList Option List
+   * @param  {String|Number} value Value to find
+   * @return {Number|undefined} The index value or undefined
    */
   _getIdx(nodeList, value) {
-    if (!nodeList || isNaN(value || 'undefined' === typeof value)) {
+    // Validate inputs
+    if (
+      !(nodeList instanceof NodeList) ||
+      value === undefined ||
+      value === null
+    ) {
       return undefined;
     }
-    for (let index = 0, el; index < nodeList.length; index++) {
-      el = nodeList[index];
-      if (+el.value === +value) {
-        return index;
-      }
-    }
-    return undefined;
+
+    // Convert value to number for comparison, if applicable
+    const numericValue = isNaN(value) ? value : +value;
+
+    // Use findIndex for cleaner iteration
+    const index = Array.from(nodeList).findIndex(
+      (el) => +el.value === numericValue
+    );
+
+    return index !== -1 ? index : undefined;
   }
 
   /**
@@ -220,23 +224,22 @@ class BirthdayPicker extends Emitter {
     year = this.currentYear,
     month = this.currentMonth,
     day = this.currentDay,
-  }) {
+  } = {}) {
     const lower = this._lowerLimit;
     const upper = this._upperLimit;
 
-    if (
-      year > upper.year ||
-      (year >= upper.year && month > upper.month) ||
-      (year >= upper.year && month >= upper.month && day > upper.day)
-    ) {
-      return upper;
-    } else if (
-      year < lower.year ||
-      (year <= lower.year && month < lower.month) ||
-      (year <= lower.year && month <= lower.month && day < lower.day)
-    ) {
-      return lower;
+    // Ensure limits exist
+    if (!lower || !upper) {
+      throw new Error('Lower and upper date limits must be defined.');
     }
+
+    // Convert to Date objects for easy comparison
+    const inputDate = new Date(year, month - 1, day);
+    const lowerDate = new Date(lower.year, lower.month - 1, lower.day);
+    const upperDate = new Date(upper.year, upper.month - 1, upper.day);
+
+    if (inputDate > upperDate) return upper;
+    if (inputDate < lowerDate) return lower;
 
     return { year, month, day };
   }
@@ -265,11 +268,11 @@ class BirthdayPicker extends Emitter {
     if ('numeric' !== this.settings.monthFormat) {
       return text;
     }
+
+    // Ensure text is a string and add leading zero if required
     return this.settings.leadingZero
-      ? +text < 10
-        ? '0' + text
-        : '' + text
-      : '' + text; // return string
+      ? String(text).padStart(2, '0')
+      : String(text);
   }
 
   _checkArrangement(string) {
@@ -277,61 +280,43 @@ class BirthdayPicker extends Emitter {
     // littleEndian: dmy
     // else:         mdy
     string = string.toLowerCase();
-    if (allowedArrangement.indexOf(string) < 0) {
-      return 'ymd';
-    }
-    return string;
+    return allowedArrangement.includes(string) ? string : 'ymd';
   }
 
   _mapSelectBoxes() {
-    let selectBoxes = this.element.querySelectorAll('select');
-    const selectBoxMapping = {};
-    if (0 === selectBoxes.length) {
-      return selectBoxMapping;
-    }
+    const selectBoxes = this.element.querySelectorAll('select');
+    if (!selectBoxes.length) return {};
 
-    let notFound = this.settings.arrange.split('');
-    notFound.forEach((i) => {
-      const name = lookup[i];
-      let query =
-        this.settings[name + 'El'] || '[' + dataName + '-' + name + ']';
-      if (query) {
-        let el;
-        if ('undefined' !== typeof query.nodeName) {
-          el = query;
-        } else {
-          el = this.element.querySelector(query);
-        }
-        if (el) {
-          selectBoxMapping[name] = el;
-          notFound = notFound.filter((n) => n !== i);
-          selectBoxes = Object.values(selectBoxes).filter(
-            (item) => item !== el
-          );
-          return;
-        }
+    const selectBoxMapping = {};
+    const notFound = this.settings.arrange.split('');
+    const lookupKeys = notFound.map((i) => lookup[i]);
+
+    lookupKeys.forEach((name) => {
+      const query = this.settings[`${name}El`] || `[${dataName}-${name}]`;
+      const el = query.nodeName ? query : this.element.querySelector(query);
+      if (el && el.tagName === 'SELECT') {
+        selectBoxMapping[name] = el;
+        notFound.splice(
+          notFound.indexOf(lookupKeys.indexOf(name).toString()),
+          1
+        );
       }
-      selectBoxes = Object.values(selectBoxes).filter((item) => {
-        const cond = item.attributes[dataName + '-' + name];
-        if (cond) {
-          selectBoxMapping[name] = item;
-          notFound = notFound.filter((n) => n !== i);
-        }
-        return !cond;
-      });
     });
 
-    // set the remaining not found
+    const remainingSelectBoxes = Array.from(selectBoxes).filter(
+      (selectBox) => !Object.values(selectBoxMapping).includes(selectBox)
+    );
+
     notFound.forEach((i, index) => {
       const name = lookup[i];
-      selectBoxMapping[name] = selectBoxes[index];
+      selectBoxMapping[name] = remainingSelectBoxes[index];
     });
 
     return selectBoxMapping;
   }
 
   /**
-   * Create the gui
+   * Create the GUI
    * @return {void}
    */
   _create() {
@@ -341,47 +326,44 @@ class BirthdayPicker extends Emitter {
 
     s.arrange.split('').forEach((i) => {
       const name = lookup[i];
-      let created = false;
       let el = selectBoxMapping[name];
 
       if (!el || el.dataset.init) {
         el = createEl('select');
-        created = true;
         this.element.append(el);
       }
 
-      // set aria values
+      // set aria values and class names
       el.setAttribute('aria-label', `select ${name}`);
       if (s.className) {
-        el.classList.add(s.className);
-        el.classList.add(`${s.className}-${name}`);
+        el.classList.add(s.className, `${s.className}-${name}`);
       }
 
       el.dataset.init = true;
 
-      const eventName = 'change';
+      // add event listener
       const listener = this._onSelect;
-      const option = false;
-      el.addEventListener(eventName, listener, option);
+      el.addEventListener('change', listener, false);
       this._registeredEventListeners.push({
         element: el,
-        eventName,
+        eventName: 'change',
         listener,
-        option,
+        option: false,
       });
 
-      this['_' + name] = {
+      // store select box data
+      this[`_${name}`] = {
         el,
         name,
-        created,
+        created: !selectBoxMapping[name],
         df: document.createDocumentFragment(),
       };
-      this._date.push(this['_' + name]);
+      this._date.push(this[`_${name}`]);
     });
 
     const optionEl = createEl(optionTagName);
 
-    // placeholder
+    // add placeholder options
     if (s.placeholder) {
       this._date.forEach((item) => {
         const name = BirthdayPicker.i18n[s.locale][item.name];
@@ -391,7 +373,7 @@ class BirthdayPicker extends Emitter {
       });
     }
 
-    // add option data to year field
+    // add year options
     for (let i = this._yearTo; i >= this._yearFrom; i--) {
       const option = optionEl.cloneNode();
       option.value = i;
@@ -399,7 +381,7 @@ class BirthdayPicker extends Emitter {
       this._year.df.append(option);
     }
 
-    // add to month
+    // add month options
     this.monthFormat[s.monthFormat].forEach((text, ind) => {
       const option = optionEl.cloneNode();
       option.value = ind + 1;
@@ -407,12 +389,11 @@ class BirthdayPicker extends Emitter {
       this._month.df.append(option);
     });
 
-    // add day
-    let number;
+    // add day options
     for (let i = 1; i <= 31; i++) {
-      number = s.leadingZero ? (i < 10 ? '0' + i : i) : i;
-      const el = createEl(optionTagName, { value: i }, '', number);
-      this._day.df.append(el);
+      const number = s.leadingZero && i < 10 ? `0${i}` : i;
+      const option = createEl(optionTagName, { value: i }, '', number);
+      this._day.df.append(option);
     }
 
     // append fragments to elements
@@ -420,54 +401,39 @@ class BirthdayPicker extends Emitter {
   }
 
   /**
-   * function to update the days, according to the given month
+   * Update the days according to the given month
    * called when month changes or year changes form non-leap-year to a leap-year
    * or vice versa
-   * @param  {number} month The number of the month 1 ... 12
+   * @param {number} [month=this.currentMonth] The number of the month (1-12)
    * @return {void}
    */
   _updateDays(month = this.currentMonth) {
-    // console.log('_updateDays');
-    let newDaysPerMonth = this._getDaysPerMonth(month);
+    const newDaysPerMonth = this._getDaysPerMonth(month) || 31;
     const offset = this.settings.placeholder ? 1 : 0;
     const currentDaysPerMonth = this._day.el.children.length - offset;
 
-    if (newDaysPerMonth === currentDaysPerMonth) {
-      return;
-    }
+    if (newDaysPerMonth === currentDaysPerMonth) return;
 
-    if ('undefined' === typeof newDaysPerMonth) {
-      newDaysPerMonth = 31; // reset it;
-    }
+    const diff = newDaysPerMonth - currentDaysPerMonth;
 
-    if (newDaysPerMonth - currentDaysPerMonth > 0) {
+    if (diff > 0) {
       // add days
-      for (let i = currentDaysPerMonth; i < newDaysPerMonth; i++) {
-        let el = createEl(optionTagName, { value: i + 1 }, '', '' + (i + 1));
+      for (let i = currentDaysPerMonth + 1; i <= newDaysPerMonth; i++) {
+        const el = createEl(optionTagName, { value: i }, '', i);
         this._day.el.append(el);
       }
     } else {
       // remove days
-      for (let i = currentDaysPerMonth; i > newDaysPerMonth; i--) {
-        this._day.el.children[i + offset - 1].remove();
+      for (let i = 0; i < -diff; i++) {
+        this._day.el.children[currentDaysPerMonth + offset - i - 1].remove();
       }
 
-      // day changed after changing month
-      // TODO: set currentDay to the next or the prev. correct date
-      // eg. 2010-12-31 -> change month to 11 -> 2010-11-31
-      // either: 2010-11-30, or 2010-12-01
       if (this.currentDay > newDaysPerMonth) {
-        if (this.settings.roundDownDay) {
-          this._setDay(newDaysPerMonth);
-        } else {
-          this._dayWasChanged(undefined);
-        }
+        this.settings.roundDownDay
+          ? this._setDay(newDaysPerMonth)
+          : this._dayWasChanged();
       }
     }
-
-    // if (this.currentDay && +this._day.el.value !== this.currentDay) {
-    //   this._dayWasChanged(); // to undefined
-    // }
   }
 
   /**
@@ -478,82 +444,56 @@ class BirthdayPicker extends Emitter {
    * @param {Number} limit - the limit
    */
   _disable(selectBox, condition, limit) {
-    const fun = condition === '<' ? (val) => val < limit : (val) => val > limit;
-    this[selectBox].el.childNodes.forEach((el) => {
-      if (fun(+el.value)) {
-        el.disabled = true;
-        this._disabled.push(el);
+    const isLessThan = condition === '<';
+    this[selectBox].el.childNodes.forEach((option) => {
+      if (
+        (isLessThan && +option.value < limit) ||
+        (!isLessThan && +option.value > limit)
+      ) {
+        option.disabled = true;
+        this._disabled.push(option);
       }
     });
   }
 
   // TODO: only on select change
   _noFutureDate(lower = this._lowerLimit, upper = this._upperLimit) {
-    const setBack = () => {
-      // TODO: not really needed
-      if (this.currentYear > upper.year) {
-        this._setYear(upper.year);
-      }
+    // Re-enable previously disabled options
+    this._disabled.forEach((el) => {
+      el.disabled = false;
+    });
+    this._disabled = [];
 
-      this._disable('_month', '>', upper.month);
-
-      const setMonthBack = this.currentMonth > upper.month;
-      if (setMonthBack) {
-        this._setMonth(upper.month);
-      }
-
-      if (upper.month === this.currentMonth) {
-        this._disable('_day', '>', upper.day);
-
-        if (setMonthBack || this.currentDay > upper.day) {
-          this._setDay(upper.day);
-        }
-      }
-    };
-
-    const setFwd = () => {
-      // TODO: not really needed
-      if (this.currentYear < lower.year) {
-        this._setYear(lower.year);
-      }
-
-      this._disable('_month', '<', lower.month);
-
-      const setMonthFwd = this.currentMonth < lower.month;
-      if (setMonthFwd) {
-        this._setMonth(lower.month);
-      }
-
-      if (lower.month === this.currentMonth) {
-        this._disable('_day', '<', lower.day);
-
-        if (setMonthFwd || this.currentDay < lower.day) {
-          this._setDay(lower.day);
-        }
-      }
-    };
-
-    // set all previously disabled option elements to false (reenable them)
-    if (this._disabled.length) {
-      this._disabled.forEach((el) => {
-        el.disabled = false;
-      });
-      this._disabled = [];
-    }
-
-    // early exit
+    // Early exit
     if (
-      (this.currentYear < upper.year && this.currentYear > lower.year) ||
+      (this.currentYear > lower.year && this.currentYear < upper.year) ||
       !this.currentYear ||
       (!this.currentYear && !this.currentMonth && !this.currentDay)
     ) {
       return false;
     }
 
-    if (this.currentYear >= upper.year) {
-      setBack();
-    } else if (this.currentYear <= lower.year) {
-      setFwd();
+    const isUpperBound = this.currentYear >= upper.year;
+    const targetYear = isUpperBound ? upper.year : lower.year;
+    const targetMonth = isUpperBound ? upper.month : lower.month;
+    const targetDay = isUpperBound ? upper.day : lower.day;
+
+    if (this.currentYear !== targetYear) {
+      this._setYear(targetYear);
+    }
+
+    this._disable('_month', isUpperBound ? '>' : '<', targetMonth);
+
+    if (this.currentMonth !== targetMonth) {
+      this._setMonth(targetMonth);
+    }
+
+    if (this.currentMonth === targetMonth) {
+      this._disable('_day', isUpperBound ? '>' : '<', targetDay);
+
+      if (this.currentDay !== targetDay) {
+        this._setDay(targetDay);
+      }
     }
 
     return true;
@@ -640,9 +580,9 @@ class BirthdayPicker extends Emitter {
    */
   _updateDayList() {
     const offset = this.settings.placeholder ? 1 : 0;
-    const string = this.settings.leadingZero ? '0' : '';
+    const leadingZero = this.settings.leadingZero ? '0' : '';
     for (let i = offset; i < 9 + offset; i++) {
-      this._day.el.childNodes[i].innerHTML = string + i;
+      this._day.el.childNodes[i].innerHTML = leadingZero + i;
     }
   }
 
@@ -652,8 +592,8 @@ class BirthdayPicker extends Emitter {
    * this.settings.leadingZero or changes the month format
    */
   _updateMonthList() {
-    const format = this.settings.monthFormat;
     const offset = this.settings.placeholder ? 1 : 0;
+    const format = this.settings.monthFormat;
     this.monthFormat[format].forEach((text, i) => {
       this._month.el.childNodes[i + offset].innerHTML =
         this._getMonthText(text);
@@ -667,13 +607,12 @@ class BirthdayPicker extends Emitter {
    */
   useLeadingZero(leadingZero) {
     leadingZero = isTrue(leadingZero);
-    if (leadingZero !== this.settings.leadingZero) {
-      this.settings.leadingZero = leadingZero;
-      if ('numeric' === this.settings.monthFormat) {
-        this._updateMonthList();
-      }
-      this._updateDayList();
+    if (leadingZero === this.settings.leadingZero) return;
+    this.settings.leadingZero = leadingZero;
+    if ('numeric' === this.settings.monthFormat) {
+      this._updateMonthList();
     }
+    this._updateDayList();
   }
 
   /**
@@ -745,27 +684,22 @@ class BirthdayPicker extends Emitter {
   }
 
   resetDate(preserveStartDate = false) {
-    let value = '';
-    if (this.startDate && preserveStartDate) {
-      this._setDate(this.startDate);
-      value = this.getDateString();
-    } else {
-      this._setDate({ year: NaN, month: NaN, day: NaN });
-    }
-    this.element.value = value;
+    const date =
+      preserveStartDate && this.startDate
+        ? this.startDate
+        : { year: NaN, month: NaN, day: NaN };
+    this._setDate(date);
+    this.element.value = this.getDateString();
     this._triggerEvent(DATECHANGE);
   }
 
   // TODO: undo everything
-  // destroy if it was created
+  // destroy (cleanup) if it was created
   kill() {
-    // this._initEventFired = null;
     // remove all registered EventListeners
-    if (this._registeredEventListeners) {
-      this._registeredEventListeners.forEach((r) =>
-        r.element.removeEventListener(r.eventName, r.listener, r.option)
-      );
-    }
+    this._registeredEventListeners?.forEach((r) =>
+      r.element.removeEventListener(r.eventName, r.listener, r.option)
+    );
 
     this._date.forEach((item) => {
       if (item.created) {
@@ -773,26 +707,13 @@ class BirthdayPicker extends Emitter {
       } else {
         const cn = this.settings.className;
         if (cn) {
-          item.el.classList.remove(cn);
-          Object.values(lookup).forEach((name) => {
-            item.el.classList.remove(`${cn}-${name}`);
-          });
+          item.el.classList.remove(
+            cn,
+            ...Object.values(lookup).map((name) => `${cn}-${name}`)
+          );
         }
       }
     });
-
-    // remove classes
-    // if (this.settings.className) {
-    //   const cn = this.settings.className;
-    //   Object.values(lookup).forEach((item) => {
-    //     const queryName = cn + '-' + item;
-    //     const el = this.element.querySelector('.' + queryName);
-    //     if (el) {
-    //       el.classList.remove(cn);
-    //       el.classList.remove(queryName);
-    //     }
-    //   });
-    // }
 
     this._triggerEvent(KILL);
   }
@@ -813,34 +734,35 @@ class BirthdayPicker extends Emitter {
     const y = this.currentYear;
     const m = this.currentMonth;
     const d = this.currentDay;
-    const date = new Date();
-    const curMonth = date.getMonth() + 1;
-    let age = date.getFullYear() - y;
-    return curMonth < m || (curMonth === m && date.getDate() < d) ? --age : age;
+    const today = new Date();
+    const curMonth = today.getMonth() + 1;
+    return (
+      today.getFullYear() -
+      y -
+      (curMonth < m || (curMonth === m && today.getDate() < d) ? 1 : 0)
+    );
   }
 
   getDateString(format) {
     if (!format) {
       const string = this.getDate();
-      return !string ? string : string.toLocaleDateString(this.settings.locale);
+      return string ? string.toLocaleDateString(this.settings.locale) : string;
     }
 
-    if (!this.currentYear || !this.currentMonth || !this.currentDay) {
-      return '';
-    }
+    if (!this.currentYear || !this.currentMonth || !this.currentDay) return '';
 
-    // eg. 'YYYY-MM-DD'
-    let result = format.toLowerCase();
-    result = result.replace(/yyyy/g, this.currentYear);
-    result = result.replace(/yy/g, ('' + this.currentYear).slice(2));
+    const year = this.currentYear;
+    const month = String(this.currentMonth).padStart(2, '0');
+    const day = String(this.currentDay).padStart(2, '0');
 
-    result = result.replace(/mm/g, ('0' + this.currentMonth).slice(-2));
-    result = result.replace(/m/g, this.currentMonth);
-
-    result = result.replace(/dd/g, ('0' + this.currentDay).slice(-2));
-    result = result.replace(/d/g, this.currentDay);
-
-    return result;
+    return format
+      .toLowerCase()
+      .replace(/yyyy/g, year)
+      .replace(/yy/g, year.toString().slice(2))
+      .replace(/mm/g, month)
+      .replace(/m/g, this.currentMonth)
+      .replace(/dd/g, day)
+      .replace(/d/g, this.currentDay);
   }
 
   getDate() {
@@ -907,7 +829,6 @@ class BirthdayPicker extends Emitter {
 
     this.initialized = true;
 
-    // this._initEventFired = null;
     this._registeredEventListeners = []; // for killing
     this._daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     this._date = [];
@@ -950,144 +871,129 @@ class BirthdayPicker extends Emitter {
 
     this.state = 1; // initialized
     this._triggerEvent(INIT);
-    // this._initEventFired = this._crateEvent(INIT);
   }
-}
 
-BirthdayPicker.i18n = {};
-BirthdayPicker.currentLocale = 'en';
+  static currentLocale = 'en';
+  static i18n = {};
+  static createLocale = (lang = 'en') => {
+    if (lang.length !== 2) {
+      lang = 'en';
+    }
+    if (BirthdayPicker.i18n[lang]) {
+      return [lang, BirthdayPicker.i18n[lang]];
+    }
+    const dd = new Date('2000-01-15');
+    const obj = { monthFormat: {} };
 
-BirthdayPicker.getInstance = (el) => dataStorage.get(el, 'instance');
-
-BirthdayPicker.createLocale = (lang) => {
-  if (!lang || lang.length !== 2) {
-    lang = 'en';
-  }
-  if (BirthdayPicker.i18n[lang]) {
-    return [lang, BirthdayPicker.i18n[lang]];
-  }
-  let dd = new Date('2000-01-15');
-
-  let obj = { monthFormat: {} };
-
-  for (let i = 0; i < 12; i++) {
-    dd.setMonth(i);
     monthFormats.forEach((format) => {
-      obj.monthFormat[format] = obj.monthFormat[format] || [];
-      obj.monthFormat[format].push(
-        dd.toLocaleDateString(lang, { month: format })
-      );
+      obj.monthFormat[format] = [];
+      for (let i = 0; i < 12; i++) {
+        dd.setMonth(i);
+        obj.monthFormat[format].push(
+          dd.toLocaleDateString(lang, { month: format })
+        );
+      }
     });
-  }
 
-  const i18n = 'BirthdayPickerLocale';
-  let tmp = locale[lang] ? locale[lang] : locale.en;
-  if (window[i18n] && window[i18n][lang]) {
-    tmp = Object.assign({}, tmp, window[i18n][lang]);
-  }
+    const i18n = 'BirthdayPickerLocale';
+    const tmp = {
+      ...(locale[lang] || locale.en),
+      ...(window[i18n] && window[i18n][lang]),
+    };
+    BirthdayPicker.i18n[lang] = { ...obj, ...tmp };
+    return [lang, BirthdayPicker.i18n[lang]];
+  };
 
-  BirthdayPicker.i18n[lang] = Object.assign(obj, tmp);
-  return [lang, obj];
-};
+  static getInstance = (el) => dataStorage.get(el, 'instance');
 
-/**
- * Set the month format for all registered instances
- * @param  {String} format The available formats are: 'short', 'long', 'numeric'
- */
-BirthdayPicker.setMonthFormat = (format) => {
-  instances.forEach((bp) => {
-    bp.setMonthFormat(format);
-  });
-};
+  /**
+   * Set the month format for all registered instances
+   * @param  {String} format The available formats are: 'short', 'long', 'numeric'
+   */
+  static setMonthFormat = (format) => {
+    instances.forEach((bp) => {
+      bp.setMonthFormat(format);
+    });
+  };
 
-/**
- * Set the language of all registered instances
- * @param  {String} lang The language string, eg.: 'en', 'de'
- */
-BirthdayPicker.setLanguage = (lang) => {
-  BirthdayPicker.currentLocale = lang;
-  instances.forEach((bp) => {
-    bp.setLanguage(lang);
-  });
-};
+  /**
+   * Set the language of all registered instances
+   * @param  {String} lang The language string, eg.: 'en', 'de'
+   */
+  static setLanguage = (lang) => {
+    BirthdayPicker.currentLocale = lang;
+    instances.forEach((bp) => {
+      bp.setLanguage(lang);
+    });
+  };
 
-/**
- * Kill all events on all registered instances
- * @returns {Boolean} false if no instance was found, or true if events where removed
- */
-BirthdayPicker.killAll = () => {
-  if (!instances.length) {
-    return false;
-  }
+  /**
+   * Kill all events on all registered instances
+   * @returns {Boolean} false if no instance was found, or true if events where removed
+   */
+  static killAll = () => {
+    if (!instances.length) {
+      return false;
+    }
 
-  instances.forEach((instance) => {
-    BirthdayPicker.kill(instance);
-  });
+    instances.forEach((instance) => {
+      BirthdayPicker.kill(instance);
+    });
 
-  instances = [];
-  return true;
-};
+    instances = [];
+    return true;
+  };
 
-/**
- * Kill all events on all registered instances
- * @returns {Boolean} false if no instance was found, or true if events where removed
- */
+  /**
+   *
+   * @param {*} instance either an registered html object or an instance of the BirthdayPicker class
+   * @returns {Boolean} false or true
+   */
+  static kill = (instance) => {
+    if (!instance) {
+      return false;
+    }
 
-/**
- *
- * @param {*} instance either an registered html object or an instance of the BirthdayPicker class
- * @returns {Boolean} false or true
- */
-BirthdayPicker.kill = (instance) => {
-  if (!instance) {
-    return false;
-  }
+    if (!instance.element) {
+      // if an html element
+      instance = BirthdayPicker.getInstance(instance);
+    }
 
-  if (!instance.element) {
-    // if an html element
-    instance = BirthdayPicker.getInstance(instance);
-  }
+    if (!instance) {
+      return false;
+    }
 
-  if (!instance) {
-    return false;
-  }
+    // TODO: reset all to default!
+    instance.kill();
 
-  // TODO: reset all to default!
-  instance.kill();
+    const el = instance.element;
+    el.dataset.bdpInit = false;
+    delete el.dataset.bdpInit;
 
-  const el = instance.element;
-  el.dataset.bdpInit = false;
-  delete el.dataset.bdpInit;
+    dataStorage.remove(el, 'instance');
+    initialized = false;
+    return true;
+  };
 
-  dataStorage.remove(el, 'instance');
-  initialized = false;
-  return true;
-};
+  static defaults = defaults;
 
-BirthdayPicker.defaults = defaults;
+  static init = () => {
+    if (initialized) {
+      return false;
+    }
+    initialized = true;
+    BirthdayPicker.createLocale(BirthdayPicker.currentLocale);
+    let element = document.querySelectorAll('[' + dataName + ']');
+    if (0 === element.length) {
+      return !1;
+    }
 
-BirthdayPicker.init = () => {
-  if (initialized) {
-    return false;
-  }
-  initialized = true;
-  BirthdayPicker.createLocale(BirthdayPicker.currentLocale);
-  let element = document.querySelectorAll('[' + dataName + ']');
-  if (0 === element.length) {
-    return !1;
-  }
+    element.forEach((el) => {
+      new BirthdayPicker(el);
+    });
 
-  element.forEach((el) => {
-    // if (el.dataset.bdpInit) {
-    // return BirthdayPicker.getInstance(el);
-    // }
-    // const data = getJSONData(el, pluginName);
-    new BirthdayPicker(el);
-  });
-
-  return instances;
-};
-
-// docReady(BirthdayPicker.init);
+    return instances;
+  };
+}
 
 export default BirthdayPicker;

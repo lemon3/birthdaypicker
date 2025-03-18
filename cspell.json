@@ -1,0 +1,24 @@
+{
+  "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
+  "version": "0.2",
+  "words": [
+    "Année",
+    "birthdaypicker",
+    "datechange",
+    "datepicker",
+    "daychange",
+    "Jahr",
+    "Jour",
+    "jungmayer",
+    "linebreak",
+    "Miley",
+    "Mois",
+    "Monat",
+    "monthchange",
+    "tailwindcss",
+    "viewbox",
+    "yearchange"
+  ],
+  "language": "en,lorem",
+  "ignorePaths": ["node_modules", ".gitignore", "/test"]
+}

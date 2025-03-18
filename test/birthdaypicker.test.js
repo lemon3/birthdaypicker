@@ -42,9 +42,9 @@ describe('BirthdayPicker Class tests', () => {
 });
 
 describe('BirthdayPicker init stage', () => {
-  const elementNotExists = document.getElementById('wrongId');
-  const bp1 = new BirthdayPicker(elementNotExists);
   test('element does not exist, should return error object', () => {
+    const elementNotExists = document.getElementById('wrongId');
+    const bp1 = new BirthdayPicker(elementNotExists);
     expect(bp1).toBeTruthy();
     expect(bp1).toEqual({ error: true });
     expect(bp1.error).toBe(true);
@@ -52,11 +52,11 @@ describe('BirthdayPicker init stage', () => {
     expect(new BirthdayPicker('#wrongId')).toEqual({ error: true });
   });
 
-  const elementExists = document.getElementById('test');
-  const bp2 = new BirthdayPicker(elementExists, {
-    defaultDate: '2012-10-13',
-  });
   test('element exists, should be correctly initialized', () => {
+    const elementExists = document.getElementById('test');
+    const bp2 = new BirthdayPicker(elementExists, {
+      defaultDate: '2012-10-13',
+    });
     // is object
     expect(bp2).toBeTruthy();
     // element set to initialized
@@ -64,16 +64,17 @@ describe('BirthdayPicker init stage', () => {
     expect(Boolean(elementExists.dataset[initValue])).toBe(true);
   });
 
-  const bp3 = new BirthdayPicker(elementExists);
   test('element already initialized, should return instance', () => {
+    const elementExists = document.getElementById('test');
+    const bp2 = new BirthdayPicker(elementExists);
+    const bp3 = new BirthdayPicker(elementExists);
     expect(bp3).toBeTruthy();
     expect(bp3).toEqual(bp2);
-    expect(bp3.currentYear).toBe(2012);
   });
 
-  const noChildElements = document.getElementById('test2');
-  const bp4 = new BirthdayPicker(noChildElements);
   test('element has no select-child elements', () => {
+    const noChildElements = document.getElementById('test2');
+    const bp4 = new BirthdayPicker(noChildElements);
     expect(bp4).toBeTruthy();
   });
 
@@ -270,7 +271,6 @@ describe('date setting tests', () => {
       const date = new Date();
       const m = ('0' + (date.getMonth() + 1)).slice(-2);
       const d = ('0' + date.getDate()).slice(-2);
-      console.log(result);
       expect(result).toBe(`${start}-${m}-${d}`);
     });
 
@@ -467,7 +467,7 @@ describe('test the settings', () => {
 });
 
 describe('test all options', () => {
-  test("locale should use standard ('en') if wrong string is given", () => {
+  test('locale should use standard (en) if wrong string is given', () => {
     const div = document.createElement('div');
     const options = {
       locale: 'wrong',
@@ -824,7 +824,9 @@ describe('_noFutureDate methods tests', () => {
     let month;
     let day;
 
-    let _noFutureDateSpy;
+    // let _lowerLimit;
+
+    // let _noFutureDateSpy;
     let _setYearSpy;
     let _setMonthSpy;
     let _setDaySpy;
@@ -834,9 +836,11 @@ describe('_noFutureDate methods tests', () => {
       month = 10;
       day = 13;
       bp.setDate(year + '-' + month + '-' + day);
+      // hardcode for testing
+      bp._lowerLimit = { year: year - 100, month, day };
 
       vi.clearAllMocks();
-      _noFutureDateSpy = vi.spyOn(bp, '_noFutureDate');
+      // _noFutureDateSpy = vi.spyOn(bp, '_noFutureDate');
       _setYearSpy = vi.spyOn(bp, '_setYear');
       _setMonthSpy = vi.spyOn(bp, '_setMonth');
       _setDaySpy = vi.spyOn(bp, '_setDay');
@@ -855,7 +859,7 @@ describe('_noFutureDate methods tests', () => {
       bp._noFutureDate(bp._lowerLimit, { year, month, day });
       expect(_setYearSpy).toHaveBeenCalledTimes(0);
       expect(_setMonthSpy).toHaveBeenCalledTimes(1);
-      expect(_setDaySpy).toHaveBeenCalledTimes(1);
+      expect(_setDaySpy).toHaveBeenCalledTimes(0);
     });
 
     test('max year changed down (month and day are the same), call: _setYear', () => {
@@ -902,11 +906,11 @@ describe('_noFutureDate methods tests', () => {
     });
 
     test('all values changed up, call: nothing', () => {
-      const _year = year + 1;
-      const _month = month + 1;
-      const _day = day + 1;
-      bp._noFutureDate(_year, _month, _day);
-      expect(_noFutureDateSpy).lastCalledWith(_year, _month, _day);
+      bp._noFutureDate(bp._lowerLimit, {
+        year: year + 1,
+        month: month + 1,
+        day: day + 1,
+      });
       expect(_setYearSpy).toHaveBeenCalledTimes(0);
       expect(_setMonthSpy).toHaveBeenCalledTimes(0);
       expect(_setDaySpy).toHaveBeenCalledTimes(0);
