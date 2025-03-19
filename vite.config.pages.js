@@ -6,7 +6,7 @@ export default defineConfig({
   base: '/birthdaypicker/',
   build: {
     target: 'es2015', // esnext
-    outDir: 'docs',
+    outDir: 'demo',
   },
   resolve: {
     alias: [

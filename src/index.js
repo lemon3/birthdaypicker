@@ -457,43 +457,73 @@ class BirthdayPicker extends Emitter {
   }
 
   // TODO: only on select change
+  // TODO: only on select change
   _noFutureDate(lower = this._lowerLimit, upper = this._upperLimit) {
-    // Re-enable previously disabled options
+    const setBack = () => {
+      if (this.currentYear !== upper.year) {
+        this._setYear(upper.year);
+      }
+      this._disable('_month', '>', upper.month);
+
+      let monthChanged = this.currentMonth > upper.month;
+      if (monthChanged) {
+        this._setMonth(upper.month);
+      }
+
+      if (upper.month === this.currentMonth) {
+        this._disable('_day', '>', upper.day);
+
+        if (
+          this.currentDay > upper.day ||
+          (monthChanged && this.currentDay < upper.day)
+        ) {
+          this._setDay(upper.day);
+        }
+      }
+    };
+
+    const setFwd = () => {
+      if (this.currentYear !== lower.year) {
+        this._setYear(lower.year);
+      }
+      this._disable('_month', '<', lower.month);
+
+      let monthChanged = this.currentMonth < lower.month;
+      if (monthChanged) {
+        this._setMonth(lower.month);
+      }
+
+      if (lower.month === this.currentMonth) {
+        this._disable('_day', '<', lower.day);
+
+        if (
+          this.currentDay < lower.day ||
+          (monthChanged && this.currentDay > lower.day)
+        ) {
+          this._setDay(lower.day);
+        }
+      }
+    };
+
+    // set all previously disabled option elements to false (reenable them)
     this._disabled.forEach((el) => {
       el.disabled = false;
     });
     this._disabled = [];
 
-    // Early exit
+    // early exit
     if (
-      (this.currentYear > lower.year && this.currentYear < upper.year) ||
+      (this.currentYear < upper.year && this.currentYear > lower.year) ||
       !this.currentYear ||
       (!this.currentYear && !this.currentMonth && !this.currentDay)
     ) {
       return false;
     }
 
-    const isUpperBound = this.currentYear >= upper.year;
-    const targetYear = isUpperBound ? upper.year : lower.year;
-    const targetMonth = isUpperBound ? upper.month : lower.month;
-    const targetDay = isUpperBound ? upper.day : lower.day;
-
-    if (this.currentYear !== targetYear) {
-      this._setYear(targetYear);
-    }
-
-    this._disable('_month', isUpperBound ? '>' : '<', targetMonth);
-
-    if (this.currentMonth !== targetMonth) {
-      this._setMonth(targetMonth);
-    }
-
-    if (this.currentMonth === targetMonth) {
-      this._disable('_day', isUpperBound ? '>' : '<', targetDay);
-
-      if (this.currentDay !== targetDay) {
-        this._setDay(targetDay);
-      }
+    if (this.currentYear >= upper.year) {
+      setBack();
+    } else if (this.currentYear <= lower.year) {
+      setFwd();
     }
 
     return true;
@@ -779,7 +809,8 @@ class BirthdayPicker extends Emitter {
    * @param {Object} s - the settings object
    * @returns Object containing { year, month, day }
    */
-  _getUpperLimit(s) {
+  _getUpperLimit() {
+    const s = this.settings;
     if (s.upperLimit) {
       return s.upperLimit;
     }
@@ -799,7 +830,8 @@ class BirthdayPicker extends Emitter {
    * @param {Object} s - the settings object
    * @returns Object containing { year, month, day }
    */
-  _getLowerLimit(s) {
+  _getLowerLimit() {
+    const s = this.settings;
     if (s.lowerLimit) {
       return s.lowerLimit;
     }
@@ -840,8 +872,8 @@ class BirthdayPicker extends Emitter {
     s.leadingZero = isTrue(s.leadingZero);
     s.selectFuture = isTrue(s.selectFuture);
 
-    this._lowerLimit = this._getLowerLimit(s);
-    this._upperLimit = this._getUpperLimit(s);
+    this._lowerLimit = this._getLowerLimit();
+    this._upperLimit = this._getUpperLimit();
     this._yearFrom = this._lowerLimit.year;
     this._yearTo = this._upperLimit.year;
 

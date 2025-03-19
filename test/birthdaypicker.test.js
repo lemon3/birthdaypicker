@@ -24,20 +24,17 @@ afterEach(() => {
 });
 
 describe('BirthdayPicker Class tests', () => {
-  test('BirthdayPicker is Object', () => {
-    expect(BirthdayPicker).toBeTruthy();
-    expect(typeof BirthdayPicker).toBe('function');
+  test('BirthdayPicker is a constructor function', () => {
+    expect(BirthdayPicker).toBeInstanceOf(Function);
   });
 
-  test('new BirthdayPicker() is Object', () => {
+  test('new BirthdayPicker() returns an object instance', () => {
     const bp = new BirthdayPicker();
-    expect(bp).toBeTruthy();
-    expect(typeof bp).toBe('object');
+    expect(bp).toBeInstanceOf(Object);
   });
 
-  test('BirthdayPicker.defaults -> is Object', () => {
-    expect(BirthdayPicker.defaults).toBeTruthy();
-    expect(typeof BirthdayPicker.defaults).toBe('object');
+  test('BirthdayPicker has a defaults object', () => {
+    expect(BirthdayPicker.defaults).toBeInstanceOf(Object);
   });
 });
 
@@ -45,7 +42,6 @@ describe('BirthdayPicker init stage', () => {
   test('element does not exist, should return error object', () => {
     const elementNotExists = document.getElementById('wrongId');
     const bp1 = new BirthdayPicker(elementNotExists);
-    expect(bp1).toBeTruthy();
     expect(bp1).toEqual({ error: true });
     expect(bp1.error).toBe(true);
     // test with string
@@ -57,10 +53,8 @@ describe('BirthdayPicker init stage', () => {
     const bp2 = new BirthdayPicker(elementExists, {
       defaultDate: '2012-10-13',
     });
-    // is object
     expect(bp2).toBeTruthy();
-    // element set to initialized
-    let initValue = 'bdpInit';
+    const initValue = 'bdpInit';
     expect(Boolean(elementExists.dataset[initValue])).toBe(true);
   });
 
@@ -68,7 +62,6 @@ describe('BirthdayPicker init stage', () => {
     const elementExists = document.getElementById('test');
     const bp2 = new BirthdayPicker(elementExists);
     const bp3 = new BirthdayPicker(elementExists);
-    expect(bp3).toBeTruthy();
     expect(bp3).toEqual(bp2);
   });
 
@@ -95,36 +88,40 @@ describe('data api test', () => {
     expect(initSpy).toHaveBeenCalledTimes(1);
   });
 
-  describe('dom element with object data', () => {
-    test('should be correctly initialized', () => {
-      const el = '#obj-test';
-      const bp = new BirthdayPicker(el);
-      expect(bp.settings.locale).toBe('fr');
-    });
+  test('find el with locale data, should correctly set locale', () => {
+    const bp = new BirthdayPicker('#obj-test');
+    expect(bp.settings.locale).toBe('fr');
+  });
+
+  test('create el with locale data, should correctly set locale', () => {
+    const test = document.createElement('div');
+    // eslint-disable-next-line quotes
+    test.dataset.birthdaypicker = "{'locale':'fr'}";
+
+    const bp = new BirthdayPicker(test);
+    expect(bp.settings.locale).toBe('fr');
   });
 });
 
-describe('BirthdayPicker kill', () => {
+describe('BirthdayPicker kill() test', () => {
   const testEl = document.createElement('div');
   const bp = new BirthdayPicker(testEl);
   const cbDatechange = vi.fn();
 
   bp.addEventListener('datechange', cbDatechange);
 
-  describe('now call kill method', () => {
-    test('evt callbacks should not work', () => {
-      // now kill (removes the eventlistener too)
-      bp.kill();
-      bp.setDate(new Date());
-      expect(cbDatechange).not.toHaveBeenCalled();
-    });
+  test('evt callbacks should not work after kill()', () => {
+    // now kill (removes the eventlistener too)
+    bp.kill();
+    bp.setDate(new Date());
+    expect(cbDatechange).not.toHaveBeenCalled();
   });
 });
 
 describe('BirthdayPicker events', () => {
   const testEl = document.getElementById('test');
   const testEl2 = document.getElementById('test2');
-  BirthdayPicker.kill(testEl);
+  // BirthdayPicker.kill(testEl);
   const bp = new BirthdayPicker(testEl);
 
   describe('init events', () => {
@@ -139,8 +136,7 @@ describe('BirthdayPicker events', () => {
       bp.addEventListener('init', cb);
       expect(bp.addEventListener).toBeCalledWith('init', expect.any(Function));
       expect(cb).toHaveBeenCalledTimes(1);
-      // restore
-      bp.addEventListener = tmp;
+      bp.addEventListener = tmp; // restore
     });
   });
 
@@ -152,19 +148,18 @@ describe('BirthdayPicker events', () => {
   };
   const cb = vi.fn();
 
-  // daychange, monthchange, yearchange
   describe.each([
     { val: 'day', event: 'daychange' },
     { val: 'month', event: 'monthchange' },
     { val: 'year', event: 'yearchange' },
-  ])('$event events ', ({ val, event }) => {
+  ])('$event events', ({ val, event }) => {
     describe('after initialization', () => {
       test(`default date set, ${event} should NOT be called`, () => {
         const bp = new BirthdayPicker(document.createElement('div'), options);
         bp.addEventListener(event, cb);
         expect(cb).not.toHaveBeenCalled();
       });
-      test(`default date set, (eventlistener on element), ${event} should NOT be called`, () => {
+      test(`default date set, (event listener on element), ${event} should NOT be called`, () => {
         const el = document.createElement('div');
         el.addEventListener(event, cb);
         new BirthdayPicker(el, options);
@@ -177,7 +172,7 @@ describe('BirthdayPicker events', () => {
       });
     });
     describe('after using setDate()', () => {
-      test(`${event} should NOT called`, () => {
+      test(`${event} should NOT be called`, () => {
         const bp = new BirthdayPicker(document.createElement('div'), options);
         bp.addEventListener(event, cb);
         expect(cb).not.toHaveBeenCalled();
@@ -202,18 +197,15 @@ describe('BirthdayPicker events', () => {
         expect.any(Function)
       );
       expect(cb).toHaveBeenCalledTimes(1);
-
-      // restore
-      bp.addEventListener = tmp;
+      bp.addEventListener = tmp; // restore
     });
   });
 
   describe('addEventListener (to element)', () => {
     describe('before instance is created', () => {
-      test('should fired after init, default date is set', () => {
+      test('should fire after init, default date is set', () => {
         const cb = vi.fn();
         BirthdayPicker.kill(testEl2);
-
         testEl2.addEventListener('datechange', cb);
         new BirthdayPicker(testEl2, {
           defaultDate: '2012-12-12',
@@ -224,11 +216,8 @@ describe('BirthdayPicker events', () => {
       test('should not fire after init, no default date set', () => {
         const cb = vi.fn();
         BirthdayPicker.kill(testEl2);
-
-        // listener on element
         testEl2.addEventListener('datechange', cb);
         const bp = new BirthdayPicker(testEl2);
-        // listener on instance
         bp.addEventListener('datechange', cb);
         expect(cb).toHaveBeenCalledTimes(0);
       });
@@ -249,12 +238,20 @@ describe('BirthdayPicker events', () => {
 });
 
 describe('date setting tests', () => {
-  const bpEl = document.createElement('div');
-  BirthdayPicker.kill(bpEl);
-  const defaultDate = '1980-06-06';
-  const newDate = '1990-12-30';
-  let bp = new BirthdayPicker(bpEl, { defaultDate });
+  let bpEl;
+  let defaultDate;
+  let newDate;
+  let bp;
   let date1;
+
+  beforeEach(() => {
+    bpEl = document.createElement('div');
+    // BirthdayPicker.kill(bpEl);
+    defaultDate = '1980-06-06';
+    newDate = '1990-12-30';
+    bp = new BirthdayPicker(bpEl, { defaultDate });
+    date1;
+  });
 
   describe('set date via setDate()', () => {
     test('should work correctly', () => {
@@ -381,7 +378,7 @@ describe('setDate tests', () => {
 
 describe('test the _parseDate function', () => {
   const bpEl = document.querySelector('#test');
-  BirthdayPicker.kill(bpEl);
+  // BirthdayPicker.kill(bpEl);
   let bp = new BirthdayPicker(bpEl);
 
   describe('_parseDate (YYYY-MM-DD) format', () => {
@@ -479,7 +476,7 @@ describe('test all options', () => {
 
 describe('test the setLanguage function', () => {
   const bpEl = document.querySelector('#test');
-  BirthdayPicker.kill(bpEl);
+  // BirthdayPicker.kill(bpEl);
   let bp = new BirthdayPicker(bpEl, {
     monthFormat: 'numeric',
     locale: 'en',
@@ -832,7 +829,7 @@ describe('_noFutureDate methods tests', () => {
     let _setDaySpy;
 
     beforeEach(() => {
-      year = 2020;
+      year = 2010;
       month = 10;
       day = 13;
       bp.setDate(year + '-' + month + '-' + day);
@@ -863,7 +860,7 @@ describe('_noFutureDate methods tests', () => {
     });
 
     test('max year changed down (month and day are the same), call: _setYear', () => {
-      year = 2019;
+      year = 2009;
       bp._noFutureDate(bp._lowerLimit, { year, month, day });
       expect(_setYearSpy).toHaveBeenCalledTimes(1);
       expect(_setMonthSpy).toHaveBeenCalledTimes(0);

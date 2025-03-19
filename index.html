@@ -186,7 +186,7 @@
         <div
           class="flex flex-col items-center p-6 -mx-4 mb-8 sticky top-0 bg-slate-500 z-10"
         >
-          <div class="mb-2">DATE</div>
+          <div class="mb-4 text-2xl">DATE</div>
           <div
             data-birthdaypicker
             :data-birthdaypicker-leading-zero="leadingZero"
@@ -265,7 +265,15 @@
           </div>
         </div>
 
-        <div class="flex flex-col md:flex-row">
+        <div class="mb-4 text-2xl text-center">GETTER / LOG</div>
+        <div class="mb-4">
+          here you can see some <span class="font-bold">getters</span> in
+          action. Take a look at the log to see which events are called! Note:
+          These fields are updated via the
+          <span class="font-bold">datechange</span> event, as this is triggered
+          every time the date is changed via the select-boxes.
+        </div>
+        <div class="flex mb-4 flex-col md:flex-row">
           <div class="md:w-1/2 md:mr-2">
             <div class="mb-1">
               getDateString(<span
@@ -354,8 +362,14 @@
           </div>
         </div>
 
+        <div class="mb-4 text-2xl text-center">SETTER</div>
+        <div>
+          You can also set the select-boxes of the birthdaypicker to a specific
+          date. Here are some demos with birthdays of famous people, 'now', or
+          random.<br />The <span class="font-bold">setDate()</span> method is
+          used to set the date.
+        </div>
         <div class="mt-8">
-          <div>set date to:</div>
           <template x-for="bday in birthdays" :key="bday.id">
             <button
               type="button"
@@ -623,7 +637,7 @@
             }
           });
 
-          const a = this.birthdays.filter((b) => 'now' === b.val)[0];
+          // const a = this.birthdays.filter((b) => 'now' === b.val)[0];
 
           // this.$refs.bp.addEventListener('init', () => {
           this.$watch('dateformat', () => {

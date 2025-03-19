@@ -3,8 +3,6 @@
 <!-- PROJECT SHIELDS -->
 [![MIT License][license-shield]][license-url]
 ![min coverage][mincoverage-shield]
-![minified size][minified-shield]
-![minified gzip size][minified-gzip-shield]
 
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
@@ -14,8 +12,8 @@
   <a href="https://github.com/lemon3/birthdaypicker">
     <img src="https://raw.githubusercontent.com/lemon3/birthdaypicker/main/_assets/images/logo.svg" alt="Logo" width="360" height="auto">
   </a>
-  <h3 align="center">an i18n javascript birthday picker</h3>
-  <p>with a variety of setting options</p>
+  <h3 align="center">A highly customizable JavaScript birthday picker</h3>
+  <p>... with support for multiple languages (i18n), date formats, offering a wide range of setting options to suit your application's needs."</p>
   <a href="https://lemon3.github.io/birthdaypicker/">BirthdayPicker Demo</a>
   <br>
   <br>
@@ -48,9 +46,9 @@
 
 ## tl;dr
 
-**module:**
+**modern (module):**
 ```Bash
-npm install birthdaypicker
+pnpm add birthdaypicker
 ```
 
 ```html
@@ -58,20 +56,29 @@ npm install birthdaypicker
 ```
 
 ```js
-import BirthdayPicker from '@/birthdaypicker';
-// import BirthdayPicker from "./node_modules/birthdaypicker/index.js";
+import BirthdayPicker from 'birthdaypicker';
 const options {}; // options (see below)
 const bp = new BirthdayPicker('#my-div', options);
 ```
 
 **classic:**
+complete example:
 ```html
-<div id="my-div"></div>
-<script src="https://unpkg.com/birthdaypicker"></script>
-<script>
-  const options = {}; // options (see below)
-  const bp = new BirthdayPicker('#my-div', options);
-</script>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>demo</title>
+  </head>
+  <body>
+    <div id="my-div"></div>
+    <script src="https://unpkg.com/birthdaypicker"></script>
+    <script>
+      const mbp = new BirthdayPicker('#my-div');
+    </script>
+  </body>
+</html>
 ```
 
 <!-- ABOUT THE PROJECT -->
@@ -92,34 +99,36 @@ I needed a birthday input field that is easy to use and without JS dependencies.
 <!-- USAGE EXAMPLES -->
 ## Usage
 ### First Steps
-#### classic js approach
-if you use the classic js approach by loading scripts in html code, just download and integrate the **birthdaypicker.umd.js** script in your code:
-```html
-<div id="my-div"></div>
-<script src="path/to/birthdaypicker.umd.js"></script>
-<script>
-  // BirthdayPicker is now defined
-  const bp = new BirthdayPicker('#my-div');
-</script>
-```
 #### module js approach
 use pnpm / npm / yarn to install the package
 ```Bash
 pnpm add birthdaypicker
 ```
+or:
 ```Bash
 npm install birthdaypicker
 ```
+or:
 ```Bash
 yarn add birthdaypicker
 ```
 and then us it with
 ```html
 <div id="my-div"></div>
-<script type="module" defer>
-  import BirthdayPicker from './node_modules/birthdaypicker/index.js';
-  // BirthdayPicker is now defined
-  const bp = new BirthdayPicker('#my-div');
+```
+```js
+import BirthdayPicker from 'birthdaypicker';
+const options = {}
+const bp = new BirthdayPicker('#my-div', options);
+```
+#### classic js approach
+if you use the classic js approach by loading scripts in html code, just download and integrate the **birthdaypicker.umd.js** script in your code:
+```html
+<div id="my-div"></div>
+<script src="https://unpkg.com/birthdaypicker"></script>
+<script>
+  const options = {}
+  const bp = new BirthdayPicker('#my-div', options);
 </script>
 ```
 
@@ -149,8 +158,8 @@ and then us it with
 **Don't forget to call the init function if using the data API**.
 ```html
 <script>
-  // initializes all found BirthdayPicker
-  // looking for [data-birthdaypicker]
+  // initializes all elements
+  // with following attribute: data-birthdaypicker
   BirthdayPicker.init();
 </script>
 ```
@@ -165,8 +174,8 @@ Correct syntax for the data attributes (select element):
 
 This scenario (select-boxes in DOM) works best with [tailwindcss](https://tailwindcss.com/), as the select-boxes can be styled with classes here.
 
-| :memo: INFO |
-|:------------|
+| :memo: INFO                                                                                                                                                 |
+| :---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | If select-boxes already exist in the DOM you cannot use the **arrange** option, eg.: { arrange: 'dmy' }, as this plugin doesn't rearrange existing Elements |
 
 #### 1) with special data attribute on the select boxes
@@ -224,16 +233,16 @@ just a div, js does the "magic"!
 <!-- initialized with custom options (see below) -->
 <div id="bp2"></div>
 
-<script src="path/to/birthdaypicker.umd.js"></script>
+<script src="https://unpkg.com/birthdaypicker"></script>
 <script>
   // initialize with default values
   const bp1 = new BirthdayPicker('#bp1');
 
   // initialize with current date (new Date(), or 'now')
-  const el = document.getElementById('bp2');
   // see 'option API' section for all available options
-  const options = { defaultDate: new Date() };
-  const bp2 = new BirthdayPicker(el, options);
+  const bp2 = new BirthdayPicker('#bp2', {
+    defaultDate: new Date()
+  });
 </script>
 ```
 
@@ -247,9 +256,8 @@ Reference these in the options object.
   <select id="myDay"></select>
 </div>
 
-<script src="path/to/birthdaypicker.umd.js"></script>
+<script src="https://unpkg.com/birthdaypicker"></script>
 <script>
-  // initialize
   const bp1 = new BirthdayPicker('#bp1', {
     yearEl: '#myYear',
     monthEl: '#myMonth',
@@ -504,7 +512,7 @@ const options = {
 const myPicker = new BirthdayPicker('#my-element', options);
 ```
 
-#### example using all
+#### example using all event-listener possibilities
 see the event sequence!
 ```js
 import BirthdayPicker from 'birthdaypicker';
@@ -519,7 +527,7 @@ const picker = new BirthdayPicker(pickerEl, options);
 // on instance
 picker.addEventListener('datechange', (evt) => {
   console.log('i am: 2nd');
-})
+});
 
 // on DOM element
 pickerEl.addEventListener('datechange', (evt) => {
@@ -657,6 +665,6 @@ Project Link: [https://github.com/lemon3/birthdaypicker](https://github.com/lemo
 
 [mincoverage-shield]: https://img.shields.io/nycrc/lemon3/birthdaypicker?style=for-the-badge
 
-[minified-shield]: https://img.shields.io/github/size/lemon3/birthdaypicker/dist/birthdaypicker.esm.min.js?label=Minified%20Size&style=for-the-badge
+[minified-shield]: https://img.shields.io/github/size/lemon3/birthdaypicker/dist/birthdaypicker.umd.js?label=Minified%20Size&style=for-the-badge
 
 [minified-gzip-shield]: https://img.shields.io/badge/minified%20gzip%20Size-4.7%20KB-blue?style=for-the-badge

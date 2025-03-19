@@ -6,6 +6,6 @@ _notes
 *.log
 *.sublime-*
 coverage
-docs
+demo
 node_modules
 package

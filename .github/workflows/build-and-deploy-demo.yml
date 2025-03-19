@@ -41,14 +41,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Build docs / demo
-        run: pnpm run docs
+        run: pnpm run demo
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload docs folder
-          path: './docs'
+          path: './demo'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
