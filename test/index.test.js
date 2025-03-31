@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest';
 
-import Test from '../index';
+import Test from '../src/index';
 
 describe('index tests', () => {
   test('default export form index is Object', () => {
