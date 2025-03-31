@@ -1,0 +1,44 @@
+:root {
+  --color1: #000;
+  --color2: #fff;
+}
+
+.bp {
+  border: 1px solid black;
+  display: inline-flex;
+}
+
+.bp select option {
+  text-align: center;
+}
+
+.select-wrapper {
+  position: relative;
+}
+
+.select-wrapper select {
+  padding: 0.5em 1.5em 0.5em 1em;
+  border: none;
+  font-size: 16px;
+  display: flex;
+  border-radius: 0;
+  width: 100%;
+  box-sizing: border-box;
+  appearance: none;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  background: transparent;
+}
+
+.select-wrapper .arrow {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-color: transparent transparent transparent rgb(0, 0, 0);
+}

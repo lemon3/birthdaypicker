@@ -56,7 +56,7 @@
             height="114"
             class="max-w-[320px]"
             viewbox="0 0 471.6 167.3"
-            xmlns="http://www.w3.org/2000/svg"
+            xmlns="https://www.w3.org/2000/svg"
           >
             <g transform="translate(-20.2 -12.4)">
               <path
@@ -210,7 +210,7 @@
                   width="24"
                   height="24"
                   viewbox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns="https://www.w3.org/2000/svg"
                 >
                   <path
                     d="m20.902 7.331c.326-.322.851-.322 1.175 0s.325.841 0 1.163l-9.49 9.396c-.324.322-.848.322-1.175 0l-9.49-9.396c-.324-.322-.324-.841 0-1.163.325-.322.851-.322 1.175 0l8.903 8.569z"
@@ -232,7 +232,7 @@
                   width="24"
                   height="24"
                   viewbox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns="https://www.w3.org/2000/svg"
                 >
                   <path
                     d="m20.902 7.331c.326-.322.851-.322 1.175 0s.325.841 0 1.163l-9.49 9.396c-.324.322-.848.322-1.175 0l-9.49-9.396c-.324-.322-.324-.841 0-1.163.325-.322.851-.322 1.175 0l8.903 8.569z"
@@ -254,7 +254,7 @@
                   width="24"
                   height="24"
                   viewbox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns="https://www.w3.org/2000/svg"
                 >
                   <path
                     d="m20.902 7.331c.326-.322.851-.322 1.175 0s.325.841 0 1.163l-9.49 9.396c-.324.322-.848.322-1.175 0l-9.49-9.396c-.324-.322-.324-.841 0-1.163.325-.322.851-.322 1.175 0l8.903 8.569z"
@@ -312,7 +312,7 @@
                       width="24"
                       height="24"
                       viewbox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
+                      xmlns="https://www.w3.org/2000/svg"
                     >
                       <path
                         d="m20.902 7.331c.326-.322.851-.322 1.175 0s.325.841 0 1.163l-9.49 9.396c-.324.322-.848.322-1.175 0l-9.49-9.396c-.324-.322-.324-.841 0-1.163.325-.322.851-.322 1.175 0l8.903 8.569z"
@@ -546,7 +546,13 @@
       // window.BirthdayPickerLocale = {
       //   fr: { year: 'Année', month: 'mois', day: 'jour' },
       // };
-      getInstance;
+      // getInstance;
+    </script>
+    <script type="module">
+      import BirthdayPicker from './src/index.js';
+      // to window
+      window.BirthdayPicker = BirthdayPicker;
+
       window.demo = {
         initialized: false,
         dateformat: '',
@@ -753,14 +759,11 @@
           this.resultAge = i.getAge();
         },
       };
-    </script>
-    <script type="module" defer>
-      import BirthdayPicker from './src/index.js';
-      // to window
-      window.BirthdayPicker = BirthdayPicker;
+
       document.addEventListener('alpine:init', () => {
         Alpine.data('demo', () => window.demo);
       });
+
       document.addEventListener('alpine:initialized', () => {
         BirthdayPicker.init();
       });

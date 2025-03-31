@@ -6,7 +6,13 @@ export default defineConfig({
   base: '/birthdaypicker/',
   build: {
     target: 'es2015', // esnext
-    outDir: 'demo',
+    outDir: resolve(__dirname, './demo'),
+    emptyOutDir: true,
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, './demo.html'),
+      },
+    },
   },
   resolve: {
     alias: [

@@ -7,5 +7,6 @@ _notes
 *.sublime-*
 coverage
 demo
+dist
 node_modules
 package
