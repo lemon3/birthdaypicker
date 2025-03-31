@@ -4,15 +4,12 @@
   "description": "i18n birthday picker with a variety of setting options",
   "author": "wolfgang jungmayer",
   "license": "MIT",
-  "browser": "dist/birthdaypicker.umd.js",
   "type": "module",
-  "main": "./dist/birthdaypicker.umd.js",
+  "browser": "dist/birthdaypicker.umd.js",
   "module": "./dist/birthdaypicker.js",
   "exports": {
-    ".": {
-      "import": "./dist/birthdaypicker.js",
-      "require": "./dist/birthdaypicker.umd.js"
-    }
+    "import": "./dist/birthdaypicker.js",
+    "require": "./dist/birthdaypicker.umd.js"
   },
   "scripts": {
     "dev": "vite",
